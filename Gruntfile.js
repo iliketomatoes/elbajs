@@ -21,6 +21,8 @@ module.exports = function(grunt) {
       dist: {
         src: [
               'src/intro.js',
+              'src/elbaconstructor.js',
+              'src/fndeclaration.js',
               'src/outro.js'
              ],
         dest: 'dist/<%= pkg.name %>/jquery.<%= pkg.name %>.js'
@@ -36,7 +38,7 @@ module.exports = function(grunt) {
       },
     },
     jshint: {
-       files: ['Gruntfile.js', 'src/**/*.js'],
+       files: ['Gruntfile.js', 'dist/<%= pkg.name %>/jquery.<%= pkg.name %>.js'],
       // configure JSHint (documented at http://www.jshint.com/docs/)
       options: {
           // more options here if you want to override JSHint defaults
@@ -48,14 +50,14 @@ module.exports = function(grunt) {
       }
     },
     watch: {
-      jshint: {
-        files: ['Gruntfile.js,<%= jshint.files %>'],
-        tasks: ['jshint']
-          }
-      },
-      concat: {
+      concating: {
         files: ['<%= concat.dist.src %>'],
         tasks: ['concat']
+      },
+      hinting: {
+        files: ['Gruntfile.js', '<%= jshint.files %>'],
+        tasks: ['jshint']
+          }
       }
        
   });
