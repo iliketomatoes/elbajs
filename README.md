@@ -1,4 +1,4 @@
 elbajs
 ======
 
-respnsive design and content full screen gallery
+responsive design and content full screen gallery
