@@ -1,0 +1,28 @@
+{
+  "name": "elba",
+  "version": "0.0.1",
+  "description": "Responsive design and content fullscreen gallery for jquery",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dedalodesign/elbajs.git"
+  },
+  "author": "Giancarlo Soverini",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dedalodesign/elbajs/issues"
+  },
+  "homepage": "https://github.com/dedalodesign/elbajs",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-concat": "^0.5.0",
+    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-contrib-uglify": "^0.5.1",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-sass": "^0.14.0"
+  }
+}
