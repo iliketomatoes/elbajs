@@ -22,10 +22,9 @@ module.exports = function(grunt) {
         src: [
               'src/intro.js',
               'src/elbaconstructor.js',
-              'src/fndeclaration.js',
               'src/outro.js'
              ],
-        dest: 'dist/<%= pkg.name %>/jquery.<%= pkg.name %>.js'
+        dest: 'dist/<%= pkg.name %>/<%= pkg.name %>.js'
       },
     },
     uglify: {
@@ -34,11 +33,11 @@ module.exports = function(grunt) {
       },
       dist: {
         src: '<%= concat.dist.dest %>',
-        dest: 'dist/<%= pkg.name %>/jquery.<%= pkg.name %>.min.js'
+        dest: 'dist/<%= pkg.name %>/<%= pkg.name %>.min.js'
       },
     },
     jshint: {
-       files: ['Gruntfile.js', 'dist/<%= pkg.name %>/jquery.<%= pkg.name %>.js'],
+       files: ['Gruntfile.js', 'dist/<%= pkg.name %>/<%= pkg.name %>.js'],
       // configure JSHint (documented at http://www.jshint.com/docs/)
       options: {
           // more options here if you want to override JSHint defaults
@@ -71,6 +70,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-sass');
 
   // Default task.
-  grunt.registerTask('default', ['jshint', 'clean', 'concat', 'uglify']);
+  grunt.registerTask('default', [ 'clean', 'concat', 'jshint', 'uglify' ]);
 
 };

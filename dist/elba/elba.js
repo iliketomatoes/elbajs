@@ -1,3 +1,18 @@
+/*! elba - v0.0.1 - 2014-09-07
+* https://github.com/dedalodesign/elbajs
+* Copyright (c) 2014 ; Licensed  */
+;(function (window, document, undefined) {
+
+'use strict';
+ 
+function extend( a, b ) {
+	for( var key in b ) { 
+		if( b.hasOwnProperty( key ) ) {
+			a[key] = b[key];
+		}
+	}
+	return a;
+}	
 
 //Elba constructor
 function Elba( el, options ) {
@@ -36,3 +51,10 @@ Elba.prototype = {
 	_setup : function(){
 
 	}
+//Close Elba.protoype extension
+};
+
+// add to global namespace
+window.Elba = Elba;
+
+}(window, window.document, undefined));

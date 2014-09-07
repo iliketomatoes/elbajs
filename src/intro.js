@@ -1,9 +1,12 @@
-if (typeof Object.create !== "function") {
-    Object.create = function (obj) {
-        function F() {}
-        F.prototype = obj;
-        return new F();
-    };
-}
+;(function (window, document, undefined) {
 
-;(function ($, window, document, undefined) {
+'use strict';
+ 
+function extend( a, b ) {
+	for( var key in b ) { 
+		if( b.hasOwnProperty( key ) ) {
+			a[key] = b[key];
+		}
+	}
+	return a;
+}	

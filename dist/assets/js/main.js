@@ -1,5 +1,3 @@
-$(document).ready(function(){
-
-	$('#elba-carousel').elba();
-
-});
+! function(){
+	var gallery = new Elba( document.getElementById('elba-carousel'));
+}();
