@@ -1,12 +1,9 @@
-;(function (window, document, undefined) {
-
-'use strict';
- 
-function extend( a, b ) {
-	for( var key in b ) { 
-		if( b.hasOwnProperty( key ) ) {
-			a[key] = b[key];
-		}
+;(function(elbaJS) {
+	if (typeof define === 'function' && define.amd) {
+        	// Register elba as an AMD module
+        	define(elbaJS);
+	} else {
+        	// Register elba on window
+        	window.Elba = elbaJS();
 	}
-	return a;
-}	
+})

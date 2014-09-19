@@ -1,38 +1,20 @@
+(function () {
 
-//Elba constructor
-function Elba( el, options ) {
+'use strict';
+ 
+	//vars
+	var source, options, winWidth, winHeight, images, count, isRetina, destroyed;
+	//throttle vars
+	var validateT, saveWinOffsetT;
+
+	//Elba constructor
+	function Elba( el, settings ) {
+		
 		this.el = el;
-		this.options = extend( this.defaults, options );
-		//Init images container
-		this.imgCarrier = [];
+		destroyed 		= true;
+		images 			= [];
+		options 		= extend( this.defaults, settings );
+		isRetina		= window.devicePixelRatio > 1;
+		//Init 
 		this._init();
-	}
-
-//extends constructor
-Elba.prototype = {
-
-	defaults : {
-
-	},
-
-	_init : function(){
-		var self = this, 
-			imageList,
-			imageArr;
-
-		function pushImg(element, index, array){
-			console.log(element);
-			var src = element.getAttribute('data-src');
-			self.imgCarrier.push( { index : index, img : src } );
-			console.log( 'self.imgCarrier -> ' + self.imgCarrier );
-		}	
-	
-		imageList = Array.prototype.slice.call( self.el.querySelectorAll( 'img' ) );
-
-		imageList.forEach( pushImg );
-
-	},
-
-	_setup : function(){
-
 	}
