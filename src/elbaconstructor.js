@@ -3,7 +3,7 @@
 'use strict';
  
 	//vars
-	var wrapper, pointer, options, images, count, isRetina, destroyed;
+	var wrapper, loader, pointer, options, images, count, isRetina, source, destroyed;
 
 	var navigation = {
 		left : null,
@@ -17,7 +17,7 @@
 	//Elba constructor
 	function Elba( el, settings ) {
 		
-		this.el = el;
+		this.el         = el;
 		destroyed 		= true;
 		images 			= [];
 		options 		= extend( this.defaults, settings );

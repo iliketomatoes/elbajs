@@ -19,10 +19,24 @@ function isElementLoaded(ele) {
 		 return (' ' + ele.className + ' ').indexOf(' ' + options.successClass + ' ') !== -1;
 	 }
 
+function prepareElbaIsland(){
+	images.forEach(function(el){
+		var nodeContent = el.querySelector('.elba-content');
+		var elbaIsland = document.createElement( 'div' );
+		elbaIsland.className = 'elba-island';
+		if(nodeContent){
+			elbaIsland.wrap(nodeContent);
+		}else{
+			el.appendChild(elbaIsland);
+		}
+	});
+}	 
+
 //TODO
 function loadImage(ele){
 			
-			var dataSrc = ele.getAttribute(options.src);
+			var dataSrc = ele.getAttribute(source) || ele.getAttribute(options.src); // fallback to default data-src
+			var elbaIsland;
 
 			if(dataSrc){
 				var dataSrcSplitted = dataSrc.split(options.separator);
@@ -38,7 +52,9 @@ function loadImage(ele){
 					if(ele.nodeName.toLowerCase() === 'img'){
 						ele.src = src;
 					}else{
-						ele.style.backgroundImage = 'url("' + src + '")';
+						elbaIsland = ele.querySelector('.elba-island');
+						console.log(elbaIsland);
+						elbaIsland.style.backgroundImage = 'url("' + src + '")';
 					}
 					ele.className = ele.className + ' ' + options.successClass;	
 					if(options.success) options.success(ele);
@@ -102,10 +118,11 @@ function intVal(str){
          		 fn.apply(images, arguments);
        		 };
 	 }
+*/	 
 
 function each(object, fn){
  		if(object && fn) {
  			var l = object.length;
  			for(var i = 0; i<l && fn(object[i], i) !== false; i++){}
  		}
-	 }	 */
+	 }	 

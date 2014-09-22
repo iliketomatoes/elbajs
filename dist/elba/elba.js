@@ -154,7 +154,7 @@ NodeList.prototype.remove = window.HTMLCollection.prototype.remove = function() 
 'use strict';
  
 	//vars
-	var wrapper, pointer, options, images, count, isRetina, destroyed;
+	var wrapper, loader, pointer, options, images, count, isRetina, source, destroyed;
 
 	var navigation = {
 		left : null,
@@ -168,7 +168,7 @@ NodeList.prototype.remove = window.HTMLCollection.prototype.remove = function() 
 	//Elba constructor
 	function Elba( el, settings ) {
 		
-		this.el = el;
+		this.el         = el;
 		destroyed 		= true;
 		images 			= [];
 		options 		= extend( this.defaults, settings );
@@ -181,7 +181,7 @@ NodeList.prototype.remove = window.HTMLCollection.prototype.remove = function() 
 Elba.prototype = {
 
 	defaults : {
-		selector : 'div',
+		selector : '.elba',
 		separator : '|',
 		breakpoints : false,
 		successClass : 'elba-loaded',
@@ -197,6 +197,7 @@ Elba.prototype = {
 		createImageArray(options.selector, self.el);
 		setImagesWidth();
 		self._setupWrapper();
+		self._setupLoader();
 		self._setupNavigation('left');
 		self._setupNavigation('right');
 		self._setupCarousel();
@@ -208,6 +209,10 @@ Elba.prototype = {
 		wrapper = document.createElement( 'div' );
 		wrapper.className = 'elba-wrapper';
 		wrapper.wrap(self.el);
+	},
+	_setupLoader : function(){
+
+		loader = document.createElement('div');
 	},
 	_setupNavigation : function(direction){
 		var self = this;
@@ -230,6 +235,16 @@ Elba.prototype = {
 	},
 	_setupImages : function(){
 		var self = this;
+
+		//handle multi-served image src
+		each(options.breakpoints, function(object){
+			if(object.width >= window.screen.width) {
+				source = object.src;
+				return false;
+			}
+		});
+
+		prepareElbaIsland();
 
 		for(var i = 0; i < images.length; i++){
 			var image = images[i];
@@ -285,10 +300,24 @@ function isElementLoaded(ele) {
 		 return (' ' + ele.className + ' ').indexOf(' ' + options.successClass + ' ') !== -1;
 	 }
 
+function prepareElbaIsland(){
+	images.forEach(function(el){
+		var nodeContent = el.querySelector('.elba-content');
+		var elbaIsland = document.createElement( 'div' );
+		elbaIsland.className = 'elba-island';
+		if(nodeContent){
+			elbaIsland.wrap(nodeContent);
+		}else{
+			el.appendChild(elbaIsland);
+		}
+	});
+}	 
+
 //TODO
 function loadImage(ele){
 			
-			var dataSrc = ele.getAttribute(options.src);
+			var dataSrc = ele.getAttribute(source) || ele.getAttribute(options.src); // fallback to default data-src
+			var elbaIsland;
 
 			if(dataSrc){
 				var dataSrcSplitted = dataSrc.split(options.separator);
@@ -304,7 +333,9 @@ function loadImage(ele){
 					if(ele.nodeName.toLowerCase() === 'img'){
 						ele.src = src;
 					}else{
-						ele.style.backgroundImage = 'url("' + src + '")';
+						elbaIsland = ele.querySelector('.elba-island');
+						console.log(elbaIsland);
+						elbaIsland.style.backgroundImage = 'url("' + src + '")';
 					}
 					ele.className = ele.className + ' ' + options.successClass;	
 					if(options.success) options.success(ele);
@@ -368,12 +399,13 @@ function intVal(str){
          		 fn.apply(images, arguments);
        		 };
 	 }
+*/	 
 
 function each(object, fn){
  		if(object && fn) {
  			var l = object.length;
  			for(var i = 0; i<l && fn(object[i], i) !== false; i++){}
  		}
-	 }	 */
+	 }	 
 return Elba;
 });

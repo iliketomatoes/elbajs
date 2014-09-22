@@ -2,7 +2,7 @@
 Elba.prototype = {
 
 	defaults : {
-		selector : 'div',
+		selector : '.elba',
 		separator : '|',
 		breakpoints : false,
 		successClass : 'elba-loaded',
@@ -18,6 +18,7 @@ Elba.prototype = {
 		createImageArray(options.selector, self.el);
 		setImagesWidth();
 		self._setupWrapper();
+		self._setupLoader();
 		self._setupNavigation('left');
 		self._setupNavigation('right');
 		self._setupCarousel();
@@ -29,6 +30,10 @@ Elba.prototype = {
 		wrapper = document.createElement( 'div' );
 		wrapper.className = 'elba-wrapper';
 		wrapper.wrap(self.el);
+	},
+	_setupLoader : function(){
+
+		loader = document.createElement('div');
 	},
 	_setupNavigation : function(direction){
 		var self = this;
@@ -51,6 +56,16 @@ Elba.prototype = {
 	},
 	_setupImages : function(){
 		var self = this;
+
+		//handle multi-served image src
+		each(options.breakpoints, function(object){
+			if(object.width >= window.screen.width) {
+				source = object.src;
+				return false;
+			}
+		});
+
+		prepareElbaIsland();
 
 		for(var i = 0; i < images.length; i++){
 			var image = images[i];
