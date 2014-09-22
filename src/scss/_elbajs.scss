@@ -1,0 +1,64 @@
+/******** WRAPPER *********/
+.elba-wrapper{
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	overflow: hidden;
+	@include box-sizing;
+
+	& div{
+		@include box-sizing;
+	}
+}
+
+/******** CAROUSEL *********/
+.elba-carousel{
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	@include single-transition;
+	//overflow: hidden;
+
+	& > div{
+		float: left;
+		position: relative;
+		height: 100%;
+		width: 100%;
+		background-size: cover;
+		background-repeat: no-repeat;
+		background-position: center;
+	}
+}
+
+.elba-loaded{
+	opacity: 1;
+}
+
+
+
+/******** NAVIGATION *********/
+
+.nav-arrow{
+	position: absolute;
+	z-index: 100;
+	top: 50%;
+	height: 4rem;
+	width: 2rem;
+	margin-top: -2rem;
+	background-color: $nav-arrow-background-color;
+	cursor: pointer;
+}
+
+.elba-left-nav{
+	@extend .nav-arrow;
+	left: 0;
+}
+
+.elba-right-nav{
+	@extend .nav-arrow;
+	right: 0;
+}

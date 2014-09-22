@@ -3,9 +3,16 @@
 'use strict';
  
 	//vars
-	var source, options, winWidth, winHeight, images, count, isRetina, destroyed;
+	var wrapper, pointer, options, images, count, isRetina, destroyed;
+
+	var navigation = {
+		left : null,
+		right : null,
+		dots : null
+	};
+	//var source, options, winWidth, winHeight, images, count, isRetina, destroyed;
 	//throttle vars
-	var validateT, saveWinOffsetT;
+	//var validateT, saveWinOffsetT;
 
 	//Elba constructor
 	function Elba( el, settings ) {
@@ -15,6 +22,7 @@
 		images 			= [];
 		options 		= extend( this.defaults, settings );
 		isRetina		= window.devicePixelRatio > 1;
+		pointer 		= 0;
 		//Init 
 		this._init();
 	}

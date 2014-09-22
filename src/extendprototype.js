@@ -5,34 +5,83 @@ Elba.prototype = {
 		selector : 'div',
 		separator : '|',
 		breakpoints : false,
+		successClass : 'elba-loaded',
+		errorClass : 'elba-error',
+		src : 'data-src',
+		error : false,
+		success : false
 	},
 
 	_init : function(){
 		var self = this;
-
-		console.log(options);
 		// First we create an array of images to lazy load
 		createImageArray(options.selector, self.el);
-		self._setup();
+		setImagesWidth();
+		self._setupWrapper();
+		self._setupNavigation('left');
+		self._setupNavigation('right');
+		self._setupCarousel();
+		self._setupImages();
 	},
-
-	_setup : function(){
+	_setupWrapper : function(){
 		var self = this;
 
-		for(var i = 0; i<count; i++){
+		wrapper = document.createElement( 'div' );
+		wrapper.className = 'elba-wrapper';
+		wrapper.wrap(self.el);
+	},
+	_setupNavigation : function(direction){
+		var self = this;
+		navigation[direction] = document.createElement( 'a' );
+		navigation[direction].className = 'elba-' + direction + '-nav';
+		navigation[direction].innerHtml = direction;
+		wrapper.appendChild(navigation[direction]);
+
+		navigation[direction].addEventListener('click', function(ev) { 
+			ev.preventDefault();
+			self._swipe(direction);
+			});
+	},
+	_setupCarousel : function(){
+		var self = this;
+
+		var carouselWidth = count * 100;
+			carouselWidth += '%'; 
+		self.el.style.width = carouselWidth;
+	},
+	_setupImages : function(){
+		var self = this;
+
+		for(var i = 0; i < images.length; i++){
 			var image = images[i];
  			if(image) {
 				self._load(image);
- 				images.splice(i, 1);
- 				count--;
- 				i--;
- 				console.log(images);
  			} 
  		}
 	},
+	_load : function(ele){
+		if(!isElementLoaded(ele)) loadImage(ele);
+	},
+	_swipe : function(direction){
+		var self = this, leftOffset;
 
-	_load : function(){
-		if(!isElementLoaded(element)) loadImage(element);
+		if(direction === 'right'){
+			if(pointer + 1 >= count ){
+				console.log('maximum');
+				return false;
+			}
+			pointer++;
+			leftOffset = intVal(self.el.style.left) - intVal(images[pointer].offsetWidth);
+			self.el.style.left = leftOffset + 'px'; 
+		}else{
+			if(pointer - 1 < 0 ){
+				console.log('minimum');
+				return false;
+			}
+			pointer--;
+			leftOffset = intVal(self.el.style.left) + intVal(images[pointer].offsetWidth);
+			self.el.style.left = leftOffset + 'px'; 
+		}
 	}
 
 };	

@@ -21,7 +21,32 @@ function isElementLoaded(ele) {
 
 //TODO
 function loadImage(ele){
-		
+			
+			var dataSrc = ele.getAttribute(options.src);
+
+			if(dataSrc){
+				var dataSrcSplitted = dataSrc.split(options.separator);
+				var src = dataSrcSplitted[isRetina && dataSrcSplitted.length > 1 ? 1 : 0];
+				var img = new Image();
+				
+				img.onerror = function() {
+					if(options.error) options.error(ele, "invalid");
+					ele.className = ele.className + ' ' + options.errorClass;
+				}; 
+				img.onload = function() {
+					// Is element an image or should we add the src as a background image?
+					if(ele.nodeName.toLowerCase() === 'img'){
+						ele.src = src;
+					}else{
+						ele.style.backgroundImage = 'url("' + src + '")';
+					}
+					ele.className = ele.className + ' ' + options.successClass;	
+					if(options.success) options.success(ele);
+				};
+				img.src = src; //preload image
+			} else {
+				window.alert('noooo');
+			}	
 			/*var dataSrc = ele.getAttribute(source) || ele.getAttribute(options.src); // fallback to default data-src
 			if(dataSrc) {
 				var dataSrcSplitted = dataSrc.split(options.separator);
@@ -47,9 +72,26 @@ function loadImage(ele){
 				if(options.error) options.error(ele, "missing");
 				ele.className = ele.className + ' ' + options.errorClass;
 			}*/
-	 }	 	
+	 }	 
 
-function throttle(fn, minDelay) {
+function setImagesWidth(){
+
+	var windowWidth = getWindowWidth();
+
+	images.forEach(function(el){
+		el.style.width = windowWidth + 'px';
+	});
+}
+
+function getWindowWidth(){
+	return window.innerWidth || document.documentElement.clientWidth;
+}
+
+function intVal(str){
+	return str === '' ? 0 : parseInt(str, 10);
+}	 	
+
+/*function throttle(fn, minDelay) {
      		 var lastCall = 0;
 		 return function() {
 			 var now = +new Date();
@@ -66,4 +108,4 @@ function each(object, fn){
  			var l = object.length;
  			for(var i = 0; i<l && fn(object[i], i) !== false; i++){}
  		}
-	 }	 
+	 }	 */

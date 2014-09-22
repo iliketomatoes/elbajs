@@ -1,4 +1,7 @@
 ;(function(elbaJS) {
+
+	'use strict';
+	
 	if (typeof define === 'function' && define.amd) {
         	// Register elba as an AMD module
         	define(elbaJS);
