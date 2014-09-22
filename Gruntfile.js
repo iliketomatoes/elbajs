@@ -20,8 +20,11 @@ module.exports = function(grunt) {
       },
       dist: {
         src: [
+              'src/dependencies.js',
               'src/intro.js',
               'src/elbaconstructor.js',
+              'src/extendprototype.js',
+              'src/privatemethods.js',
               'src/outro.js'
              ],
         dest: 'dist/<%= pkg.name %>/<%= pkg.name %>.js'
@@ -48,8 +51,22 @@ module.exports = function(grunt) {
         }
       }
     },
+    sass: {
+      dist: {
+        options: {
+          outputStyle: 'compressed'
+        },
+        files: {
+          'dist/assets/css/main.css': 'src/scss/app.scss'
+        }        
+      }
+    },
     watch: {
-      concating: {
+      styling: {
+        files: ['src/scss/**/*.scss'],
+        tasks: ['sass']
+      },
+      chaining: {
         files: ['<%= concat.dist.src %>'],
         tasks: ['concat']
       },
@@ -58,7 +75,6 @@ module.exports = function(grunt) {
         tasks: ['jshint']
           }
       }
-       
   });
 
   // These plugins provide necessary tasks.
@@ -66,10 +82,13 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-sass');
+  grunt.loadNpmTasks('grunt-contrib-watch');
 
   // Default task.
-  grunt.registerTask('default', [ 'clean', 'concat', 'jshint', 'uglify' ]);
+  grunt.registerTask('default', [ 'clean', 'concat', 'jshint', 'uglify', 'sass' ]);
+
+  // Style task.
+  grunt.registerTask('style', [ 'sass' ]);
 
 };
