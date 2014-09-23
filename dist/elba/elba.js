@@ -331,33 +331,9 @@ function loadImage(ele){
 				};
 				img.src = src; //preload image
 			} else {
-				window.alert('noooo');
-			}	
-			/*var dataSrc = ele.getAttribute(source) || ele.getAttribute(options.src); // fallback to default data-src
-			if(dataSrc) {
-				var dataSrcSplitted = dataSrc.split(options.separator);
-				var src = dataSrcSplitted[isRetina && dataSrcSplitted.length > 1 ? 1 : 0];
-				var img = new Image();
-				// cleanup markup, remove data source attributes
-				each(options.breakpoints, function(object){
-					ele.removeAttribute(object.src);
-				});
-				ele.removeAttribute(options.src);
-				img.onerror = function() {
-					if(options.error) options.error(ele, "invalid");
-					ele.className = ele.className + ' ' + options.errorClass;
-				}; 
-				img.onload = function() {
-					// Is element an image or should we add the src as a background image?
-			      		ele.nodeName.toLowerCase() === 'img' ? ele.src = src : ele.style.backgroundImage = 'url("' + src + '")';	
-					ele.className = ele.className + ' ' + options.successClass;	
-					if(options.success) options.success(ele);
-				};
-				img.src = src; //preload image
-			} else {
 				if(options.error) options.error(ele, "missing");
 				ele.className = ele.className + ' ' + options.errorClass;
-			}*/
+			}	
 	 }	 
 
 function setSlidesWidth(){
