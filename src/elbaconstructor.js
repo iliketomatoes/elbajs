@@ -3,14 +3,17 @@
 'use strict';
  
 	//vars
-	var wrapper, pointer, options, images, count, isRetina, source, destroyed;
+	var wrapper, pointer, options, slides, count, isRetina, source, destroyed;
 
 	var navigation = {
 		left : null,
 		right : null,
 		dots : null
 	};
-	//var source, options, winWidth, winHeight, images, count, isRetina, destroyed;
+
+	var classie = window.classie;
+
+	//var source, options, winWidth, winHeight, slides, count, isRetina, destroyed;
 	//throttle vars
 	//var validateT, saveWinOffsetT;
 
@@ -21,14 +24,13 @@
 
 		var base = self.el = el;
 		destroyed 		= true;
-		images 			= [];
+		slides 			= [];
 		options 		= extend( self.defaults, settings );
 		isRetina		= window.devicePixelRatio > 1;
 		pointer 		= 0;
 		
-		console.log(base);
-		// First we create an array of images to lazy load
-		createImageArray(options.selector, base);
+		// First we create an array of slides to lazy load
+		createSlideArray(options.selector, base);
 		setSlidesWidth();
 		setupWrapper(base);
 		setupNavigation('left');
@@ -37,18 +39,20 @@
 		navigation.left.addEventListener('click', function(ev) { 
 			ev.preventDefault();
 			self.swipe('left');
-		});
+		}, false);
 
 		navigation.right.addEventListener('click', function(ev) { 
 			ev.preventDefault();
 			self.swipe('right');
-		});
+		}, false);
 
 		setupCarouselWidth(base);
 
 		setupElbaIslands();
+
+		setSource();
 		//Init 
-		self.setupImages();
+		self.setupSlides();
 
-
+		window.addEventListener('resize', resizeHandler.setScope(self), false);
 	}

@@ -6,16 +6,15 @@ function setupWrapper(base){
 	wrapper.wrap(base);
 }
 
-function createImageArray(selector, parentSelector) {
+function createSlideArray(selector, parentSelector) {
 		var parent = parentSelector || document;
  		var nodelist 	= parent.querySelectorAll(selector);
  		count 			= nodelist.length;
  		//converting nodelist to array
- 		for(var i = count; i--; images.unshift(nodelist[i])){}
+ 		for(var i = count; i--; slides.unshift(nodelist[i])){}
 	 }
 
 function setupNavigation(direction){
-
 	navigation[direction] = document.createElement( 'a' );
 	navigation[direction].className = 'elba-' + direction + '-nav';
 	navigation[direction].innerHtml = direction;
@@ -29,17 +28,17 @@ function setupCarouselWidth(base){
 }	
 
 function isElementLoaded(ele) {
-		var elbaIsland = ele.querySelector('.elba-island');
+	var elbaIsland = ele.querySelector('.elba-island');
 
-		if(elbaIsland){
-		 	return (' ' + elbaIsland.className + ' ').indexOf(' ' + options.successClass + ' ') !== -1;
-	 	}else{
-	 		return false;
-	 	}
-	}
+	if(elbaIsland){
+		return classie.has(elbaIsland, options.successClass);
+ 	}else{
+ 		return false;
+ 	}
+}
 
 function setupElbaIslands(){
-	images.forEach(function(el){
+	slides.forEach(function(el){
 		var nodeContent = el.querySelector('.elba-content');
 		var elbaIsland = document.createElement( 'div' );
 		elbaIsland.className = 'elba-island';
@@ -71,12 +70,11 @@ function loadImage(ele){
 					if(ele.nodeName.toLowerCase() === 'img'){
 						ele.src = src;
 					}else{
-						console.log(elbaIsland);
 						elbaIsland.style.backgroundImage = 'url("' + src + '")';
 					}
 
-					window.classie.add(ele,'no-bg-img');
-					window.classie.add(elbaIsland,  options.successClass);
+					classie.add(ele,'no-bg-img');
+					classie.add(elbaIsland,  options.successClass);
 	
 					if(options.success) options.success(ele);
 				};
@@ -115,9 +113,51 @@ function setSlidesWidth(){
 
 	var windowWidth = getWindowWidth();
 
-	images.forEach(function(el){
+	slides.forEach(function(el){
 		el.style.width = windowWidth + 'px';
 	});
+
+
+}
+
+function setSource(){
+	var mediaQueryMin = 0;
+	var screenWidth = window.screen.width);
+	//handle multi-served image src
+	each(options.breakpoints, function(object){
+		console.log(object.width);
+
+		if(object.width >= window.screen.width) {
+			source = object.src;
+			return false;
+		}
+	});
+}
+
+// taken from https://github.com/desandro/vanilla-masonry/blob/master/masonry.js by David DeSandro
+// original debounce by John Hann
+// http://unscriptable.com/index.php/2009/03/20/debouncing-javascript-methods/
+function resizeHandler() {
+		var self = this;
+		function delayed() {
+			doResize(self.el);
+			self._resizeTimeout = null;
+		}
+
+		if ( self._resizeTimeout ) {
+			clearTimeout( self._resizeTimeout );
+		}
+
+		self._resizeTimeout = setTimeout( delayed, 100 );
+	}
+
+function doResize(base){
+	setSlidesWidth();
+
+	for(var i = 0; i < count && i !== pointer; i++){}	
+
+	var leftOffset = - (getWindowWidth() * i);
+	base.style.left = leftOffset + 'px';
 }
 
 	 
