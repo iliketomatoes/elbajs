@@ -1,4 +1,4 @@
-/*! elba - v0.0.1 - 2014-09-22
+/*! elba - v0.0.1 - 2014-09-23
 * https://github.com/dedalodesign/elbajs
 * Copyright (c) 2014 ; Licensed  */
 /*!
@@ -297,8 +297,16 @@ function createImageArray(selector, parentSelector) {
 	 }
 
 function isElementLoaded(ele) {
-		 return (' ' + ele.className + ' ').indexOf(' ' + options.successClass + ' ') !== -1;
-	 }
+		var elbaIsland = ele.querySelector('.elba-island');
+
+		if(elbaIsland){
+		 	return (' ' + elbaIsland.className + ' ').indexOf(' ' + options.successClass + ' ') !== -1;
+	 	}else{
+	 		return false;
+	 	}
+	}
+
+		 
 
 function prepareElbaIsland(){
 	images.forEach(function(el){
@@ -317,7 +325,7 @@ function prepareElbaIsland(){
 function loadImage(ele){
 			
 			var dataSrc = ele.getAttribute(source) || ele.getAttribute(options.src); // fallback to default data-src
-			var elbaIsland;
+			var elbaIsland = ele.querySelector('.elba-island');
 
 			if(dataSrc){
 				var dataSrcSplitted = dataSrc.split(options.separator);
@@ -333,11 +341,13 @@ function loadImage(ele){
 					if(ele.nodeName.toLowerCase() === 'img'){
 						ele.src = src;
 					}else{
-						elbaIsland = ele.querySelector('.elba-island');
 						console.log(elbaIsland);
 						elbaIsland.style.backgroundImage = 'url("' + src + '")';
 					}
-					ele.className = ele.className + ' ' + options.successClass;	
+
+					window.classie.add(ele,'no-bg-img');
+					window.classie.add(elbaIsland,  options.successClass);
+	
 					if(options.success) options.success(ele);
 				};
 				img.src = src; //preload image
