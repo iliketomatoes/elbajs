@@ -168,21 +168,41 @@ NodeList.prototype.remove = window.HTMLCollection.prototype.remove = function() 
 	//Elba constructor
 	function Elba( el, settings ) {
 		
-		var base = this.el = el;
+		var self = this;
+
+		var base = self.el = el;
 		destroyed 		= true;
 		images 			= [];
-		options 		= extend( this.defaults, settings );
+		options 		= extend( self.defaults, settings );
 		isRetina		= window.devicePixelRatio > 1;
 		pointer 		= 0;
 		
 		console.log(base);
 		// First we create an array of images to lazy load
 		createImageArray(options.selector, base);
-		setImagesWidth();
+		setSlidesWidth();
+		setupWrapper(base);
+		setupNavigation('left');
+		setupNavigation('right');
+
+		navigation.left.addEventListener('click', function(ev) { 
+			ev.preventDefault();
+			self.swipe('left');
+		});
+
+		navigation.right.addEventListener('click', function(ev) { 
+			ev.preventDefault();
+			self.swipe('right');
+		});
+
+		setupCarouselWidth(base);
+
+		setupElbaIslands();
 		//Init 
-		this.init();
+		self.setupImages();
+
+
 	}
-//extends constructor
 Elba.prototype = {
 
 	defaults : {
@@ -195,43 +215,6 @@ Elba.prototype = {
 		error : false,
 		success : false
 	},
-
-	init : function(){
-		var self = this;
-		
-		
-		self.setupWrapper();
-		self.setupNavigation('left');
-		self.setupNavigation('right');
-		self.setupCarousel();
-		self.setupImages();
-	},
-	setupWrapper : function(){
-		var self = this;
-
-		wrapper = document.createElement( 'div' );
-		wrapper.className = 'elba-wrapper';
-		wrapper.wrap(self.el);
-	},
-	setupNavigation : function(direction){
-		var self = this;
-		navigation[direction] = document.createElement( 'a' );
-		navigation[direction].className = 'elba-' + direction + '-nav';
-		navigation[direction].innerHtml = direction;
-		wrapper.appendChild(navigation[direction]);
-
-		navigation[direction].addEventListener('click', function(ev) { 
-			ev.preventDefault();
-			self.swipe(direction);
-			});
-	},
-	setupCarousel : function(){
-		var self = this;
-
-		var carouselWidth = count * 100;
-			carouselWidth += '%'; 
-		self.el.style.width = carouselWidth;
-	},
 	setupImages : function(){
 		var self = this;
 
@@ -242,8 +225,6 @@ Elba.prototype = {
 				return false;
 			}
 		});
-
-		prepareElbaIsland();
 
 		for(var i = 0; i < images.length; i++){
 			var image = images[i];
@@ -278,7 +259,11 @@ Elba.prototype = {
 	}
 
 };	
-
+function setupWrapper(base){
+	wrapper = document.createElement( 'div' );
+	wrapper.className = 'elba-wrapper';
+	wrapper.wrap(base);
+}
 
 function createImageArray(selector, parentSelector) {
 		var parent = parentSelector || document;
@@ -287,6 +272,20 @@ function createImageArray(selector, parentSelector) {
  		//converting nodelist to array
  		for(var i = count; i--; images.unshift(nodelist[i])){}
 	 }
+
+function setupNavigation(direction){
+
+	navigation[direction] = document.createElement( 'a' );
+	navigation[direction].className = 'elba-' + direction + '-nav';
+	navigation[direction].innerHtml = direction;
+	wrapper.appendChild(navigation[direction]);
+}
+
+function setupCarouselWidth(base){
+	var carouselWidth = count * 100;
+		carouselWidth += '%'; 
+	base.style.width = carouselWidth;
+}	
 
 function isElementLoaded(ele) {
 		var elbaIsland = ele.querySelector('.elba-island');
@@ -298,9 +297,7 @@ function isElementLoaded(ele) {
 	 	}
 	}
 
-		 
-
-function prepareElbaIsland(){
+function setupElbaIslands(){
 	images.forEach(function(el){
 		var nodeContent = el.querySelector('.elba-content');
 		var elbaIsland = document.createElement( 'div' );
@@ -373,7 +370,7 @@ function loadImage(ele){
 			}*/
 	 }	 
 
-function setImagesWidth(){
+function setSlidesWidth(){
 
 	var windowWidth = getWindowWidth();
 

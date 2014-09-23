@@ -1,4 +1,10 @@
-
+/* private functions
+************************************/
+function setupWrapper(base){
+	wrapper = document.createElement( 'div' );
+	wrapper.className = 'elba-wrapper';
+	wrapper.wrap(base);
+}
 
 function createImageArray(selector, parentSelector) {
 		var parent = parentSelector || document;
@@ -7,6 +13,20 @@ function createImageArray(selector, parentSelector) {
  		//converting nodelist to array
  		for(var i = count; i--; images.unshift(nodelist[i])){}
 	 }
+
+function setupNavigation(direction){
+
+	navigation[direction] = document.createElement( 'a' );
+	navigation[direction].className = 'elba-' + direction + '-nav';
+	navigation[direction].innerHtml = direction;
+	wrapper.appendChild(navigation[direction]);
+}
+
+function setupCarouselWidth(base){
+	var carouselWidth = count * 100;
+		carouselWidth += '%'; 
+	base.style.width = carouselWidth;
+}	
 
 function isElementLoaded(ele) {
 		var elbaIsland = ele.querySelector('.elba-island');
@@ -18,9 +38,7 @@ function isElementLoaded(ele) {
 	 	}
 	}
 
-		 
-
-function prepareElbaIsland(){
+function setupElbaIslands(){
 	images.forEach(function(el){
 		var nodeContent = el.querySelector('.elba-content');
 		var elbaIsland = document.createElement( 'div' );
@@ -93,7 +111,7 @@ function loadImage(ele){
 			}*/
 	 }	 
 
-function setImagesWidth(){
+function setSlidesWidth(){
 
 	var windowWidth = getWindowWidth();
 

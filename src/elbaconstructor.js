@@ -17,17 +17,38 @@
 	//Elba constructor
 	function Elba( el, settings ) {
 		
-		var base = this.el = el;
+		var self = this;
+
+		var base = self.el = el;
 		destroyed 		= true;
 		images 			= [];
-		options 		= extend( this.defaults, settings );
+		options 		= extend( self.defaults, settings );
 		isRetina		= window.devicePixelRatio > 1;
 		pointer 		= 0;
 		
 		console.log(base);
 		// First we create an array of images to lazy load
 		createImageArray(options.selector, base);
-		setImagesWidth();
+		setSlidesWidth();
+		setupWrapper(base);
+		setupNavigation('left');
+		setupNavigation('right');
+
+		navigation.left.addEventListener('click', function(ev) { 
+			ev.preventDefault();
+			self.swipe('left');
+		});
+
+		navigation.right.addEventListener('click', function(ev) { 
+			ev.preventDefault();
+			self.swipe('right');
+		});
+
+		setupCarouselWidth(base);
+
+		setupElbaIslands();
 		//Init 
-		this.init();
+		self.setupImages();
+
+
 	}

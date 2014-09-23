@@ -1,4 +1,5 @@
-//extends constructor
+/* public functions
+************************************/
 Elba.prototype = {
 
 	defaults : {
@@ -11,43 +12,6 @@ Elba.prototype = {
 		error : false,
 		success : false
 	},
-
-	init : function(){
-		var self = this;
-		
-		
-		self.setupWrapper();
-		self.setupNavigation('left');
-		self.setupNavigation('right');
-		self.setupCarousel();
-		self.setupImages();
-	},
-	setupWrapper : function(){
-		var self = this;
-
-		wrapper = document.createElement( 'div' );
-		wrapper.className = 'elba-wrapper';
-		wrapper.wrap(self.el);
-	},
-	setupNavigation : function(direction){
-		var self = this;
-		navigation[direction] = document.createElement( 'a' );
-		navigation[direction].className = 'elba-' + direction + '-nav';
-		navigation[direction].innerHtml = direction;
-		wrapper.appendChild(navigation[direction]);
-
-		navigation[direction].addEventListener('click', function(ev) { 
-			ev.preventDefault();
-			self.swipe(direction);
-			});
-	},
-	setupCarousel : function(){
-		var self = this;
-
-		var carouselWidth = count * 100;
-			carouselWidth += '%'; 
-		self.el.style.width = carouselWidth;
-	},
 	setupImages : function(){
 		var self = this;
 
@@ -58,8 +22,6 @@ Elba.prototype = {
 				return false;
 			}
 		});
-
-		prepareElbaIsland();
 
 		for(var i = 0; i < images.length; i++){
 			var image = images[i];
