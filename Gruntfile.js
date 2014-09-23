@@ -23,8 +23,9 @@ module.exports = function(grunt) {
               'src/dependencies.js',
               'src/intro.js',
               'src/elbaconstructor.js',
-              'src/extendprototype.js',
+              'src/publicmethods.js',
               'src/privatemethods.js',
+               'src/helpers.js',
               'src/outro.js'
              ],
         dest: 'dist/<%= pkg.name %>/<%= pkg.name %>.js'

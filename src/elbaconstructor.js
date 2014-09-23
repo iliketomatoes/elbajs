@@ -3,7 +3,7 @@
 'use strict';
  
 	//vars
-	var wrapper, loader, pointer, options, images, count, isRetina, source, destroyed;
+	var wrapper, pointer, options, images, count, isRetina, source, destroyed;
 
 	var navigation = {
 		left : null,
@@ -17,12 +17,17 @@
 	//Elba constructor
 	function Elba( el, settings ) {
 		
-		this.el         = el;
+		var base = this.el = el;
 		destroyed 		= true;
 		images 			= [];
 		options 		= extend( this.defaults, settings );
 		isRetina		= window.devicePixelRatio > 1;
 		pointer 		= 0;
+		
+		console.log(base);
+		// First we create an array of images to lazy load
+		createImageArray(options.selector, base);
+		setImagesWidth();
 		//Init 
-		this._init();
+		this.init();
 	}

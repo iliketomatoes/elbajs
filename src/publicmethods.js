@@ -12,30 +12,24 @@ Elba.prototype = {
 		success : false
 	},
 
-	_init : function(){
+	init : function(){
 		var self = this;
-		// First we create an array of images to lazy load
-		createImageArray(options.selector, self.el);
-		setImagesWidth();
-		self._setupWrapper();
-		self._setupLoader();
-		self._setupNavigation('left');
-		self._setupNavigation('right');
-		self._setupCarousel();
-		self._setupImages();
+		
+		
+		self.setupWrapper();
+		self.setupNavigation('left');
+		self.setupNavigation('right');
+		self.setupCarousel();
+		self.setupImages();
 	},
-	_setupWrapper : function(){
+	setupWrapper : function(){
 		var self = this;
 
 		wrapper = document.createElement( 'div' );
 		wrapper.className = 'elba-wrapper';
 		wrapper.wrap(self.el);
 	},
-	_setupLoader : function(){
-
-		loader = document.createElement('div');
-	},
-	_setupNavigation : function(direction){
+	setupNavigation : function(direction){
 		var self = this;
 		navigation[direction] = document.createElement( 'a' );
 		navigation[direction].className = 'elba-' + direction + '-nav';
@@ -44,17 +38,17 @@ Elba.prototype = {
 
 		navigation[direction].addEventListener('click', function(ev) { 
 			ev.preventDefault();
-			self._swipe(direction);
+			self.swipe(direction);
 			});
 	},
-	_setupCarousel : function(){
+	setupCarousel : function(){
 		var self = this;
 
 		var carouselWidth = count * 100;
 			carouselWidth += '%'; 
 		self.el.style.width = carouselWidth;
 	},
-	_setupImages : function(){
+	setupImages : function(){
 		var self = this;
 
 		//handle multi-served image src
@@ -70,14 +64,14 @@ Elba.prototype = {
 		for(var i = 0; i < images.length; i++){
 			var image = images[i];
  			if(image) {
-				self._load(image);
+				self.load(image);
  			} 
  		}
 	},
-	_load : function(ele){
+	load : function(ele){
 		if(!isElementLoaded(ele)) loadImage(ele);
 	},
-	_swipe : function(direction){
+	swipe : function(direction){
 		var self = this, leftOffset;
 
 		if(direction === 'right'){

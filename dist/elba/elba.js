@@ -154,7 +154,7 @@ NodeList.prototype.remove = window.HTMLCollection.prototype.remove = function() 
 'use strict';
  
 	//vars
-	var wrapper, loader, pointer, options, images, count, isRetina, source, destroyed;
+	var wrapper, pointer, options, images, count, isRetina, source, destroyed;
 
 	var navigation = {
 		left : null,
@@ -168,14 +168,19 @@ NodeList.prototype.remove = window.HTMLCollection.prototype.remove = function() 
 	//Elba constructor
 	function Elba( el, settings ) {
 		
-		this.el         = el;
+		var base = this.el = el;
 		destroyed 		= true;
 		images 			= [];
 		options 		= extend( this.defaults, settings );
 		isRetina		= window.devicePixelRatio > 1;
 		pointer 		= 0;
+		
+		console.log(base);
+		// First we create an array of images to lazy load
+		createImageArray(options.selector, base);
+		setImagesWidth();
 		//Init 
-		this._init();
+		this.init();
 	}
 //extends constructor
 Elba.prototype = {
@@ -191,30 +196,24 @@ Elba.prototype = {
 		success : false
 	},
 
-	_init : function(){
+	init : function(){
 		var self = this;
-		// First we create an array of images to lazy load
-		createImageArray(options.selector, self.el);
-		setImagesWidth();
-		self._setupWrapper();
-		self._setupLoader();
-		self._setupNavigation('left');
-		self._setupNavigation('right');
-		self._setupCarousel();
-		self._setupImages();
+		
+		
+		self.setupWrapper();
+		self.setupNavigation('left');
+		self.setupNavigation('right');
+		self.setupCarousel();
+		self.setupImages();
 	},
-	_setupWrapper : function(){
+	setupWrapper : function(){
 		var self = this;
 
 		wrapper = document.createElement( 'div' );
 		wrapper.className = 'elba-wrapper';
 		wrapper.wrap(self.el);
 	},
-	_setupLoader : function(){
-
-		loader = document.createElement('div');
-	},
-	_setupNavigation : function(direction){
+	setupNavigation : function(direction){
 		var self = this;
 		navigation[direction] = document.createElement( 'a' );
 		navigation[direction].className = 'elba-' + direction + '-nav';
@@ -223,17 +222,17 @@ Elba.prototype = {
 
 		navigation[direction].addEventListener('click', function(ev) { 
 			ev.preventDefault();
-			self._swipe(direction);
+			self.swipe(direction);
 			});
 	},
-	_setupCarousel : function(){
+	setupCarousel : function(){
 		var self = this;
 
 		var carouselWidth = count * 100;
 			carouselWidth += '%'; 
 		self.el.style.width = carouselWidth;
 	},
-	_setupImages : function(){
+	setupImages : function(){
 		var self = this;
 
 		//handle multi-served image src
@@ -249,14 +248,14 @@ Elba.prototype = {
 		for(var i = 0; i < images.length; i++){
 			var image = images[i];
  			if(image) {
-				self._load(image);
+				self.load(image);
  			} 
  		}
 	},
-	_load : function(ele){
+	load : function(ele){
 		if(!isElementLoaded(ele)) loadImage(ele);
 	},
-	_swipe : function(direction){
+	swipe : function(direction){
 		var self = this, leftOffset;
 
 		if(direction === 'right'){
@@ -279,14 +278,7 @@ Elba.prototype = {
 	}
 
 };	
-function extend( a, b ) {
-	for( var key in b ) { 
-		if( b.hasOwnProperty( key ) ) {
-			a[key] = b[key];
-		}
-	}
-	return a;
-}
+
 
 function createImageArray(selector, parentSelector) {
 		var parent = parentSelector || document;
@@ -390,6 +382,16 @@ function setImagesWidth(){
 	});
 }
 
+	 
+function extend( a, b ) {
+	for( var key in b ) { 
+		if( b.hasOwnProperty( key ) ) {
+			a[key] = b[key];
+		}
+	}
+	return a;
+}
+
 function getWindowWidth(){
 	return window.innerWidth || document.documentElement.clientWidth;
 }
@@ -416,6 +418,6 @@ function each(object, fn){
  			var l = object.length;
  			for(var i = 0; i<l && fn(object[i], i) !== false; i++){}
  		}
-	 }	 
+	 }
 return Elba;
 });
