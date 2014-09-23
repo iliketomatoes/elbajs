@@ -12,19 +12,6 @@ Elba.prototype = {
 		error : false,
 		success : false
 	},
-	setupSlides : function(){
-		var self = this;
-		
-		for(var i = 0; i < slides.length; i++){
-			var slide = slides[i];
- 			if(slide) {
-				self.load(slide);
- 			} 
- 		}
-	},
-	load : function(ele){
-		if(!isElementLoaded(ele)) loadImage(ele);
-	},
 	swipe : function(direction){
 		var self = this, leftOffset;
 

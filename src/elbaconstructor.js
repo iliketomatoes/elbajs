@@ -52,7 +52,7 @@
 
 		setSource();
 		//Init 
-		self.setupSlides();
+		setupSlides();
 
 		window.addEventListener('resize', resizeHandler.setScope(self), false);
 	}

@@ -48,12 +48,24 @@ function setupElbaIslands(){
 			el.appendChild(elbaIsland);
 		}
 	});
+}
+
+function setupSlides(){
+	for(var i = 0; i < slides.length; i++){
+			var slide = slides[i];
+ 			if(slide) {
+				loadSlide(slide);
+ 			} 
+ 		}
 }	 
 
+function loadSlide(ele){
+	if(!isElementLoaded(ele)) loadImage(ele);
+}
 //TODO
 function loadImage(ele){
 			
-			var dataSrc = ele.getAttribute(source) || ele.getAttribute(options.src); // fallback to default data-src
+			var dataSrc = ele.getAttribute(source || options.src); // fallback to default data-src
 			var elbaIsland = ele.querySelector('.elba-island');
 
 			if(dataSrc){
@@ -121,15 +133,17 @@ function setSlidesWidth(){
 }
 
 function setSource(){
+	source = 0;
 	var mediaQueryMin = 0;
-	var screenWidth = window.screen.width);
+	var screenWidth = getWindowWidth();
 	//handle multi-served image src
 	each(options.breakpoints, function(object){
-		console.log(object.width);
+		console.log(mediaQueryMin);
 
-		if(object.width >= window.screen.width) {
+		if(object.width <= screenWidth && Math.abs(screenWidth - object.width) < Math.abs(screenWidth - mediaQueryMin)){
+			mediaQueryMin = object.width;
 			source = object.src;
-			return false;
+			return true;
 		}
 	});
 }
@@ -158,6 +172,25 @@ function doResize(base){
 
 	var leftOffset = - (getWindowWidth() * i);
 	base.style.left = leftOffset + 'px';
+
+	var oldSource = source;
+	setSource();
+
+	if(oldSource !== source){
+		destroy();
+		setupSlides();
+	}
 }
 
+
+function destroy(){
+	for(var i = 0; i < slides.length; i++){
+			var slide = slides[i];
+ 			if(slide) {
+				var elbaIsland = slide.querySelector('.elba-island');
+				classie.remove(slide,'no-bg-img');
+				classie.remove(elbaIsland,  options.successClass);
+ 			} 
+ 		}
+}
 	 
