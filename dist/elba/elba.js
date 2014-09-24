@@ -1,4 +1,4 @@
-/*! elba - v0.0.1 - 2014-09-23
+/*! elba - v0.0.1 - 2014-09-24
 * https://github.com/dedalodesign/elbajs
 * Copyright (c) 2014 ; Licensed  */
 /*!
@@ -137,6 +137,8 @@ NodeList.prototype.remove = window.HTMLCollection.prototype.remove = function() 
 };
 
 })( window );
+
+
 ;(function(elbaJS) {
 
 	'use strict';
@@ -154,7 +156,7 @@ NodeList.prototype.remove = window.HTMLCollection.prototype.remove = function() 
 'use strict';
  
 	//vars
-	var wrapper, pointer, options, slides, count, isRetina, source, destroyed;
+	var wrapper, pointer, loaderPointer, options, slides, count, isRetina, source, destroyed;
 
 	var navigation = {
 		left : null,
@@ -163,6 +165,35 @@ NodeList.prototype.remove = window.HTMLCollection.prototype.remove = function() 
 	};
 
 	var classie = window.classie;
+
+	var styles = [
+	'webkitTransform',
+	'MozTransform',
+	'msTransform',
+	'OTransform',
+	'transform'
+	];
+
+	/*var map = {
+	webkitTransform: '-webkit-transform',
+	OTransform: '-o-transform',
+	msTransform: '-ms-transform',
+	MozTransform: '-moz-transform',
+	transform: 'transform'
+	};*/
+
+	//var styl = document.body.style;
+	/**
+	* Export support.
+	*/
+	/*ar bool = 'transition' in styl
+	|| 'webkitTransition' in styl
+	|| 'MozTransition' in styl
+	|| 'msTransition' in styl;*/
+
+	//console.log(bool);
+
+	var vendorTransform = getVendorPrefix(styles);
 
 	//var source, options, winWidth, winHeight, slides, count, isRetina, destroyed;
 	//throttle vars
@@ -179,7 +210,7 @@ NodeList.prototype.remove = window.HTMLCollection.prototype.remove = function() 
 		options 		= extend( self.defaults, settings );
 		isRetina		= window.devicePixelRatio > 1;
 		pointer 		= 0;
-		
+		loaderPointer   = 0;
 		// First we create an array of slides to lazy load
 		createSlideArray(options.selector, base);
 		setSlidesWidth();
@@ -203,8 +234,8 @@ NodeList.prototype.remove = window.HTMLCollection.prototype.remove = function() 
 
 		setSource();
 		//Init 
-		setupSlides();
-
+		//setupSlides();
+		setupLazySlide(loaderPointer);
 		window.addEventListener('resize', resizeHandler.setScope(self), false);
 	}
 Elba.prototype = {
@@ -227,15 +258,17 @@ Elba.prototype = {
 				return false;
 			}
 			pointer++;
-			leftOffset = intVal(self.el.style.left) - intVal(slides[pointer].offsetWidth);
-			self.el.style.left = leftOffset + 'px'; 
+			leftOffset = - (intVal(slides[pointer].offsetWidth) * (pointer));
+			leftOffset += 'px'; 
+			self.el.style[vendorTransform] = 'translateX(' + leftOffset+ ')';
 		}else{
 			if(pointer - 1 < 0 ){
 				return false;
 			}
+			leftOffset = - (intVal(slides[pointer].offsetWidth) * (pointer - 1));
 			pointer--;
-			leftOffset = intVal(self.el.style.left) + intVal(slides[pointer].offsetWidth);
-			self.el.style.left = leftOffset + 'px'; 
+			leftOffset += 'px'; 
+			self.el.style[vendorTransform] = 'translateX(' + leftOffset+ ')';
 		}
 	}
 };	
@@ -289,6 +322,11 @@ function setupElbaIslands(){
 	});
 }
 
+function setupLazySlide(loaderPointer){
+	var slide = slides[loaderPointer];
+	if(!isElementLoaded(slide)) loadLazyImage(slide);	
+}
+
 function setupSlides(){
 	for(var i = 0; i < slides.length; i++){
 			var slide = slides[i];
@@ -301,7 +339,7 @@ function setupSlides(){
 function loadSlide(ele){
 	if(!isElementLoaded(ele)) loadImage(ele);
 }
-//TODO
+
 function loadImage(ele){
 			
 			var dataSrc = ele.getAttribute(source || options.src); // fallback to default data-src
@@ -334,7 +372,47 @@ function loadImage(ele){
 				if(options.error) options.error(ele, "missing");
 				ele.className = ele.className + ' ' + options.errorClass;
 			}	
-	 }	 
+	 }
+
+function loadLazyImage(ele){
+			
+			var dataSrc = ele.getAttribute(source || options.src); // fallback to default data-src
+			var elbaIsland = ele.querySelector('.elba-island');
+
+			if(dataSrc){
+				var dataSrcSplitted = dataSrc.split(options.separator);
+				var src = dataSrcSplitted[isRetina && dataSrcSplitted.length > 1 ? 1 : 0];
+				var img = new Image();
+				
+				img.onerror = function() {
+					if(options.error) options.error(ele, "invalid");
+					ele.className = ele.className + ' ' + options.errorClass;
+				}; 
+				img.onload = function() {
+					// Is element an image or should we add the src as a background image?
+					if(ele.nodeName.toLowerCase() === 'img'){
+						ele.src = src;
+					}else{
+						elbaIsland.style.backgroundImage = 'url("' + src + '")';
+					}
+
+					classie.add(ele,'no-bg-img');
+					classie.add(elbaIsland,  options.successClass);
+	
+					if(options.success) options.success(ele);
+
+					if(loaderPointer + 1 < count){
+						loaderPointer++;
+						setupLazySlide(loaderPointer);
+					}
+					
+				};
+				img.src = src; //preload image
+			} else {
+				if(options.error) options.error(ele, "missing");
+				ele.className = ele.className + ' ' + options.errorClass;
+			}	
+	 }	 	 
 
 function setSlidesWidth(){
 
@@ -380,13 +458,15 @@ function resizeHandler() {
 		self._resizeTimeout = setTimeout( delayed, 100 );
 	}
 
-function doResize(base){
+function doResize(ele){
 	setSlidesWidth();
 
 	for(var i = 0; i < count && i !== pointer; i++){}	
 
 	var leftOffset = - (getWindowWidth() * i);
-	base.style.left = leftOffset + 'px';
+
+	leftOffset += 'px'; 
+	ele.style[vendorTransform] = 'translateX(' + leftOffset+ ')';
 
 	var oldSource = source;
 	setSource();
@@ -438,7 +518,28 @@ Function.prototype.setScope = function(scope) {
   return function() {
     f.apply(scope);
   };
-}; 
+};
+
+
+ // from: https://gist.github.com/streunerlein/2935794
+function getVendorPrefix(arrayOfPrefixes) {
+ 
+var tmp = document.createElement("div");
+var result = "";
+ 
+for (var i = 0; i < arrayOfPrefixes.length; ++i) {
+ 
+if (typeof tmp.style[arrayOfPrefixes[i]] != 'undefined'){
+result = arrayOfPrefixes[i];
+break;
+}
+else {
+result = null;
+}
+}
+ 
+return result;
+} 
 
 return Elba;
 });

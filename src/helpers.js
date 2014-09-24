@@ -27,4 +27,25 @@ Function.prototype.setScope = function(scope) {
   return function() {
     f.apply(scope);
   };
-}; 
+};
+
+
+ // from: https://gist.github.com/streunerlein/2935794
+function getVendorPrefix(arrayOfPrefixes) {
+ 
+var tmp = document.createElement("div");
+var result = "";
+ 
+for (var i = 0; i < arrayOfPrefixes.length; ++i) {
+ 
+if (typeof tmp.style[arrayOfPrefixes[i]] != 'undefined'){
+result = arrayOfPrefixes[i];
+break;
+}
+else {
+result = null;
+}
+}
+ 
+return result;
+} 

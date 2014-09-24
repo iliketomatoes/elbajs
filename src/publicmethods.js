@@ -20,15 +20,17 @@ Elba.prototype = {
 				return false;
 			}
 			pointer++;
-			leftOffset = intVal(self.el.style.left) - intVal(slides[pointer].offsetWidth);
-			self.el.style.left = leftOffset + 'px'; 
+			leftOffset = - (intVal(slides[pointer].offsetWidth) * (pointer));
+			leftOffset += 'px'; 
+			self.el.style[vendorTransform] = 'translateX(' + leftOffset+ ')';
 		}else{
 			if(pointer - 1 < 0 ){
 				return false;
 			}
+			leftOffset = - (intVal(slides[pointer].offsetWidth) * (pointer - 1));
 			pointer--;
-			leftOffset = intVal(self.el.style.left) + intVal(slides[pointer].offsetWidth);
-			self.el.style.left = leftOffset + 'px'; 
+			leftOffset += 'px'; 
+			self.el.style[vendorTransform] = 'translateX(' + leftOffset+ ')';
 		}
 	}
 };	

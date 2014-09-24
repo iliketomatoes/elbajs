@@ -50,6 +50,11 @@ function setupElbaIslands(){
 	});
 }
 
+function setupLazySlide(loaderPointer){
+	var slide = slides[loaderPointer];
+	if(!isElementLoaded(slide)) loadLazyImage(slide);	
+}
+
 function setupSlides(){
 	for(var i = 0; i < slides.length; i++){
 			var slide = slides[i];
@@ -62,7 +67,7 @@ function setupSlides(){
 function loadSlide(ele){
 	if(!isElementLoaded(ele)) loadImage(ele);
 }
-//TODO
+
 function loadImage(ele){
 			
 			var dataSrc = ele.getAttribute(source || options.src); // fallback to default data-src
@@ -95,7 +100,47 @@ function loadImage(ele){
 				if(options.error) options.error(ele, "missing");
 				ele.className = ele.className + ' ' + options.errorClass;
 			}	
-	 }	 
+	 }
+
+function loadLazyImage(ele){
+			
+			var dataSrc = ele.getAttribute(source || options.src); // fallback to default data-src
+			var elbaIsland = ele.querySelector('.elba-island');
+
+			if(dataSrc){
+				var dataSrcSplitted = dataSrc.split(options.separator);
+				var src = dataSrcSplitted[isRetina && dataSrcSplitted.length > 1 ? 1 : 0];
+				var img = new Image();
+				
+				img.onerror = function() {
+					if(options.error) options.error(ele, "invalid");
+					ele.className = ele.className + ' ' + options.errorClass;
+				}; 
+				img.onload = function() {
+					// Is element an image or should we add the src as a background image?
+					if(ele.nodeName.toLowerCase() === 'img'){
+						ele.src = src;
+					}else{
+						elbaIsland.style.backgroundImage = 'url("' + src + '")';
+					}
+
+					classie.add(ele,'no-bg-img');
+					classie.add(elbaIsland,  options.successClass);
+	
+					if(options.success) options.success(ele);
+
+					if(loaderPointer + 1 < count){
+						loaderPointer++;
+						setupLazySlide(loaderPointer);
+					}
+					
+				};
+				img.src = src; //preload image
+			} else {
+				if(options.error) options.error(ele, "missing");
+				ele.className = ele.className + ' ' + options.errorClass;
+			}	
+	 }	 	 
 
 function setSlidesWidth(){
 
@@ -141,13 +186,15 @@ function resizeHandler() {
 		self._resizeTimeout = setTimeout( delayed, 100 );
 	}
 
-function doResize(base){
+function doResize(ele){
 	setSlidesWidth();
 
 	for(var i = 0; i < count && i !== pointer; i++){}	
 
 	var leftOffset = - (getWindowWidth() * i);
-	base.style.left = leftOffset + 'px';
+
+	leftOffset += 'px'; 
+	ele.style[vendorTransform] = 'translateX(' + leftOffset+ ')';
 
 	var oldSource = source;
 	setSource();
