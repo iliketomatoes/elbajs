@@ -15,7 +15,7 @@ Elba.prototype = {
 		delta : function(progress){
 			return power(progress, 2);
 		},
-		delay : 10,
+		delay : 5,
 		transitionEase : 'ease-in-out'
 	},
 	swipe : function(direction){
