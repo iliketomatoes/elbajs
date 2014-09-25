@@ -1,5 +1,11 @@
 function animate(ele, target, direction) {
   
+  if(animated){
+  	return false;
+  }
+
+  animated = true;
+
   var start = new Date();
   var startingOffset =  intVal(ele.style.left);
   
@@ -12,21 +18,32 @@ function animate(ele, target, direction) {
 
     if (progress > 1) progress = 1;
     
-    var powerEaseOut = makeEaseInOut(options.delta)
+    var powerEaseOut = makeEaseOut(options.delta);
     var delta = powerEaseOut(progress);
+    //var delta = options.delta(progress);
     step(ele, delta, startingOffset, deltaOffset);
     
     if (progress == 1) {
-      clearInterval(id);
+
+      if(count > 1){
+      	if(pointer === (count - 1)){
+	      	pointer = 1;
+	      	ele.style.left = intVal(getLeftOffset()) + 'px';
+	      }else if(pointer === 0){
+	      	pointer = count - 2;
+	      	ele.style.left = intVal(getLeftOffset()) + 'px';
+	      }
+      }
+       clearInterval(id);
+       animated = false;
     }
-  }, options.delay || 10);
+  }, options.delay || 25);
   
 }
 
 
 function step(ele, delta, startingOffset, deltaOffset){
 	var actualOffset = startingOffset + (deltaOffset * delta);
-	console.log('actualOffset -> '+actualOffset);
 	ele.style.left = actualOffset + 'px'; 
 }
 
@@ -37,6 +54,10 @@ function linear(progress){
 
 function power(progress, n) {
   return Math.pow(progress, n);
+}
+
+function squareRoot(progress){
+	return Math.sqrt(progress);
 }
 
 function circ(progress) {
@@ -63,7 +84,7 @@ function elastic(progress, x) {
 function makeEaseOut(delta) {  
   return function(progress) {
     return 1 - delta(1 - progress);
-  }
+  };
 }
 
 function makeEaseInOut(delta) {  
@@ -72,7 +93,7 @@ function makeEaseInOut(delta) {
       return delta(2*progress) / 2;
     else
       return (2 - delta(2*(1-progress))) / 2;
-  }
+  };
 }
 
 

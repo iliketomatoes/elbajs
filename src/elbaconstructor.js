@@ -13,6 +13,8 @@
 
 	var classie = window.classie;
 
+	var animated = false;
+
 	// from http://www.developerdrive.com/2012/03/coding-vendor-prefixes-with-javascript/
 	var vendorTransform = getVendorPrefix(["transform", "msTransform", "MozTransform", "WebkitTransform", "OTransform"]);
 
@@ -32,6 +34,12 @@
 		loaderPointer   = 0;
 		// First we create an array of slides to lazy load
 		createSlideArray(options.selector, base);
+		if(count > 1){
+			pointer 		= 1;
+			loaderPointer   = 1;
+			cloningHeadAndTail(base);
+		}
+		
 		setSlidesWidth();
 		setupWrapper(base);
 		setupNavigation('left');

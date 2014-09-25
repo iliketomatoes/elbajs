@@ -14,6 +14,22 @@ function createSlideArray(selector, parentSelector) {
  		for(var i = count; i--; slides.unshift(nodelist[i])){}
 	 }
 
+function cloningHeadAndTail(base){
+
+	if(count > 1){
+		var cloneTail = slides[count - 1].cloneNode(true);
+		base.insertBefore(cloneTail, base.firstChild);
+		slides.unshift(cloneTail);
+
+		var cloneHead = slides[1].cloneNode(true);
+		base.appendChild(cloneHead);
+		slides.push(cloneHead);
+		count += 2;
+		console.log(slides);
+	}
+	
+}	
+
 function setupNavigation(direction){
 	navigation[direction] = document.createElement( 'a' );
 	navigation[direction].className = 'elba-' + direction + '-nav';
@@ -25,6 +41,10 @@ function setupCarouselWidth(base){
 	var carouselWidth = count * 100;
 		carouselWidth += '%'; 
 	base.style.width = carouselWidth;
+
+	if(count > 1){
+		base.style.left = (-getWindowWidth()) + 'px';
+	}
 }	
 
 function isElementLoaded(ele) {
@@ -52,11 +72,18 @@ function setupElbaIslands(){
 
 function setupLazySlide(loaderPointer){
 	var slide = slides[loaderPointer];
-	if(!isElementLoaded(slide)) loadLazyImage(slide);	
+	 loadLazyImage(slide);	
 }
 
 function loadLazyImage(ele){
 			
+			if(isElementLoaded(ele)){
+				if(count > 1 && ((loaderPointer + 1) < (count - 1))){
+						loaderPointer++;
+						setupLazySlide(loaderPointer);
+					}
+			}
+
 			var dataSrc = ele.getAttribute(source || options.src); // fallback to default data-src
 			var elbaIsland = ele.querySelector('.elba-island');
 
@@ -70,19 +97,47 @@ function loadLazyImage(ele){
 					ele.className = ele.className + ' ' + options.errorClass;
 				}; 
 				img.onload = function() {
+					//TODO support for <img> instead of a <div>
 					// Is element an image or should we add the src as a background image?
-					if(ele.nodeName.toLowerCase() === 'img'){
+					/*if(ele.nodeName.toLowerCase() === 'img'){
 						ele.src = src;
 					}else{
 						elbaIsland.style.backgroundImage = 'url("' + src + '")';
-					}
+					}*/
+					elbaIsland.style.backgroundImage = 'url("' + src + '")';
 
 					classie.add(ele,'no-bg-img');
 					classie.add(elbaIsland,  options.successClass);
 	
 					if(options.success) options.success(ele);
 
-					if(loaderPointer + 1 < count){
+					//Update the Head clone
+					if(count > 1 && (loaderPointer === 1 || loaderPointer === 0 || loaderPointer === (count - 1) || loaderPointer === (count - 2))){
+
+						var parentClone,elbaClone;
+
+						if(loaderPointer === 1){
+							parentClone = slides[count - 1];
+						}else if(loaderPointer === (count - 1)){
+							parentClone = slides[1];
+							}else if(loaderPointer === 0){
+								parentClone = slides[count - 2];
+								}else{
+									parentClone = slides[0];
+								}
+						
+						if(!isElementLoaded(parentClone)){
+							elbaClone = parentClone.querySelector('.elba-island');
+
+							elbaClone.style.backgroundImage = 'url("' + src + '")';
+
+							classie.add(parentClone,'no-bg-img');
+							classie.add(elbaClone,  options.successClass);
+						}
+						
+					}
+
+					if(count > 1 && loaderPointer + 1 < count - 1){
 						loaderPointer++;
 						setupLazySlide(loaderPointer);
 					}
@@ -153,7 +208,12 @@ function doResize(ele){
 
 
 function destroy(){
-	loaderPointer   = 0;
+	if(count > 1){
+		loaderPointer   = 1;
+	}else{
+		loaderPointer   = 0;
+	}
+	
 	for(var i = 0; i < slides.length; i++){
 			var slide = slides[i];
  			if(slide) {
@@ -173,22 +233,17 @@ function goTo(ele, direction){
 				return false;
 			}
 			pointer++;
-			//move(ele, intVal(getLeftOffset()), direction);
 			animate(ele, intVal(getLeftOffset()), 'right');
 		}else{
 			if(pointer - 1 < 0 ){
 				return false;
 			}
 			pointer--;
-			//move(ele, intVal(getLeftOffset()), direction);
 			animate(ele, intVal(getLeftOffset()), 'left');
 		}
 	}else{
 		ele.style.left = intVal(getLeftOffset()) + 'px';
-	}
-
-	//ele.style.left = intVal(getLeftOffset()) + 'px';
-	//move(ele, intVal(getLeftOffset()), direction);	
+	}	
 }
 
 
