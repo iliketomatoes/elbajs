@@ -13,38 +13,12 @@
 
 	var classie = window.classie;
 
-	var styles = [
-	'webkitTransform',
-	'MozTransform',
-	'msTransform',
-	'OTransform',
-	'transform'
-	];
+	// from http://www.developerdrive.com/2012/03/coding-vendor-prefixes-with-javascript/
+	var vendorTransform = getVendorPrefix(["transform", "msTransform", "MozTransform", "WebkitTransform", "OTransform"]);
 
-	/*var map = {
-	webkitTransform: '-webkit-transform',
-	OTransform: '-o-transform',
-	msTransform: '-ms-transform',
-	MozTransform: '-moz-transform',
-	transform: 'transform'
-	};*/
-
-	//var styl = document.body.style;
-	/**
-	* Export support.
-	*/
-	/*ar bool = 'transition' in styl
-	|| 'webkitTransition' in styl
-	|| 'MozTransition' in styl
-	|| 'msTransition' in styl;*/
-
-	//console.log(bool);
-
-	var vendorTransform = getVendorPrefix(styles);
-
-	//var source, options, winWidth, winHeight, slides, count, isRetina, destroyed;
-	//throttle vars
-	//var validateT, saveWinOffsetT;
+	var has3D = threeDEnabled();
+	
+	var animated = false;
 
 	//Elba constructor
 	function Elba( el, settings ) {
@@ -82,6 +56,10 @@
 		setSource();
 		//Init 
 		//setupSlides();
+		if(has3D){
+			base.style[vendorTransform] = 'translate3d(0,0,0)';
+		}
+		
 		setupLazySlide(loaderPointer);
 		window.addEventListener('resize', resizeHandler.setScope(self), false);
 	}

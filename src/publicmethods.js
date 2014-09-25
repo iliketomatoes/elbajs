@@ -10,27 +10,21 @@ Elba.prototype = {
 		errorClass : 'elba-error',
 		src : 'data-src',
 		error : false,
-		success : false
+		success : false,
+		duration : 700,
+		delta : function(progress){
+			return power(progress, 3);
+		},
+		delay : 25,
+		transitionEase : 'ease-in-out'
 	},
 	swipe : function(direction){
-		var self = this, leftOffset;
+		var self = this;
 
 		if(direction === 'right'){
-			if(pointer + 1 >= count ){
-				return false;
-			}
-			pointer++;
-			leftOffset = - (intVal(slides[pointer].offsetWidth) * (pointer));
-			leftOffset += 'px'; 
-			self.el.style[vendorTransform] = 'translateX(' + leftOffset+ ')';
+			goTo(self.el, 'right');
 		}else{
-			if(pointer - 1 < 0 ){
-				return false;
-			}
-			leftOffset = - (intVal(slides[pointer].offsetWidth) * (pointer - 1));
-			pointer--;
-			leftOffset += 'px'; 
-			self.el.style[vendorTransform] = 'translateX(' + leftOffset+ ')';
+			goTo(self.el, 'left');
 		}
 	}
 };	

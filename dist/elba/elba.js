@@ -1,4 +1,4 @@
-/*! elba - v0.0.1 - 2014-09-24
+/*! elba - v0.0.1 - 2014-09-25
 * https://github.com/dedalodesign/elbajs
 * Copyright (c) 2014 ; Licensed  */
 /*!
@@ -166,38 +166,12 @@ NodeList.prototype.remove = window.HTMLCollection.prototype.remove = function() 
 
 	var classie = window.classie;
 
-	var styles = [
-	'webkitTransform',
-	'MozTransform',
-	'msTransform',
-	'OTransform',
-	'transform'
-	];
+	// from http://www.developerdrive.com/2012/03/coding-vendor-prefixes-with-javascript/
+	var vendorTransform = getVendorPrefix(["transform", "msTransform", "MozTransform", "WebkitTransform", "OTransform"]);
 
-	/*var map = {
-	webkitTransform: '-webkit-transform',
-	OTransform: '-o-transform',
-	msTransform: '-ms-transform',
-	MozTransform: '-moz-transform',
-	transform: 'transform'
-	};*/
-
-	//var styl = document.body.style;
-	/**
-	* Export support.
-	*/
-	/*ar bool = 'transition' in styl
-	|| 'webkitTransition' in styl
-	|| 'MozTransition' in styl
-	|| 'msTransition' in styl;*/
-
-	//console.log(bool);
-
-	var vendorTransform = getVendorPrefix(styles);
-
-	//var source, options, winWidth, winHeight, slides, count, isRetina, destroyed;
-	//throttle vars
-	//var validateT, saveWinOffsetT;
+	var has3D = threeDEnabled();
+	
+	var animated = false;
 
 	//Elba constructor
 	function Elba( el, settings ) {
@@ -235,6 +209,10 @@ NodeList.prototype.remove = window.HTMLCollection.prototype.remove = function() 
 		setSource();
 		//Init 
 		//setupSlides();
+		if(has3D){
+			base.style[vendorTransform] = 'translate3d(0,0,0)';
+		}
+		
 		setupLazySlide(loaderPointer);
 		window.addEventListener('resize', resizeHandler.setScope(self), false);
 	}
@@ -248,27 +226,21 @@ Elba.prototype = {
 		errorClass : 'elba-error',
 		src : 'data-src',
 		error : false,
-		success : false
+		success : false,
+		duration : 700,
+		delta : function(progress){
+			return power(progress, 3);
+		},
+		delay : 25,
+		transitionEase : 'ease-in-out'
 	},
 	swipe : function(direction){
-		var self = this, leftOffset;
+		var self = this;
 
 		if(direction === 'right'){
-			if(pointer + 1 >= count ){
-				return false;
-			}
-			pointer++;
-			leftOffset = - (intVal(slides[pointer].offsetWidth) * (pointer));
-			leftOffset += 'px'; 
-			self.el.style[vendorTransform] = 'translateX(' + leftOffset+ ')';
+			goTo(self.el, 'right');
 		}else{
-			if(pointer - 1 < 0 ){
-				return false;
-			}
-			leftOffset = - (intVal(slides[pointer].offsetWidth) * (pointer - 1));
-			pointer--;
-			leftOffset += 'px'; 
-			self.el.style[vendorTransform] = 'translateX(' + leftOffset+ ')';
+			goTo(self.el, 'left');
 		}
 	}
 };	
@@ -327,53 +299,6 @@ function setupLazySlide(loaderPointer){
 	if(!isElementLoaded(slide)) loadLazyImage(slide);	
 }
 
-function setupSlides(){
-	for(var i = 0; i < slides.length; i++){
-			var slide = slides[i];
- 			if(slide) {
-				loadSlide(slide);
- 			} 
- 		}
-}	 
-
-function loadSlide(ele){
-	if(!isElementLoaded(ele)) loadImage(ele);
-}
-
-function loadImage(ele){
-			
-			var dataSrc = ele.getAttribute(source || options.src); // fallback to default data-src
-			var elbaIsland = ele.querySelector('.elba-island');
-
-			if(dataSrc){
-				var dataSrcSplitted = dataSrc.split(options.separator);
-				var src = dataSrcSplitted[isRetina && dataSrcSplitted.length > 1 ? 1 : 0];
-				var img = new Image();
-				
-				img.onerror = function() {
-					if(options.error) options.error(ele, "invalid");
-					ele.className = ele.className + ' ' + options.errorClass;
-				}; 
-				img.onload = function() {
-					// Is element an image or should we add the src as a background image?
-					if(ele.nodeName.toLowerCase() === 'img'){
-						ele.src = src;
-					}else{
-						elbaIsland.style.backgroundImage = 'url("' + src + '")';
-					}
-
-					classie.add(ele,'no-bg-img');
-					classie.add(elbaIsland,  options.successClass);
-	
-					if(options.success) options.success(ele);
-				};
-				img.src = src; //preload image
-			} else {
-				if(options.error) options.error(ele, "missing");
-				ele.className = ele.className + ' ' + options.errorClass;
-			}	
-	 }
-
 function loadLazyImage(ele){
 			
 			var dataSrc = ele.getAttribute(source || options.src); // fallback to default data-src
@@ -431,8 +356,6 @@ function setSource(){
 	var screenWidth = getWindowWidth();
 	//handle multi-served image src
 	each(options.breakpoints, function(object){
-		console.log(mediaQueryMin);
-
 		if(object.width <= screenWidth && Math.abs(screenWidth - object.width) < Math.abs(screenWidth - mediaQueryMin)){
 			mediaQueryMin = object.width;
 			source = object.src;
@@ -461,24 +384,20 @@ function resizeHandler() {
 function doResize(ele){
 	setSlidesWidth();
 
-	for(var i = 0; i < count && i !== pointer; i++){}	
-
-	var leftOffset = - (getWindowWidth() * i);
-
-	leftOffset += 'px'; 
-	ele.style[vendorTransform] = 'translateX(' + leftOffset+ ')';
+	goTo(ele);
 
 	var oldSource = source;
 	setSource();
 
 	if(oldSource !== source){
 		destroy();
-		setupSlides();
+		setupLazySlide(loaderPointer);
 	}
 }
 
 
 function destroy(){
+	loaderPointer   = 0;
 	for(var i = 0; i < slides.length; i++){
 			var slide = slides[i];
  			if(slide) {
@@ -488,7 +407,119 @@ function destroy(){
  			} 
  		}
 }
-	 
+
+
+function goTo(ele, direction){
+
+	if(typeof direction === 'string'){
+		if(direction === 'right'){
+			if(pointer + 1 >= count ){
+				return false;
+			}
+			pointer++;
+			//move(ele, intVal(getLeftOffset()), direction);
+			animate(ele, intVal(getLeftOffset()), 'right');
+		}else{
+			if(pointer - 1 < 0 ){
+				return false;
+			}
+			pointer--;
+			//move(ele, intVal(getLeftOffset()), direction);
+			animate(ele, intVal(getLeftOffset()), 'left');
+		}
+	}else{
+		ele.style.left = intVal(getLeftOffset()) + 'px';
+	}
+
+	//ele.style.left = intVal(getLeftOffset()) + 'px';
+	//move(ele, intVal(getLeftOffset()), direction);	
+}
+
+
+function getLeftOffset(){
+	return - (getWindowWidth() * pointer);
+}	 
+function animate(ele, target, direction) {
+  
+  var start = new Date();
+  var startingOffset =  intVal(ele.style.left);
+  
+  var deltaOffset = Math.abs(startingOffset - target);
+  if(direction === 'right') deltaOffset = -deltaOffset; 
+
+  var id = setInterval(function() {
+    var timePassed = new Date() - start;
+    var progress = timePassed / options.duration;
+
+    if (progress > 1) progress = 1;
+    
+    var delta = options.delta(progress);
+    step(ele, delta, startingOffset, deltaOffset);
+    
+    if (progress == 1) {
+      clearInterval(id);
+    }
+  }, options.delay || 10);
+  
+}
+
+
+function step(ele, delta, startingOffset, deltaOffset){
+	var actualOffset = startingOffset + (deltaOffset * delta);
+	console.log('actualOffset -> '+actualOffset);
+	ele.style.left = actualOffset + 'px'; 
+}
+
+
+function linear(progress){
+	return progress;
+}
+
+function power(progress, n) {
+  return Math.pow(progress, n);
+}
+
+function circ(progress) {
+    return 1 - Math.sin(Math.acos(progress));
+}
+
+function back(progress, x) {
+    return Math.pow(progress, 2) * ((x + 1) * progress - x);
+}
+
+function bounce(progress) {
+  for(var a = 0, b = 1, result; 1; a += b, b /= 2) {
+    if (progress >= (7 - 4 * a) / 11) {
+      return -Math.pow((11 - 6 * a - 11 * progress) / 4, 2) + Math.pow(b, 2);
+    }
+  }
+}
+
+function elastic(progress, x) {
+  return Math.pow(2, 10 * (progress-1)) * Math.cos(20*Math.PI*x/3*progress);
+}
+
+
+function makeEaseOut(delta) {  
+  return function(progress) {
+    return 1 - delta(1 - progress);
+  }
+}
+
+function makeEaseInOut(delta) {  
+  return function(progress) {
+    if (progress < 0.5)
+      return delta(2*progress) / 2;
+    else
+      return (2 - delta(2*(1-progress))) / 2;
+  }
+}
+
+
+
+
+
+
 function extend( a, b ) {
 	for( var key in b ) { 
 		if( b.hasOwnProperty( key ) ) {
@@ -500,10 +531,6 @@ function extend( a, b ) {
 
 function getWindowWidth(){
 	return window.innerWidth || document.documentElement.clientWidth;
-}
-
-function intVal(str){
-	return str === '' ? 0 : parseInt(str, 10);
 }	 	
 
 function each(object, fn){
@@ -519,7 +546,6 @@ Function.prototype.setScope = function(scope) {
     f.apply(scope);
   };
 };
-
 
  // from: https://gist.github.com/streunerlein/2935794
 function getVendorPrefix(arrayOfPrefixes) {
@@ -540,6 +566,41 @@ result = null;
  
 return result;
 } 
+
+ // from: https://gist.github.com/lorenzopolidori/3794226
+function threeDEnabled(){
+    var el = document.createElement('p'),
+    has3d,
+    transforms = {
+        'webkitTransform':'-webkit-transform',
+        'OTransform':'-o-transform',
+        'msTransform':'-ms-transform',
+        'MozTransform':'-moz-transform',
+        'transform':'transform'
+    };
+ 
+    // Add it to the body to get the computed style
+    document.body.insertBefore(el, null);
+ 
+    for(var t in transforms){
+        if( el.style[t] !== undefined ){
+            el.style[t] = 'translate3d(1px,1px,1px)';
+            has3d = window.getComputedStyle(el).getPropertyValue(transforms[t]);
+        }
+    }
+ 
+    document.body.removeChild(el);
+ 
+    return (has3d !== undefined && has3d.length > 0 && has3d !== "none");
+}
+
+function intVal(x){
+	if(x){
+		return parseInt(x, 10);
+	}else{
+		return 0;
+	}
+}
 
 return Elba;
 });

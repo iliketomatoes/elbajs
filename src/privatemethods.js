@@ -55,53 +55,6 @@ function setupLazySlide(loaderPointer){
 	if(!isElementLoaded(slide)) loadLazyImage(slide);	
 }
 
-function setupSlides(){
-	for(var i = 0; i < slides.length; i++){
-			var slide = slides[i];
- 			if(slide) {
-				loadSlide(slide);
- 			} 
- 		}
-}	 
-
-function loadSlide(ele){
-	if(!isElementLoaded(ele)) loadImage(ele);
-}
-
-function loadImage(ele){
-			
-			var dataSrc = ele.getAttribute(source || options.src); // fallback to default data-src
-			var elbaIsland = ele.querySelector('.elba-island');
-
-			if(dataSrc){
-				var dataSrcSplitted = dataSrc.split(options.separator);
-				var src = dataSrcSplitted[isRetina && dataSrcSplitted.length > 1 ? 1 : 0];
-				var img = new Image();
-				
-				img.onerror = function() {
-					if(options.error) options.error(ele, "invalid");
-					ele.className = ele.className + ' ' + options.errorClass;
-				}; 
-				img.onload = function() {
-					// Is element an image or should we add the src as a background image?
-					if(ele.nodeName.toLowerCase() === 'img'){
-						ele.src = src;
-					}else{
-						elbaIsland.style.backgroundImage = 'url("' + src + '")';
-					}
-
-					classie.add(ele,'no-bg-img');
-					classie.add(elbaIsland,  options.successClass);
-	
-					if(options.success) options.success(ele);
-				};
-				img.src = src; //preload image
-			} else {
-				if(options.error) options.error(ele, "missing");
-				ele.className = ele.className + ' ' + options.errorClass;
-			}	
-	 }
-
 function loadLazyImage(ele){
 			
 			var dataSrc = ele.getAttribute(source || options.src); // fallback to default data-src
@@ -159,8 +112,6 @@ function setSource(){
 	var screenWidth = getWindowWidth();
 	//handle multi-served image src
 	each(options.breakpoints, function(object){
-		console.log(mediaQueryMin);
-
 		if(object.width <= screenWidth && Math.abs(screenWidth - object.width) < Math.abs(screenWidth - mediaQueryMin)){
 			mediaQueryMin = object.width;
 			source = object.src;
@@ -189,24 +140,20 @@ function resizeHandler() {
 function doResize(ele){
 	setSlidesWidth();
 
-	for(var i = 0; i < count && i !== pointer; i++){}	
-
-	var leftOffset = - (getWindowWidth() * i);
-
-	leftOffset += 'px'; 
-	ele.style[vendorTransform] = 'translateX(' + leftOffset+ ')';
+	goTo(ele);
 
 	var oldSource = source;
 	setSource();
 
 	if(oldSource !== source){
 		destroy();
-		setupSlides();
+		setupLazySlide(loaderPointer);
 	}
 }
 
 
 function destroy(){
+	loaderPointer   = 0;
 	for(var i = 0; i < slides.length; i++){
 			var slide = slides[i];
  			if(slide) {
@@ -216,4 +163,35 @@ function destroy(){
  			} 
  		}
 }
-	 
+
+
+function goTo(ele, direction){
+
+	if(typeof direction === 'string'){
+		if(direction === 'right'){
+			if(pointer + 1 >= count ){
+				return false;
+			}
+			pointer++;
+			//move(ele, intVal(getLeftOffset()), direction);
+			animate(ele, intVal(getLeftOffset()), 'right');
+		}else{
+			if(pointer - 1 < 0 ){
+				return false;
+			}
+			pointer--;
+			//move(ele, intVal(getLeftOffset()), direction);
+			animate(ele, intVal(getLeftOffset()), 'left');
+		}
+	}else{
+		ele.style.left = intVal(getLeftOffset()) + 'px';
+	}
+
+	//ele.style.left = intVal(getLeftOffset()) + 'px';
+	//move(ele, intVal(getLeftOffset()), direction);	
+}
+
+
+function getLeftOffset(){
+	return - (getWindowWidth() * pointer);
+}	 

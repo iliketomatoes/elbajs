@@ -15,9 +15,11 @@
 
 /******** CAROUSEL *********/
 .elba-carousel,.elba, .elba-island{
-	-webkit-transform: translate3d(0, 0, 0);
-	-webkit-transform-style: preserve-3d;
+	//-webkit-transform: translate3d(0, 0, 0);
 	-webkit-backface-visibility: hidden;
+	-webkit-perspective: 1000;
+	text-indent: -9999px;
+
 }
 
 .elba-carousel{
@@ -26,9 +28,9 @@
 	top: 0;
 	right: 0;
 	bottom: 0;
-	
+
 	//-webkit-perspective: 1000;
-	@include single-transition(all, 1000ms, ease-in-out);
+	//@include single-transition(all, 700ms, ease-in);	
 	//overflow: hidden;
 }
 
@@ -49,6 +51,7 @@
 	background-size: cover;
 	background-repeat: no-repeat;
 	background-position: center center;
+	-webkit-transform: translate3d(0, 0, 0);
 	@include single-transition(all, 500ms, ease-in-out);
 	&,.elba-content{
 			opacity: 0;
@@ -72,6 +75,7 @@
 /********** CONTENT ***********/
 .elba-content{
 	overflow: auto;
+	text-indent: 0;
 }
 
 /*#test{
