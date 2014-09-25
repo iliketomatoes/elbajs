@@ -11,6 +11,10 @@ function getWindowWidth(){
 	return window.innerWidth || document.documentElement.clientWidth;
 }	 	
 
+function getWindowHeight(){
+    return window.innerHeight || document.documentElement.clientHeight;
+}   
+
 function each(object, fn){
  		if(object && fn) {
  			var l = object.length;
@@ -78,4 +82,19 @@ function intVal(x){
 	}else{
 		return 0;
 	}
+}
+
+function imageAspectRatio(img){
+    var naturalWidth = img.width;
+    var naturalHeight = img.height;
+
+    return naturalHeight / naturalWidth;
+}
+
+//TODO
+function containerAspectRatio(){
+    var containerWidth = getWindowWidth();
+    var containerHeight = getWindowHeight();
+
+    return containerHeight / containerWidth;
 }

@@ -18,9 +18,9 @@ function animate(ele, target, direction) {
 
     if (progress > 1) progress = 1;
     
-    var powerEaseOut = makeEaseOut(options.delta);
-    var delta = powerEaseOut(progress);
-    //var delta = options.delta(progress);
+    //var powerEaseOut = makeEaseOut(options.delta);
+    //var delta = powerEaseOut(progress);
+    var delta = options.delta(progress);
     step(ele, delta, startingOffset, deltaOffset);
     
     if (progress == 1) {
@@ -53,7 +53,7 @@ function linear(progress){
 }
 
 function power(progress, n) {
-  return Math.pow(progress, n);
+  return Math.pow(progress, n).toFixed(2);
 }
 
 function squareRoot(progress){

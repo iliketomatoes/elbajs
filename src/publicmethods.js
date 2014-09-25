@@ -11,11 +11,11 @@ Elba.prototype = {
 		src : 'data-src',
 		error : false,
 		success : false,
-		duration : 1000,
+		duration : 800,
 		delta : function(progress){
 			return power(progress, 2);
 		},
-		delay : 5,
+		delay : 10,
 		transitionEase : 'ease-in-out'
 	},
 	swipe : function(direction){

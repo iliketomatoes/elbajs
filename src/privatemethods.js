@@ -48,24 +48,16 @@ function setupCarouselWidth(base){
 }	
 
 function isElementLoaded(ele) {
-	var elbaIsland = ele.querySelector('.elba-island');
-
-	if(elbaIsland){
-		return classie.has(elbaIsland, options.successClass);
- 	}else{
- 		return false;
- 	}
+	return classie.has(ele, options.successClass);
 }
 
 function setupElbaIslands(){
 	slides.forEach(function(el){
-		var nodeContent = el.querySelector('.elba-content');
-		var elbaIsland = document.createElement( 'div' );
+		var elbaIsland = document.createElement( 'img' );
 		elbaIsland.className = 'elba-island';
-		if(nodeContent){
-			elbaIsland.wrap(nodeContent);
-		}else{
-			el.appendChild(elbaIsland);
+		el.appendChild(elbaIsland);
+		if(has3D){
+			el.style[vendorTransform] = 'translate3d(0,0,0)';
 		}
 	});
 }
@@ -97,17 +89,13 @@ function loadLazyImage(ele){
 					ele.className = ele.className + ' ' + options.errorClass;
 				}; 
 				img.onload = function() {
-					//TODO support for <img> instead of a <div>
-					// Is element an image or should we add the src as a background image?
-					/*if(ele.nodeName.toLowerCase() === 'img'){
-						ele.src = src;
-					}else{
-						elbaIsland.style.backgroundImage = 'url("' + src + '")';
-					}*/
-					elbaIsland.style.backgroundImage = 'url("' + src + '")';
+					
+					elbaIsland.src = src;
+
+					findRightSizing(elbaIsland);
 
 					classie.add(ele,'no-bg-img');
-					classie.add(elbaIsland,  options.successClass);
+					classie.add(ele,  options.successClass);
 	
 					if(options.success) options.success(ele);
 
@@ -129,10 +117,11 @@ function loadLazyImage(ele){
 						if(!isElementLoaded(parentClone)){
 							elbaClone = parentClone.querySelector('.elba-island');
 
-							elbaClone.style.backgroundImage = 'url("' + src + '")';
-
+							elbaClone.src = src;
+							findRightSizing(elbaClone);
+							
 							classie.add(parentClone,'no-bg-img');
-							classie.add(elbaClone,  options.successClass);
+							classie.add(parentClone,  options.successClass);
 						}
 						
 					}
@@ -219,7 +208,7 @@ function destroy(){
  			if(slide) {
 				var elbaIsland = slide.querySelector('.elba-island');
 				classie.remove(slide,'no-bg-img');
-				classie.remove(elbaIsland,  options.successClass);
+				classie.remove(slide,  options.successClass);
  			} 
  		}
 }
@@ -249,4 +238,25 @@ function goTo(ele, direction){
 
 function getLeftOffset(){
 	return - (getWindowWidth() * pointer);
+}
+
+
+
+function findRightSizing(elbaIsland){
+
+	var imgRatio = imageAspectRatio(elbaIsland);
+	var containerRatio = containerAspectRatio();
+	//centerImage(elbaIsland);	
+	
+	if (containerRatio > imgRatio) {
+		elbaIsland.height = getWindowHeight();
+		elbaIsland.width = getWindowHeight() * imgRatio;
+	}else{
+		elbaIsland.height = getWindowWidth() * imgRatio;
+		elbaIsland.width = getWindowWidth();
+	}
 }	 
+
+function centerImage(elbaIsland){
+	//elbaIsland.left = 
+}
