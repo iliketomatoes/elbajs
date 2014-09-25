@@ -170,8 +170,6 @@ NodeList.prototype.remove = window.HTMLCollection.prototype.remove = function() 
 	var vendorTransform = getVendorPrefix(["transform", "msTransform", "MozTransform", "WebkitTransform", "OTransform"]);
 
 	var has3D = threeDEnabled();
-	
-	var animated = false;
 
 	//Elba constructor
 	function Elba( el, settings ) {
@@ -227,11 +225,11 @@ Elba.prototype = {
 		src : 'data-src',
 		error : false,
 		success : false,
-		duration : 700,
+		duration : 1000,
 		delta : function(progress){
-			return power(progress, 3);
+			return power(progress, 2);
 		},
-		delay : 25,
+		delay : 15,
 		transitionEase : 'ease-in-out'
 	},
 	swipe : function(direction){
@@ -453,7 +451,8 @@ function animate(ele, target, direction) {
 
     if (progress > 1) progress = 1;
     
-    var delta = options.delta(progress);
+    var powerEaseOut = makeEaseInOut(options.delta)
+    var delta = powerEaseOut(progress);
     step(ele, delta, startingOffset, deltaOffset);
     
     if (progress == 1) {

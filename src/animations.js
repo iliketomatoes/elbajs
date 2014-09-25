@@ -12,7 +12,8 @@ function animate(ele, target, direction) {
 
     if (progress > 1) progress = 1;
     
-    var delta = options.delta(progress);
+    var powerEaseOut = makeEaseInOut(options.delta)
+    var delta = powerEaseOut(progress);
     step(ele, delta, startingOffset, deltaOffset);
     
     if (progress == 1) {

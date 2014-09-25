@@ -17,8 +17,6 @@
 	var vendorTransform = getVendorPrefix(["transform", "msTransform", "MozTransform", "WebkitTransform", "OTransform"]);
 
 	var has3D = threeDEnabled();
-	
-	var animated = false;
 
 	//Elba constructor
 	function Elba( el, settings ) {
