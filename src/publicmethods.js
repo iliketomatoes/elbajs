@@ -8,6 +8,7 @@ Elba.prototype = {
 		breakpoints : false,
 		successClass : 'elba-loaded',
 		errorClass : 'elba-error',
+		container : 'elba-wrapper',
 		src : 'data-src',
 		error : false,
 		success : false,

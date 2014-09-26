@@ -135,3 +135,19 @@ NodeList.prototype.remove = window.HTMLCollection.prototype.remove = function() 
 
 })( window );
 
+
+/*
+ * Set function scope's trick
+ */
+( function() {
+
+'use strict';
+
+Function.prototype.setScope = function(scope) {
+  var f = this;
+  return function() {
+    f.apply(scope);
+  };
+};
+
+})();

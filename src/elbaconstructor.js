@@ -3,7 +3,7 @@
 'use strict';
  
 	//vars
-	var wrapper, pointer, loaderPointer, options, slides, count, isRetina, source, destroyed;
+	var wrapper, container, pointer, loaderPointer, options, slides, count, isRetina, source, destroyed;
 
 	var navigation = {
 		left : null,
@@ -39,9 +39,10 @@
 			loaderPointer   = 1;
 			cloningHeadAndTail(base);
 		}
-		
-		setSlidesWidth();
+			
 		setupWrapper(base);
+		container = getContainer(el, options.container);
+		setSlidesWidth();
 		setupNavigation('left');
 		setupNavigation('right');
 

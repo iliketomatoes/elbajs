@@ -1,4 +1,4 @@
-/*! elba - v0.0.1 - 2014-09-25
+/*! elba - v0.0.1 - 2014-09-26
 * https://github.com/dedalodesign/elbajs
 * Copyright (c) 2014 ; Licensed  */
 /*!
@@ -139,6 +139,22 @@ NodeList.prototype.remove = window.HTMLCollection.prototype.remove = function() 
 })( window );
 
 
+/*
+ * Set function scope's trick
+ */
+( function() {
+
+'use strict';
+
+Function.prototype.setScope = function(scope) {
+  var f = this;
+  return function() {
+    f.apply(scope);
+  };
+};
+
+})();
+
 ;(function(elbaJS) {
 
 	'use strict';
@@ -156,7 +172,7 @@ NodeList.prototype.remove = window.HTMLCollection.prototype.remove = function() 
 'use strict';
  
 	//vars
-	var wrapper, pointer, loaderPointer, options, slides, count, isRetina, source, destroyed;
+	var wrapper, container, pointer, loaderPointer, options, slides, count, isRetina, source, destroyed;
 
 	var navigation = {
 		left : null,
@@ -192,9 +208,10 @@ NodeList.prototype.remove = window.HTMLCollection.prototype.remove = function() 
 			loaderPointer   = 1;
 			cloningHeadAndTail(base);
 		}
-		
-		setSlidesWidth();
+			
 		setupWrapper(base);
+		container = getContainer(el, options.container);
+		setSlidesWidth();
 		setupNavigation('left');
 		setupNavigation('right');
 
@@ -230,6 +247,7 @@ Elba.prototype = {
 		breakpoints : false,
 		successClass : 'elba-loaded',
 		errorClass : 'elba-error',
+		container : 'elba-wrapper',
 		src : 'data-src',
 		error : false,
 		success : false,
@@ -293,7 +311,7 @@ function setupCarouselWidth(base){
 	base.style.width = carouselWidth;
 
 	if(count > 1){
-		base.style.left = (-getWindowWidth()) + 'px';
+		base.style.left = (-getContainerWidth()) + 'px';
 	}
 }	
 
@@ -342,7 +360,7 @@ function loadLazyImage(ele){
 					
 					elbaIsland.src = src;
 
-					findRightSizing(elbaIsland);
+					setImageSize(elbaIsland);
 
 					classie.add(ele,'no-bg-img');
 					classie.add(ele,  options.successClass);
@@ -368,7 +386,7 @@ function loadLazyImage(ele){
 							elbaClone = parentClone.querySelector('.elba-island');
 
 							elbaClone.src = src;
-							findRightSizing(elbaClone);
+							setImageSize(elbaClone);
 							
 							classie.add(parentClone,'no-bg-img');
 							classie.add(parentClone,  options.successClass);
@@ -391,7 +409,7 @@ function loadLazyImage(ele){
 
 function setSlidesWidth(){
 
-	var windowWidth = getWindowWidth();
+	var windowWidth = getContainerWidth();
 
 	slides.forEach(function(el){
 		el.style.width = windowWidth + 'px';
@@ -403,7 +421,7 @@ function setSlidesWidth(){
 function setSource(){
 	source = 0;
 	var mediaQueryMin = 0;
-	var screenWidth = getWindowWidth();
+	var screenWidth = getContainerWidth();
 	//handle multi-served image src
 	each(options.breakpoints, function(object){
 		if(object.width <= screenWidth && Math.abs(screenWidth - object.width) < Math.abs(screenWidth - mediaQueryMin)){
@@ -487,29 +505,12 @@ function goTo(ele, direction){
 
 
 function getLeftOffset(){
-	return - (getWindowWidth() * pointer);
+	return - (getContainerWidth() * pointer);
 }
 
 
 
-function findRightSizing(elbaIsland){
 
-	var imgRatio = imageAspectRatio(elbaIsland);
-	var containerRatio = containerAspectRatio();
-	//centerImage(elbaIsland);	
-	
-	if (containerRatio > imgRatio) {
-		elbaIsland.height = getWindowHeight();
-		elbaIsland.width = getWindowHeight() * imgRatio;
-	}else{
-		elbaIsland.height = getWindowWidth() * imgRatio;
-		elbaIsland.width = getWindowWidth();
-	}
-}	 
-
-function centerImage(elbaIsland){
-	//elbaIsland.left = 
-}
 function animate(ele, target, direction) {
   
   if(animated){
@@ -613,6 +614,43 @@ function makeEaseInOut(delta) {
 
 
 
+function setImageSize(elbaIsland){
+
+	var imgRatio = imageAspectRatio(elbaIsland);
+	var containerRatio = containerAspectRatio();
+	//centerImage(elbaIsland);
+	console.log(imgRatio);
+
+	console.log(getContainer(elbaIsland, options.container));	
+	
+	/*if (containerRatio > imgRatio) {
+		elbaIsland.height = getWindowHeight();
+		elbaIsland.width = getWindowHeight() * imgRatio;
+	}else{
+		elbaIsland.height = getWindowWidth() * imgRatio;
+		elbaIsland.width = getWindowWidth();
+	}*/
+}	 
+
+function centerImage(elbaIsland){
+	//elbaIsland.left = 
+}
+
+function imageAspectRatio(img){
+    var naturalWidth = img.width;
+    var naturalHeight = img.height;
+
+    return naturalHeight / naturalWidth;
+}
+
+//TODO
+function containerAspectRatio(container){
+    var containerWidth = getContainerWidth(container);
+    var containerHeight = getContainerHeight(container);
+
+    return containerHeight / containerWidth;
+}
+
 function extend( a, b ) {
 	for( var key in b ) { 
 		if( b.hasOwnProperty( key ) ) {
@@ -622,12 +660,20 @@ function extend( a, b ) {
 	return a;
 }
 
-function getWindowWidth(){
-	return window.innerWidth || document.documentElement.clientWidth;
+function getContainerWidth(){
+    if(typeof container !== 'undefined' && container){
+        return container.offsetWidth;
+    }else{
+        return window.innerWidth || document.documentElement.clientWidth;
+    }
 }	 	
 
-function getWindowHeight(){
-    return window.innerHeight || document.documentElement.clientHeight;
+function getContainerHeight(){
+     if(typeof container !== 'undefined' && container){
+        return container.offsetHeight;
+    }else{
+        return window.innerHeight || document.documentElement.clientHeight;
+     }
 }   
 
 function each(object, fn){
@@ -637,12 +683,7 @@ function each(object, fn){
  		}
 	 }
 
-Function.prototype.setScope = function(scope) {
-  var f = this;
-  return function() {
-    f.apply(scope);
-  };
-};
+
 
  // from: https://gist.github.com/streunerlein/2935794
 function getVendorPrefix(arrayOfPrefixes) {
@@ -699,20 +740,23 @@ function intVal(x){
 	}
 }
 
-function imageAspectRatio(img){
-    var naturalWidth = img.width;
-    var naturalHeight = img.height;
 
-    return naturalHeight / naturalWidth;
+function getContainer(el, parentClass){
+
+      while (el && el.parentNode) {
+        el = el.parentNode;
+        if (el.className === parentClass) {
+          return el;
+        }
+      }
+
+      // Many DOM methods return null if they don't 
+      // find the element they are searching for
+      // It would be OK to omit the following and just
+      // return undefined
+      return null;
 }
 
-//TODO
-function containerAspectRatio(){
-    var containerWidth = getWindowWidth();
-    var containerHeight = getWindowHeight();
-
-    return containerHeight / containerWidth;
-}
 
 return Elba;
 });

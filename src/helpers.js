@@ -7,12 +7,20 @@ function extend( a, b ) {
 	return a;
 }
 
-function getWindowWidth(){
-	return window.innerWidth || document.documentElement.clientWidth;
+function getContainerWidth(){
+    if(typeof container !== 'undefined' && container){
+        return container.offsetWidth;
+    }else{
+        return window.innerWidth || document.documentElement.clientWidth;
+    }
 }	 	
 
-function getWindowHeight(){
-    return window.innerHeight || document.documentElement.clientHeight;
+function getContainerHeight(){
+     if(typeof container !== 'undefined' && container){
+        return container.offsetHeight;
+    }else{
+        return window.innerHeight || document.documentElement.clientHeight;
+     }
 }   
 
 function each(object, fn){
@@ -22,12 +30,7 @@ function each(object, fn){
  		}
 	 }
 
-Function.prototype.setScope = function(scope) {
-  var f = this;
-  return function() {
-    f.apply(scope);
-  };
-};
+
 
  // from: https://gist.github.com/streunerlein/2935794
 function getVendorPrefix(arrayOfPrefixes) {
@@ -84,17 +87,20 @@ function intVal(x){
 	}
 }
 
-function imageAspectRatio(img){
-    var naturalWidth = img.width;
-    var naturalHeight = img.height;
 
-    return naturalHeight / naturalWidth;
+function getContainer(el, parentClass){
+
+      while (el && el.parentNode) {
+        el = el.parentNode;
+        if (el.className === parentClass) {
+          return el;
+        }
+      }
+
+      // Many DOM methods return null if they don't 
+      // find the element they are searching for
+      // It would be OK to omit the following and just
+      // return undefined
+      return null;
 }
 
-//TODO
-function containerAspectRatio(){
-    var containerWidth = getWindowWidth();
-    var containerHeight = getWindowHeight();
-
-    return containerHeight / containerWidth;
-}

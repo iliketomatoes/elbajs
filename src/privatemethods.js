@@ -43,7 +43,7 @@ function setupCarouselWidth(base){
 	base.style.width = carouselWidth;
 
 	if(count > 1){
-		base.style.left = (-getWindowWidth()) + 'px';
+		base.style.left = (-getContainerWidth()) + 'px';
 	}
 }	
 
@@ -92,7 +92,7 @@ function loadLazyImage(ele){
 					
 					elbaIsland.src = src;
 
-					findRightSizing(elbaIsland);
+					setImageSize(elbaIsland);
 
 					classie.add(ele,'no-bg-img');
 					classie.add(ele,  options.successClass);
@@ -118,7 +118,7 @@ function loadLazyImage(ele){
 							elbaClone = parentClone.querySelector('.elba-island');
 
 							elbaClone.src = src;
-							findRightSizing(elbaClone);
+							setImageSize(elbaClone);
 							
 							classie.add(parentClone,'no-bg-img');
 							classie.add(parentClone,  options.successClass);
@@ -141,7 +141,7 @@ function loadLazyImage(ele){
 
 function setSlidesWidth(){
 
-	var windowWidth = getWindowWidth();
+	var windowWidth = getContainerWidth();
 
 	slides.forEach(function(el){
 		el.style.width = windowWidth + 'px';
@@ -153,7 +153,7 @@ function setSlidesWidth(){
 function setSource(){
 	source = 0;
 	var mediaQueryMin = 0;
-	var screenWidth = getWindowWidth();
+	var screenWidth = getContainerWidth();
 	//handle multi-served image src
 	each(options.breakpoints, function(object){
 		if(object.width <= screenWidth && Math.abs(screenWidth - object.width) < Math.abs(screenWidth - mediaQueryMin)){
@@ -237,26 +237,8 @@ function goTo(ele, direction){
 
 
 function getLeftOffset(){
-	return - (getWindowWidth() * pointer);
+	return - (getContainerWidth() * pointer);
 }
 
 
 
-function findRightSizing(elbaIsland){
-
-	var imgRatio = imageAspectRatio(elbaIsland);
-	var containerRatio = containerAspectRatio();
-	//centerImage(elbaIsland);	
-	
-	if (containerRatio > imgRatio) {
-		elbaIsland.height = getWindowHeight();
-		elbaIsland.width = getWindowHeight() * imgRatio;
-	}else{
-		elbaIsland.height = getWindowWidth() * imgRatio;
-		elbaIsland.width = getWindowWidth();
-	}
-}	 
-
-function centerImage(elbaIsland){
-	//elbaIsland.left = 
-}
