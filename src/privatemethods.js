@@ -92,6 +92,7 @@ function loadLazyImage(ele){
 					
 					elbaIsland.src = src;
 
+					//setImageData(elbaIsland);
 					setImageSize(elbaIsland);
 
 					classie.add(ele,'no-bg-img');
@@ -99,7 +100,7 @@ function loadLazyImage(ele){
 	
 					if(options.success) options.success(ele);
 
-					//Update the Head clone
+					//Update the Head and Tail clone
 					if(count > 1 && (loaderPointer === 1 || loaderPointer === 0 || loaderPointer === (count - 1) || loaderPointer === (count - 2))){
 
 						var parentClone,elbaClone;
@@ -192,6 +193,14 @@ function doResize(ele){
 	if(oldSource !== source){
 		destroy();
 		setupLazySlide(loaderPointer);
+	}else{
+		for(var i = 0; i < slides.length; i++){
+			var slide = slides[i];
+ 			if(slide) {
+				var elbaIsland = slide.querySelector('.elba-island');
+				setImageSize(elbaIsland);
+ 			} 
+ 		}
 	}
 }
 
