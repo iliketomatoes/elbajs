@@ -2,70 +2,65 @@
 
 'use strict';
  
-	//vars
-	var wrapper, base, container, pointer, loaderPointer, options, slides, count, isRetina, source, destroyed, carouselWidth = 0;
-
-	var navigation = {
-		left : null,
-		right : null,
-		dots : null
-	};
-
 	var classie = window.classie;
-
-	var animated = false;
+	var isRetina = window.devicePixelRatio > 1;
 
 	//Elba constructor
 	function Elba( el, settings ) {
+
+		//vars
+		var wrapper, pointer, loaderPointer, options, count, source, destroyed, carouselWidth = 0;
+
+		var navigation = {
+			left : null,
+			right : null,
+			dots : null
+		};
+
+		var animated = false;
 		
 		var self = this;
 
-		base = self.el = el;
+		self.el = el;
 		destroyed 		= true;
-		slides 			= [];
-		options 		= extend( self.defaults, settings );
-		isRetina		= window.devicePixelRatio > 1;
-		pointer 		= 0;
-		loaderPointer   = 0;
-
-		// First we create an array of slides to lazy load
-		createSlideArray(options.selector, base);
-		if(count > 1){
-			pointer 		= 1;
-			loaderPointer   = 1;
-			cloningHeadAndTail(base);
-		}
-			
-		setupWrapper(base);
-		container = getContainer(el, options.container);
-		setSlidesWidth();
-
-		if(count > 1){
-			base.style.left = (-getContainerWidth()) + 'px';
-		}
-
-		setupNavigation('left');
-		setupNavigation('right');
-
-		//setupCarouselWidth(base);
-
-		setupElbaIslands();
-
-		setSource();
-		//Init 
+		self.options 	= extend( self.defaults, settings );
 		
-		setupLazySlide(loaderPointer);
+		self.pointer 		= 0;
+		self.loaderPointer   = 0;
+
+		var ELBA = new CarouselHandler(self.el, self.options);
+
+		self.slides = ELBA.getSlides();
+
+		self.container = getContainer(el, self.options.container);
+
+		self.setSlidesWidth();
+
+		if(self.slides.length > 1){
+			self.pointer 		= 1;
+			self.loaderPointer   = 1;
+			self.el.style.left = (- self.getContainerWidth()) + 'px';
+		}
+
+		self.setSource();
+		
+		//Starting loading 
+		loadLazyImage.call(self);
 
 		//Bind events
-		window.addEventListener('resize', resizeHandler.setScope(self), false);
+		//window.addEventListener('resize', resizeHandler.setScope(self), false);
 
-		navigation.left.addEventListener('click', function(ev) { 
+		ELBA.getLeftNav().addEventListener('click', function(ev) { 
 			ev.preventDefault();
-			self.swipe('left');
+			//self.swipe('left');
+			console.log(self);
+			self.prova();
 		}, false);
 
-		navigation.right.addEventListener('click', function(ev) { 
+		ELBA.getRightNav().addEventListener('click', function(ev) { 
 			ev.preventDefault();
-			self.swipe('right');
+			//self.swipe('right');
+			console.log(self);
+			self.prova();
 		}, false);
-	}
+	

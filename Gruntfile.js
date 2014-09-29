@@ -23,10 +23,11 @@ module.exports = function(grunt) {
               'src/dependencies.js',
               'src/intro.js',
               'src/elbaconstructor.js',
-              'src/publicmethods.js',
               'src/privatemethods.js',
+              'src/publicmethods.js',
               'src/animations.js',
               'src/images.js',
+              'src/carouselhandler.js',
               'src/helpers.js',
               'src/outro.js'
              ],
@@ -93,5 +94,8 @@ module.exports = function(grunt) {
 
   // Style task.
   grunt.registerTask('style', [ 'sass' ]);
+
+  // Minifying despite jshint warnings task.
+  grunt.registerTask('minifyjs', [ 'clean', 'concat', 'uglify' ]);
 
 };

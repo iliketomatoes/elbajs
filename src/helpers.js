@@ -7,7 +7,7 @@ function extend( a, b ) {
 	return a;
 }
 
-function getContainerWidth(){
+function getContainerWidth(container){
     if(typeof container !== 'undefined' && container){
         return container.offsetWidth;
     }else{
@@ -15,7 +15,7 @@ function getContainerWidth(){
     }
 }	 	
 
-function getContainerHeight(){
+function getContainerHeight(container){
      if(typeof container !== 'undefined' && container){
         return container.offsetHeight;
     }else{
@@ -23,8 +23,8 @@ function getContainerHeight(){
      }
 }   
 
-function getLeftOffset(){
-  return - (getContainerWidth() * pointer);
+function getLeftOffset(pointer,container){
+  return - (getContainerWidth(container) * pointer);
 }
 
 

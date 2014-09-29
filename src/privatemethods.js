@@ -1,159 +1,94 @@
 /* private functions
 ************************************/
-function setupWrapper(base){
-	wrapper = document.createElement( 'div' );
-	wrapper.className = 'elba-wrapper';
-	wrapper.wrap(base);
+function isElementLoaded(ele, successClass) {
+	return classie.has(ele, successClass);
 }
 
-function createSlideArray(selector, parentSelector) {
-		var parent = parentSelector || document;
- 		var nodelist 	= parent.querySelectorAll(selector);
- 		count 			= nodelist.length;
- 		//converting nodelist to array
- 		for(var i = count; i--; slides.unshift(nodelist[i])){}
-	 }
-
-function cloningHeadAndTail(base){
-
-	if(count > 1){
-		var cloneTail = slides[count - 1].cloneNode(true);
-		base.insertBefore(cloneTail, base.firstChild);
-		slides.unshift(cloneTail);
-
-		var cloneHead = slides[1].cloneNode(true);
-		base.appendChild(cloneHead);
-		slides.push(cloneHead);
-		count += 2;
-	}
-	
-}	
-
-function setupNavigation(direction){
-	navigation[direction] = document.createElement( 'a' );
-	navigation[direction].className = 'elba-' + direction + '-nav';
-	navigation[direction].innerHtml = direction;
-	wrapper.appendChild(navigation[direction]);
-}
-
-function setSlidesWidth(){
-
-	var containerWidth = getContainerWidth();
-
-	slides.forEach(function(el){
-		carouselWidth += containerWidth;
-		el.style.width = containerWidth + 'px';
-	});
-
-	base.style.width = carouselWidth + 'px';
-
-}
-
-function isElementLoaded(ele) {
-	return classie.has(ele, options.successClass);
-}
-
-function setupElbaIslands(){
-	slides.forEach(function(el){
-		var elbaIsland = document.createElement( 'img' );
-		elbaIsland.className = 'elba-island';
-		el.appendChild(elbaIsland);
-	});
-}
-
-function setupLazySlide(loaderPointer){
+/*function setupLazySlide(slides,loaderPointer){
 	var slide = slides[loaderPointer];
 	 loadLazyImage(slide);	
-}
+}*/
 
-function loadLazyImage(ele){
+function loadLazyImage(loadIndex){
+
+	var self = this;
+	var loaderPointer = loadIndex || self.loaderPointer;
+	var ele = self.slides[loaderPointer];
+	var count = self.slides.length;
+
+	if(isElementLoaded(ele, self.options.successClass)){
+		if(count > 1 && ((loaderPointer + 1) < (count - 1))){
+				loaderPointer++;
+				console.log('recursively fired');
+				loadLazyImage.call(self,loaderPointer);
+			}
+	}
+
+	var dataSrc = ele.getAttribute(self.source || self.options.src); // fallback to default data-src
+	var elbaIsland = ele.querySelector('.elba-island');
+
+	if(dataSrc){
+		var dataSrcSplitted = dataSrc.split(self.options.separator);
+		var src = dataSrcSplitted[isRetina && dataSrcSplitted.length > 1 ? 1 : 0];
+		var img = new Image();
+		
+		img.onerror = function() {
+			if(self.options.error) self.options.error(ele, "invalid");
+			ele.className = ele.className + ' ' + self.options.errorClass;
+		}; 
+		img.onload = function() {
 			
-			if(isElementLoaded(ele)){
-				if(count > 1 && ((loaderPointer + 1) < (count - 1))){
-						loaderPointer++;
-						setupLazySlide(loaderPointer);
-					}
+			elbaIsland.src = src;
+
+			//setImageData(elbaIsland);
+			setImageSize(elbaIsland);
+
+			classie.add(ele,'no-bg-img');
+			classie.add(ele,  self.options.successClass);
+
+			if(self.options.success) self.options.success(ele);
+
+			//Update the Head and Tail clone
+			if(count > 1 && (loaderPointer === 1 || loaderPointer === 0 || loaderPointer === (count - 1) || loaderPointer === (count - 2))){
+
+				var parentClone,elbaClone;
+
+				if(loaderPointer === 1){
+					parentClone = self.slides[count - 1];
+				}else if(loaderPointer === (count - 1)){
+					parentClone = self.slides[1];
+					}else if(loaderPointer === 0){
+						parentClone = self.slides[count - 2];
+						}else{
+							parentClone = self.slides[0];
+						}
+				
+				if(!isElementLoaded(parentClone, self.options.successClass)){
+					elbaClone = parentClone.querySelector('.elba-island');
+
+					elbaClone.src = src;
+					setImageSize(elbaClone);
+					
+					classie.add(parentClone,'no-bg-img');
+					classie.add(parentClone,  self.options.successClass);
+				}
+				
 			}
 
-			var dataSrc = ele.getAttribute(source || options.src); // fallback to default data-src
-			var elbaIsland = ele.querySelector('.elba-island');
+			if(count > 1 && loaderPointer + 1 < count - 1){
+				loaderPointer++;
+				console.log('recursively fired');
+				loadLazyImage.call(self,loaderPointer);
+			}
+			
+		};
+		img.src = src; //preload image
+	} else {
+		if(self.options.error) self.options.error(ele, "missing");
+		ele.className = ele.className + ' ' + self.options.errorClass;
+	}	
+}	 	 
 
-			if(dataSrc){
-				var dataSrcSplitted = dataSrc.split(options.separator);
-				var src = dataSrcSplitted[isRetina && dataSrcSplitted.length > 1 ? 1 : 0];
-				var img = new Image();
-				
-				img.onerror = function() {
-					if(options.error) options.error(ele, "invalid");
-					ele.className = ele.className + ' ' + options.errorClass;
-				}; 
-				img.onload = function() {
-					
-					elbaIsland.src = src;
-
-					//setImageData(elbaIsland);
-					setImageSize(elbaIsland);
-
-					classie.add(ele,'no-bg-img');
-					classie.add(ele,  options.successClass);
-	
-					if(options.success) options.success(ele);
-
-					//Update the Head and Tail clone
-					if(count > 1 && (loaderPointer === 1 || loaderPointer === 0 || loaderPointer === (count - 1) || loaderPointer === (count - 2))){
-
-						var parentClone,elbaClone;
-
-						if(loaderPointer === 1){
-							parentClone = slides[count - 1];
-						}else if(loaderPointer === (count - 1)){
-							parentClone = slides[1];
-							}else if(loaderPointer === 0){
-								parentClone = slides[count - 2];
-								}else{
-									parentClone = slides[0];
-								}
-						
-						if(!isElementLoaded(parentClone)){
-							elbaClone = parentClone.querySelector('.elba-island');
-
-							elbaClone.src = src;
-							setImageSize(elbaClone);
-							
-							classie.add(parentClone,'no-bg-img');
-							classie.add(parentClone,  options.successClass);
-						}
-						
-					}
-
-					if(count > 1 && loaderPointer + 1 < count - 1){
-						loaderPointer++;
-						setupLazySlide(loaderPointer);
-					}
-					
-				};
-				img.src = src; //preload image
-			} else {
-				if(options.error) options.error(ele, "missing");
-				ele.className = ele.className + ' ' + options.errorClass;
-			}	
-	 }	 	 
-
-
-
-function setSource(){
-	source = 0;
-	var mediaQueryMin = 0;
-	var screenWidth = getContainerWidth();
-	//handle multi-served image src
-	each(options.breakpoints, function(object){
-		if(object.width <= screenWidth && Math.abs(screenWidth - object.width) < Math.abs(screenWidth - mediaQueryMin)){
-			mediaQueryMin = object.width;
-			source = object.src;
-			return true;
-		}
-	});
-}
 
 // taken from https://github.com/desandro/vanilla-masonry/blob/master/masonry.js by David DeSandro
 // original debounce by John Hann
@@ -233,7 +168,116 @@ function goTo(ele, direction){
 	}	
 }
 
+function animate(ele, target, direction) {
+  
+  if(animated){
+  	return false;
+  }
+
+  animated = true;
+
+  var startingOffset = intVal(ele.style.left);
+  
+  var deltaOffset = Math.abs(startingOffset - target);
+  if(direction === 'right') deltaOffset = -deltaOffset;
+
+  var duration = options.duration; // duration of animation in milliseconds.
+  var epsilon = (1000 / 60 / duration) / 4;
+
+  var easeing = bezier(0.445, 0.05, 0.55, 0.95, epsilon);
+
+  var start = null, myReq;
+
+  var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+                              window.webkitRequestAnimationFrame || window.oRequestAnimationFrame;
+
+  var cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
+
+   function animationStep(timestamp) {
+    console.log(timestamp);
+      if (start === null) start = timestamp;
+
+      var timePassed = (timestamp - start);
+      var progress = timePassed / duration;
+
+      //console.log('progress -> ' + progress);
+
+      if (progress > 1) progress = 1;
+
+      var delta = easeing(progress).toFixed(6);
+        //console.log('delta -> ' + delta);
+        step(ele, delta, startingOffset, deltaOffset);
+
+      if (progress == 1){
+        progress = 1;
+        if(count > 1){
+          if(pointer === (count - 1)){
+            pointer = 1;
+            ele.style.left = intVal(getLeftOffset()) + 'px';
+          }else if(pointer === 0){
+            pointer = count - 2;
+            ele.style.left = intVal(getLeftOffset()) + 'px';
+          }
+        }
+         animated = false;
+         start = null;
+         cancelAnimationFrame(myReq);
+      }else{
+        requestAnimationFrame(animationStep);
+      }
+
+    }
+                                
+  if(requestAnimationFrame && cancelAnimationFrame){
+
+  myReq = requestAnimationFrame(animationStep);
+
+  }else{
+
+      //TODO a bettert fallback if window.requestAnimationFrame is not supported
+      var id = setInterval(function() {
+
+      if (start === null) start = new Date();  
+
+      var timePassed = new Date() - start;
+      var progress = timePassed / duration;
+
+      if (progress > 1) progress = 1;
+
+      var delta = easeing(progress).toFixed(6);
+
+      step(ele, delta, startingOffset, deltaOffset);
+      
+      if (progress == 1) {
+
+        if(count > 1){
+          if(pointer === (count - 1)){
+            pointer = 1;
+            ele.style.left = intVal(getLeftOffset()) + 'px';
+          }else if(pointer === 0){
+            pointer = count - 2;
+            ele.style.left = intVal(getLeftOffset()) + 'px';
+          }
+        }
+         clearInterval(id);
+         start = null;
+         animated = false;
+      }
+    },25);
+  }                             
+
+}
 
 
+function step(ele, delta, startingOffset, deltaOffset){
+	var actualOffset = startingOffset + (deltaOffset * delta);
+	ele.style.left = Math.ceil(actualOffset) + 'px'; 
+}
 
+this.prova = function(){
+	return test();
+}
 
+function test(){
+	console.log('fsfsdfsd');
+}

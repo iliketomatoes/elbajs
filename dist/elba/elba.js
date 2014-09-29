@@ -171,252 +171,157 @@ Function.prototype.setScope = function(scope) {
 
 'use strict';
  
-	//vars
-	var wrapper, base, container, pointer, loaderPointer, options, slides, count, isRetina, source, destroyed, carouselWidth = 0;
-
-	var navigation = {
-		left : null,
-		right : null,
-		dots : null
-	};
-
 	var classie = window.classie;
-
-	var animated = false;
+	var isRetina = window.devicePixelRatio > 1;
 
 	//Elba constructor
 	function Elba( el, settings ) {
+
+		//vars
+		var wrapper, pointer, loaderPointer, options, count, source, destroyed, carouselWidth = 0;
+
+		var navigation = {
+			left : null,
+			right : null,
+			dots : null
+		};
+
+		var animated = false;
 		
 		var self = this;
 
-		base = self.el = el;
+		self.el = el;
 		destroyed 		= true;
-		slides 			= [];
-		options 		= extend( self.defaults, settings );
-		isRetina		= window.devicePixelRatio > 1;
-		pointer 		= 0;
-		loaderPointer   = 0;
-
-		// First we create an array of slides to lazy load
-		createSlideArray(options.selector, base);
-		if(count > 1){
-			pointer 		= 1;
-			loaderPointer   = 1;
-			cloningHeadAndTail(base);
-		}
-			
-		setupWrapper(base);
-		container = getContainer(el, options.container);
-		setSlidesWidth();
-
-		if(count > 1){
-			base.style.left = (-getContainerWidth()) + 'px';
-		}
-
-		setupNavigation('left');
-		setupNavigation('right');
-
-		//setupCarouselWidth(base);
-
-		setupElbaIslands();
-
-		setSource();
-		//Init 
+		self.options 	= extend( self.defaults, settings );
 		
-		setupLazySlide(loaderPointer);
+		self.pointer 		= 0;
+		self.loaderPointer   = 0;
+
+		var ELBA = new CarouselHandler(self.el, self.options);
+
+		self.slides = ELBA.getSlides();
+
+		self.container = getContainer(el, self.options.container);
+
+		self.setSlidesWidth();
+
+		if(self.slides.length > 1){
+			self.pointer 		= 1;
+			self.loaderPointer   = 1;
+			self.el.style.left = (- self.getContainerWidth()) + 'px';
+		}
+
+		self.setSource();
+		
+		//Starting loading 
+		loadLazyImage.call(self);
 
 		//Bind events
-		window.addEventListener('resize', resizeHandler.setScope(self), false);
+		//window.addEventListener('resize', resizeHandler.setScope(self), false);
 
-		navigation.left.addEventListener('click', function(ev) { 
+		ELBA.getLeftNav().addEventListener('click', function(ev) { 
 			ev.preventDefault();
-			self.swipe('left');
+			//self.swipe('left');
+			console.log(self);
+			self.prova();
 		}, false);
 
-		navigation.right.addEventListener('click', function(ev) { 
+		ELBA.getRightNav().addEventListener('click', function(ev) { 
 			ev.preventDefault();
-			self.swipe('right');
+			//self.swipe('right');
+			console.log(self);
+			self.prova();
 		}, false);
-	}
-Elba.prototype = {
-
-	defaults : {
-		selector : '.elba',
-		separator : '|',
-		breakpoints : false,
-		successClass : 'elba-loaded',
-		errorClass : 'elba-error',
-		container : 'elba-wrapper',
-		src : 'data-src',
-		error : false,
-		success : false,
-		duration : 800,
-		easing: null
-	},
-	swipe : function(direction){
-		var self = this;
-
-		if(direction === 'right'){
-			goTo(self.el, 'right');
-		}else{
-			goTo(self.el, 'left');
-		}
-	}
-};	
-function setupWrapper(base){
-	wrapper = document.createElement( 'div' );
-	wrapper.className = 'elba-wrapper';
-	wrapper.wrap(base);
-}
-
-function createSlideArray(selector, parentSelector) {
-		var parent = parentSelector || document;
- 		var nodelist 	= parent.querySelectorAll(selector);
- 		count 			= nodelist.length;
- 		//converting nodelist to array
- 		for(var i = count; i--; slides.unshift(nodelist[i])){}
-	 }
-
-function cloningHeadAndTail(base){
-
-	if(count > 1){
-		var cloneTail = slides[count - 1].cloneNode(true);
-		base.insertBefore(cloneTail, base.firstChild);
-		slides.unshift(cloneTail);
-
-		var cloneHead = slides[1].cloneNode(true);
-		base.appendChild(cloneHead);
-		slides.push(cloneHead);
-		count += 2;
-	}
 	
-}	
-
-function setupNavigation(direction){
-	navigation[direction] = document.createElement( 'a' );
-	navigation[direction].className = 'elba-' + direction + '-nav';
-	navigation[direction].innerHtml = direction;
-	wrapper.appendChild(navigation[direction]);
+function isElementLoaded(ele, successClass) {
+	return classie.has(ele, successClass);
 }
 
-function setSlidesWidth(){
-
-	var containerWidth = getContainerWidth();
-
-	slides.forEach(function(el){
-		carouselWidth += containerWidth;
-		el.style.width = containerWidth + 'px';
-	});
-
-	base.style.width = carouselWidth + 'px';
-
-}
-
-function isElementLoaded(ele) {
-	return classie.has(ele, options.successClass);
-}
-
-function setupElbaIslands(){
-	slides.forEach(function(el){
-		var elbaIsland = document.createElement( 'img' );
-		elbaIsland.className = 'elba-island';
-		el.appendChild(elbaIsland);
-	});
-}
-
-function setupLazySlide(loaderPointer){
+/*function setupLazySlide(slides,loaderPointer){
 	var slide = slides[loaderPointer];
 	 loadLazyImage(slide);	
-}
+}*/
 
-function loadLazyImage(ele){
+function loadLazyImage(loadIndex){
+
+	var self = this;
+	var loaderPointer = loadIndex || self.loaderPointer;
+	var ele = self.slides[loaderPointer];
+	var count = self.slides.length;
+
+	if(isElementLoaded(ele, self.options.successClass)){
+		if(count > 1 && ((loaderPointer + 1) < (count - 1))){
+				loaderPointer++;
+				console.log('recursively fired');
+				loadLazyImage.call(self,loaderPointer);
+			}
+	}
+
+	var dataSrc = ele.getAttribute(self.source || self.options.src); // fallback to default data-src
+	var elbaIsland = ele.querySelector('.elba-island');
+
+	if(dataSrc){
+		var dataSrcSplitted = dataSrc.split(self.options.separator);
+		var src = dataSrcSplitted[isRetina && dataSrcSplitted.length > 1 ? 1 : 0];
+		var img = new Image();
+		
+		img.onerror = function() {
+			if(self.options.error) self.options.error(ele, "invalid");
+			ele.className = ele.className + ' ' + self.options.errorClass;
+		}; 
+		img.onload = function() {
 			
-			if(isElementLoaded(ele)){
-				if(count > 1 && ((loaderPointer + 1) < (count - 1))){
-						loaderPointer++;
-						setupLazySlide(loaderPointer);
-					}
+			elbaIsland.src = src;
+
+			//setImageData(elbaIsland);
+			setImageSize(elbaIsland);
+
+			classie.add(ele,'no-bg-img');
+			classie.add(ele,  self.options.successClass);
+
+			if(self.options.success) self.options.success(ele);
+
+			//Update the Head and Tail clone
+			if(count > 1 && (loaderPointer === 1 || loaderPointer === 0 || loaderPointer === (count - 1) || loaderPointer === (count - 2))){
+
+				var parentClone,elbaClone;
+
+				if(loaderPointer === 1){
+					parentClone = self.slides[count - 1];
+				}else if(loaderPointer === (count - 1)){
+					parentClone = self.slides[1];
+					}else if(loaderPointer === 0){
+						parentClone = self.slides[count - 2];
+						}else{
+							parentClone = self.slides[0];
+						}
+				
+				if(!isElementLoaded(parentClone, self.options.successClass)){
+					elbaClone = parentClone.querySelector('.elba-island');
+
+					elbaClone.src = src;
+					setImageSize(elbaClone);
+					
+					classie.add(parentClone,'no-bg-img');
+					classie.add(parentClone,  self.options.successClass);
+				}
+				
 			}
 
-			var dataSrc = ele.getAttribute(source || options.src); // fallback to default data-src
-			var elbaIsland = ele.querySelector('.elba-island');
+			if(count > 1 && loaderPointer + 1 < count - 1){
+				loaderPointer++;
+				console.log('recursively fired');
+				loadLazyImage.call(self,loaderPointer);
+			}
+			
+		};
+		img.src = src; //preload image
+	} else {
+		if(self.options.error) self.options.error(ele, "missing");
+		ele.className = ele.className + ' ' + self.options.errorClass;
+	}	
+}	 	 
 
-			if(dataSrc){
-				var dataSrcSplitted = dataSrc.split(options.separator);
-				var src = dataSrcSplitted[isRetina && dataSrcSplitted.length > 1 ? 1 : 0];
-				var img = new Image();
-				
-				img.onerror = function() {
-					if(options.error) options.error(ele, "invalid");
-					ele.className = ele.className + ' ' + options.errorClass;
-				}; 
-				img.onload = function() {
-					
-					elbaIsland.src = src;
-
-					//setImageData(elbaIsland);
-					setImageSize(elbaIsland);
-
-					classie.add(ele,'no-bg-img');
-					classie.add(ele,  options.successClass);
-	
-					if(options.success) options.success(ele);
-
-					//Update the Head and Tail clone
-					if(count > 1 && (loaderPointer === 1 || loaderPointer === 0 || loaderPointer === (count - 1) || loaderPointer === (count - 2))){
-
-						var parentClone,elbaClone;
-
-						if(loaderPointer === 1){
-							parentClone = slides[count - 1];
-						}else if(loaderPointer === (count - 1)){
-							parentClone = slides[1];
-							}else if(loaderPointer === 0){
-								parentClone = slides[count - 2];
-								}else{
-									parentClone = slides[0];
-								}
-						
-						if(!isElementLoaded(parentClone)){
-							elbaClone = parentClone.querySelector('.elba-island');
-
-							elbaClone.src = src;
-							setImageSize(elbaClone);
-							
-							classie.add(parentClone,'no-bg-img');
-							classie.add(parentClone,  options.successClass);
-						}
-						
-					}
-
-					if(count > 1 && loaderPointer + 1 < count - 1){
-						loaderPointer++;
-						setupLazySlide(loaderPointer);
-					}
-					
-				};
-				img.src = src; //preload image
-			} else {
-				if(options.error) options.error(ele, "missing");
-				ele.className = ele.className + ' ' + options.errorClass;
-			}	
-	 }	 	 
-
-
-
-function setSource(){
-	source = 0;
-	var mediaQueryMin = 0;
-	var screenWidth = getContainerWidth();
-	//handle multi-served image src
-	each(options.breakpoints, function(object){
-		if(object.width <= screenWidth && Math.abs(screenWidth - object.width) < Math.abs(screenWidth - mediaQueryMin)){
-			mediaQueryMin = object.width;
-			source = object.src;
-			return true;
-		}
-	});
-}
 
 // taken from https://github.com/desandro/vanilla-masonry/blob/master/masonry.js by David DeSandro
 // original debounce by John Hann
@@ -496,11 +401,6 @@ function goTo(ele, direction){
 	}	
 }
 
-
-
-
-
-
 function animate(ele, target, direction) {
   
   if(animated){
@@ -509,7 +409,7 @@ function animate(ele, target, direction) {
 
   animated = true;
 
-  var startingOffset =  intVal(ele.style.left);
+  var startingOffset = intVal(ele.style.left);
   
   var deltaOffset = Math.abs(startingOffset - target);
   if(direction === 'right') deltaOffset = -deltaOffset;
@@ -517,7 +417,7 @@ function animate(ele, target, direction) {
   var duration = options.duration; // duration of animation in milliseconds.
   var epsilon = (1000 / 60 / duration) / 4;
 
-  var easeing = bezier(0.19, 0.96, 0.87, 0.44, epsilon);
+  var easeing = bezier(0.445, 0.05, 0.55, 0.95, epsilon);
 
   var start = null, myReq;
 
@@ -527,19 +427,18 @@ function animate(ele, target, direction) {
   var cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 
    function animationStep(timestamp) {
-    console.log('request animation frame!!!');
-      var progress;
+    console.log(timestamp);
       if (start === null) start = timestamp;
 
       var timePassed = (timestamp - start);
-      progress = timePassed / duration;
+      var progress = timePassed / duration;
 
-      console.log('progress -> ' + progress);
+      //console.log('progress -> ' + progress);
 
       if (progress > 1) progress = 1;
 
       var delta = easeing(progress).toFixed(6);
-        console.log('delta -> ' + delta);
+        //console.log('delta -> ' + delta);
         step(ele, delta, startingOffset, deltaOffset);
 
       if (progress == 1){
@@ -555,20 +454,20 @@ function animate(ele, target, direction) {
         }
          animated = false;
          start = null;
-         window.cancelAnimationFrame(myReq);
+         cancelAnimationFrame(myReq);
       }else{
         requestAnimationFrame(animationStep);
       }
 
     }
                                 
-  if(requestAnimationFrame){
-
-  
+  if(requestAnimationFrame && cancelAnimationFrame){
 
   myReq = requestAnimationFrame(animationStep);
 
   }else{
+
+      //TODO a bettert fallback if window.requestAnimationFrame is not supported
       var id = setInterval(function() {
 
       if (start === null) start = new Date();  
@@ -594,6 +493,7 @@ function animate(ele, target, direction) {
           }
         }
          clearInterval(id);
+         start = null;
          animated = false;
       }
     },25);
@@ -604,10 +504,86 @@ function animate(ele, target, direction) {
 
 function step(ele, delta, startingOffset, deltaOffset){
 	var actualOffset = startingOffset + (deltaOffset * delta);
-  console.log(actualOffset);
 	ele.style.left = Math.ceil(actualOffset) + 'px'; 
 }
 
+this.prova = function(){
+	return test();
+}
+
+function test(){
+	console.log('fsfsdfsd');
+}
+
+//Closing Elba constructor
+}
+
+
+/* Extending Elba constructor
+************************************/
+Elba.prototype.defaults = {
+	selector : '.elba',
+	separator : '|',
+	breakpoints : false,
+	successClass : 'elba-loaded',
+	errorClass : 'elba-error',
+	container : 'elba-wrapper',
+	src : 'data-src',
+	error : false,
+	success : false,
+	duration : 1000,
+	easing: null
+};
+
+Elba.prototype.getContainerWidth = function(){
+	var self = this;
+	return getContainerWidth(self.container);
+};
+
+Elba.prototype.getContainerHeight = function(){
+	var self = this;
+	return getContainerHeight(self.container);
+};		
+
+Elba.prototype.setSlidesWidth = function(){
+	var self = this;
+	var containerWidth = self.getContainerWidth();
+	var carouselWidth = 0;
+
+	self.slides.forEach(function(el){
+		carouselWidth += containerWidth;
+		el.style.width = containerWidth + 'px';
+	});
+
+	self.el.style.width = carouselWidth + 'px';
+};
+
+Elba.prototype.setSource = function(){
+	var self = this;
+
+	self.source = 0;
+	var mediaQueryMin = 0;
+	var screenWidth = self.getContainerWidth();
+	//handle multi-served image src
+	each(self.options.breakpoints, function(object){
+		if(object.width <= screenWidth && Math.abs(screenWidth - object.width) < Math.abs(screenWidth - mediaQueryMin)){
+			mediaQueryMin = object.width;
+			self.source = object.src;
+			return true;
+		}
+	});
+};
+
+/*Elba.prototype.swipe = function(direction){
+	var self = this;
+
+		if(direction === 'right'){
+			goTo(self.el, 'right');
+		}else{
+			goTo(self.el, 'left');
+		}
+}*/
+// from https://github.com/arian/cubic-bezier
 function bezier(x1, y1, x2, y2, epsilon){
 
   var curveX = function(t){
@@ -627,24 +603,27 @@ function bezier(x1, y1, x2, y2, epsilon){
 
   return function(t){
     var x = t, t0, t1, t2, x2, d2, i;
+
     // First try a few iterations of Newton's method -- normally very fast.
     for (t2 = x, i = 0; i < 8; i++){
-    x2 = curveX(t2) - x;
-    if (Math.abs(x2) < epsilon) return curveY(t2);
-    d2 = derivativeCurveX(t2);
-    if (Math.abs(d2) < 1e-6) break;
-    t2 = t2 - x2 / d2;
+      x2 = curveX(t2) - x;
+      if (Math.abs(x2) < epsilon) return curveY(t2);
+      d2 = derivativeCurveX(t2);
+      if (Math.abs(d2) < 1e-6) break;
+      t2 = t2 - x2 / d2;
     }
+
     t0 = 0, t1 = 1, t2 = x;
+
     if (t2 < t0) return curveY(t0);
     if (t2 > t1) return curveY(t1);
     // Fallback to the bisection method for reliability.
     while (t0 < t1){
-    x2 = curveX(t2);
-    if (Math.abs(x2 - x) < epsilon) return curveY(t2);
-    if (x > x2) t0 = t2;
-    else t1 = t2;
-    t2 = (t1 - t0) * 0.5 + t0;
+      x2 = curveX(t2);
+      if (Math.abs(x2 - x) < epsilon) return curveY(t2);
+      if (x > x2) t0 = t2;
+      else t1 = t2;
+      t2 = (t1 - t0) * 0.5 + t0;
     }
     // Failure
     return curveY(t2);
@@ -703,6 +682,96 @@ function containerAspectRatio(){
 }
 
 
+function CarouselHandler(base, options){
+
+	var self = this;
+
+	self.slides = [];
+	self.count = 0;
+	self.navigation = {
+		left : null,
+		right : null,
+		dots : null
+	};
+
+	// First we create an array of slides to lazy load
+    self.createSlideArray(options.selector, base);
+
+    // Then set up the carousel wrapper
+    self.setupWrapper(base);
+
+    if(self.count > 1){
+    	self.cloningHeadAndTail(base);
+    }
+
+    //Setting up the navigation
+    self.setupNavigation('left');
+	self.setupNavigation('right');
+
+	self.setupElbaIslands();
+}
+
+CarouselHandler.prototype.createSlideArray = function(selector, parentSelector){
+	var self = this;
+	var parent = parentSelector || document;
+	var nodelist = parent.querySelectorAll(selector);
+	self.count 	= nodelist.length;
+	//converting nodelist to array
+	for(var i = self.count; i--; self.slides.unshift(nodelist[i])){}
+};
+
+CarouselHandler.prototype.cloningHeadAndTail = function(base){
+	var self = this;
+
+	if(self.count > 1){
+		var cloneTail = self.slides[self.count - 1].cloneNode(true);
+		base.insertBefore(cloneTail, base.firstChild);
+		self.slides.unshift(cloneTail);
+
+		var cloneHead = self.slides[1].cloneNode(true);
+		base.appendChild(cloneHead);
+		self.slides.push(cloneHead);
+		self.count += 2;
+	}	
+};
+
+CarouselHandler.prototype.setupWrapper = function(base){
+	var self = this;
+
+	self.wrapper = document.createElement( 'div' );
+	self.wrapper.className = 'elba-wrapper';
+	self.wrapper.wrap(base);
+};
+
+CarouselHandler.prototype.setupNavigation = function(direction){
+	var self = this;
+
+	self.navigation[direction] = document.createElement( 'a' );
+	self.navigation[direction].className = 'elba-' + direction + '-nav';
+	self.navigation[direction].innerHtml = direction;
+	self.wrapper.appendChild(self.navigation[direction]);
+};
+
+CarouselHandler.prototype.setupElbaIslands = function(){
+	var self = this;
+	self.slides.forEach(function(el){
+		var elbaIsland = document.createElement( 'img' );
+		elbaIsland.className = 'elba-island';
+		el.appendChild(elbaIsland);
+	});
+};
+
+CarouselHandler.prototype.getSlides = function(){
+	return this.slides;
+};
+
+CarouselHandler.prototype.getLeftNav = function(){
+	return this.navigation.left;
+};
+
+CarouselHandler.prototype.getRightNav = function(){
+	return this.navigation.right;
+};
 function extend( a, b ) {
 	for( var key in b ) { 
 		if( b.hasOwnProperty( key ) ) {
@@ -712,7 +781,7 @@ function extend( a, b ) {
 	return a;
 }
 
-function getContainerWidth(){
+function getContainerWidth(container){
     if(typeof container !== 'undefined' && container){
         return container.offsetWidth;
     }else{
@@ -720,7 +789,7 @@ function getContainerWidth(){
     }
 }	 	
 
-function getContainerHeight(){
+function getContainerHeight(container){
      if(typeof container !== 'undefined' && container){
         return container.offsetHeight;
     }else{
@@ -728,8 +797,8 @@ function getContainerHeight(){
      }
 }   
 
-function getLeftOffset(){
-  return - (getContainerWidth() * pointer);
+function getLeftOffset(pointer,container){
+  return - (getContainerWidth(container) * pointer);
 }
 
 
