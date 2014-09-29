@@ -1,31 +1,43 @@
+body,html{
+	width: 100%;
+	height: 100%;
+	margin: 0px;
+	padding: 0px;
+	border: 0px none;
+	font-size: 100%;
+}
+
+ *, *:before, *:after {
+      -moz-box-sizing: border-box;
+      -webkit-box-sizing: border-box;
+      box-sizing: border-box;
+     }
+
 /******** WRAPPER *********/
 .elba-wrapper{
-	position: absolute;
-	left: 0;
-	top: 0;
-	right: 0;
-	bottom: 0;
+	position: relative;
+	width: 100%;
+	height: 100%;
 	overflow: hidden;
-	@include box-sizing;
 
-	& div{
-		@include box-sizing;
-	}
 }
 
 /******** CAROUSEL *********/
-.elba-carousel,.elba, .elba-island, .elba-content{
-	-webkit-transform: translate3d(0, 0, 0);
+.elba-carousel, .elba, .elba-island,{
+	@include transform(translate3d(0, 0, 0));
 	-webkit-backface-visibility: hidden;
 	-webkit-perspective: 1000;
 }
 
 .elba-carousel{
 	position: absolute;
-	left: 0;
 	top: 0;
-	right: 0;
 	bottom: 0;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	border: none;
+	overflow: hidden;
 
 	//-webkit-perspective: 1000;
 	//@include single-transition(all, 700ms, ease-in);	
@@ -37,6 +49,9 @@
 		position: relative;
 		height: 100%;
 		width: 100%;
+		margin: 0;
+		padding: 0;
+		border: none;
 		overflow: hidden;
 		background-repeat: no-repeat;
 		background-position: center center;
@@ -45,12 +60,7 @@
 
 .elba-island{
 	position: absolute;
-	//height: 100%;
-	//width: 100%;
-	/*background-size: cover;
-	background-repeat: no-repeat;
-	background-position: center center;*/
-	max-width: none;
+	//max-width: none;
 	-webkit-transform: translate3d(0, 0, 0);
 	@include single-transition(all, 500ms, ease-in-out);
 	opacity: 0;

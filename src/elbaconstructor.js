@@ -3,7 +3,7 @@
 'use strict';
  
 	//vars
-	var wrapper, container, pointer, loaderPointer, options, slides, count, isRetina, source, destroyed;
+	var wrapper, base, container, pointer, loaderPointer, options, slides, count, isRetina, source, destroyed, carouselWidth = 0;
 
 	var navigation = {
 		left : null,
@@ -15,23 +15,19 @@
 
 	var animated = false;
 
-	// from http://www.developerdrive.com/2012/03/coding-vendor-prefixes-with-javascript/
-	var vendorTransform = getVendorPrefix(["transform", "msTransform", "MozTransform", "WebkitTransform", "OTransform"]);
-
-	var has3D = threeDEnabled();
-
 	//Elba constructor
 	function Elba( el, settings ) {
 		
 		var self = this;
 
-		var base = self.el = el;
+		base = self.el = el;
 		destroyed 		= true;
 		slides 			= [];
 		options 		= extend( self.defaults, settings );
 		isRetina		= window.devicePixelRatio > 1;
 		pointer 		= 0;
 		loaderPointer   = 0;
+
 		// First we create an array of slides to lazy load
 		createSlideArray(options.selector, base);
 		if(count > 1){
@@ -43,8 +39,25 @@
 		setupWrapper(base);
 		container = getContainer(el, options.container);
 		setSlidesWidth();
+
+		if(count > 1){
+			base.style.left = (-getContainerWidth()) + 'px';
+		}
+
 		setupNavigation('left');
 		setupNavigation('right');
+
+		//setupCarouselWidth(base);
+
+		setupElbaIslands();
+
+		setSource();
+		//Init 
+		
+		setupLazySlide(loaderPointer);
+
+		//Bind events
+		window.addEventListener('resize', resizeHandler.setScope(self), false);
 
 		navigation.left.addEventListener('click', function(ev) { 
 			ev.preventDefault();
@@ -55,18 +68,4 @@
 			ev.preventDefault();
 			self.swipe('right');
 		}, false);
-
-		setupCarouselWidth(base);
-
-		setupElbaIslands();
-
-		setSource();
-		//Init 
-		//setupSlides();
-		if(has3D){
-			base.style[vendorTransform] = 'translate3d(0,0,0)';
-		}
-		
-		setupLazySlide(loaderPointer);
-		window.addEventListener('resize', resizeHandler.setScope(self), false);
 	}

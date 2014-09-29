@@ -1,4 +1,4 @@
-/*! elba - v0.0.1 - 2014-09-27
+/*! elba - v0.0.1 - 2014-09-29
 * https://github.com/dedalodesign/elbajs
 * Copyright (c) 2014 ; Licensed  */
 /*!
@@ -172,7 +172,7 @@ Function.prototype.setScope = function(scope) {
 'use strict';
  
 	//vars
-	var wrapper, container, pointer, loaderPointer, options, slides, count, isRetina, source, destroyed;
+	var wrapper, base, container, pointer, loaderPointer, options, slides, count, isRetina, source, destroyed, carouselWidth = 0;
 
 	var navigation = {
 		left : null,
@@ -184,23 +184,19 @@ Function.prototype.setScope = function(scope) {
 
 	var animated = false;
 
-	// from http://www.developerdrive.com/2012/03/coding-vendor-prefixes-with-javascript/
-	var vendorTransform = getVendorPrefix(["transform", "msTransform", "MozTransform", "WebkitTransform", "OTransform"]);
-
-	var has3D = threeDEnabled();
-
 	//Elba constructor
 	function Elba( el, settings ) {
 		
 		var self = this;
 
-		var base = self.el = el;
+		base = self.el = el;
 		destroyed 		= true;
 		slides 			= [];
 		options 		= extend( self.defaults, settings );
 		isRetina		= window.devicePixelRatio > 1;
 		pointer 		= 0;
 		loaderPointer   = 0;
+
 		// First we create an array of slides to lazy load
 		createSlideArray(options.selector, base);
 		if(count > 1){
@@ -212,8 +208,25 @@ Function.prototype.setScope = function(scope) {
 		setupWrapper(base);
 		container = getContainer(el, options.container);
 		setSlidesWidth();
+
+		if(count > 1){
+			base.style.left = (-getContainerWidth()) + 'px';
+		}
+
 		setupNavigation('left');
 		setupNavigation('right');
+
+		//setupCarouselWidth(base);
+
+		setupElbaIslands();
+
+		setSource();
+		//Init 
+		
+		setupLazySlide(loaderPointer);
+
+		//Bind events
+		window.addEventListener('resize', resizeHandler.setScope(self), false);
 
 		navigation.left.addEventListener('click', function(ev) { 
 			ev.preventDefault();
@@ -224,20 +237,6 @@ Function.prototype.setScope = function(scope) {
 			ev.preventDefault();
 			self.swipe('right');
 		}, false);
-
-		setupCarouselWidth(base);
-
-		setupElbaIslands();
-
-		setSource();
-		//Init 
-		//setupSlides();
-		if(has3D){
-			base.style[vendorTransform] = 'translate3d(0,0,0)';
-		}
-		
-		setupLazySlide(loaderPointer);
-		window.addEventListener('resize', resizeHandler.setScope(self), false);
 	}
 Elba.prototype = {
 
@@ -253,9 +252,9 @@ Elba.prototype = {
 		success : false,
 		duration : 800,
 		delta : function(progress){
-			return power(progress, 2);
+			return squareRoot(progress);
 		},
-		delay : 10,
+		delay : 25,
 		transitionEase : 'ease-in-out'
 	},
 	swipe : function(direction){
@@ -293,7 +292,6 @@ function cloningHeadAndTail(base){
 		base.appendChild(cloneHead);
 		slides.push(cloneHead);
 		count += 2;
-		console.log(slides);
 	}
 	
 }	
@@ -305,15 +303,18 @@ function setupNavigation(direction){
 	wrapper.appendChild(navigation[direction]);
 }
 
-function setupCarouselWidth(base){
-	var carouselWidth = count * 100;
-		carouselWidth += '%'; 
-	base.style.width = carouselWidth;
+function setSlidesWidth(){
 
-	if(count > 1){
-		base.style.left = (-getContainerWidth()) + 'px';
-	}
-}	
+	var containerWidth = getContainerWidth();
+
+	slides.forEach(function(el){
+		carouselWidth += containerWidth;
+		el.style.width = containerWidth + 'px';
+	});
+
+	base.style.width = carouselWidth + 'px';
+
+}
 
 function isElementLoaded(ele) {
 	return classie.has(ele, options.successClass);
@@ -324,9 +325,6 @@ function setupElbaIslands(){
 		var elbaIsland = document.createElement( 'img' );
 		elbaIsland.className = 'elba-island';
 		el.appendChild(elbaIsland);
-		if(has3D){
-			el.style[vendorTransform] = 'translate3d(0,0,0)';
-		}
 	});
 }
 
@@ -408,16 +406,7 @@ function loadLazyImage(ele){
 			}	
 	 }	 	 
 
-function setSlidesWidth(){
 
-	var windowWidth = getContainerWidth();
-
-	slides.forEach(function(el){
-		el.style.width = windowWidth + 'px';
-	});
-
-
-}
 
 function setSource(){
 	source = 0;
@@ -513,9 +502,6 @@ function goTo(ele, direction){
 }
 
 
-function getLeftOffset(){
-	return - (getContainerWidth() * pointer);
-}
 
 
 
@@ -542,7 +528,7 @@ function animate(ele, target, direction) {
     
     //var powerEaseOut = makeEaseOut(options.delta);
     //var delta = powerEaseOut(progress);
-    var delta = options.delta(progress);
+    var delta = squareRoot(progress);
     step(ele, delta, startingOffset, deltaOffset);
     
     if (progress == 1) {
@@ -579,7 +565,7 @@ function power(progress, n) {
 }
 
 function squareRoot(progress){
-	return Math.sqrt(progress);
+	return Math.sqrt(progress).toFixed(3);
 }
 
 function circ(progress) {
@@ -625,16 +611,8 @@ function makeEaseInOut(delta) {
 
 function setImageSize(elbaIsland){
 
-
-
 	var imgRatio = imageAspectRatio(elbaIsland);
 	var containerRatio = containerAspectRatio();
-	//centerImage(elbaIsland);
-	console.log('img ratio -> ' + imgRatio);
-	console.log('container ratio -> ' + containerRatio);
-	//console.log(getContainer(elbaIsland, options.container));	
-	
-	//centerImage(elbaIsland);
 
     var containerWidth = getContainerWidth();
     var containerHeight = getContainerHeight();
@@ -642,34 +620,19 @@ function setImageSize(elbaIsland){
     var newHeight, newWidth;
 
     if (containerRatio >= imgRatio){
-    	elbaIsland.height = newHeight = containerHeight;
-    	elbaIsland.width = newWidth = containerHeight / imgRatio;
+    	elbaIsland.height = newHeight = Math.ceil(containerHeight);
+    	elbaIsland.width = newWidth = Math.ceil(containerHeight / imgRatio);
     }else{
-    	elbaIsland.height = newHeight = containerWidth * imgRatio;
-    	elbaIsland.width = newWidth = containerWidth;
+    	elbaIsland.height = newHeight = Math.ceil(containerWidth * imgRatio);
+    	elbaIsland.width = newWidth = Math.ceil(containerWidth);
     }
 
     centerImage(elbaIsland, newHeight, newWidth);
-	/*if (containerRatio > imgRatio) {
-		elbaIsland.height = getWindowHeight();
-		elbaIsland.width = getWindowHeight() * imgRatio;
-	}else{
-		elbaIsland.height = getWindowWidth() * imgRatio;
-		elbaIsland.width = getWindowWidth();
-	}*/
+
 }	 
 
-/*function setImageData(img){
-
-	img.setAttribute( 'data-natural-w', img.width);
-	img.setAttribute( 'data-natural-h', img.height);
-	
-}*/
 
 function centerImage(elbaIsland , newHeight, newWidth){
-	//elbaIsland.left =
-	console.log('elbaIsland.width -> ' + newWidth);
-	console.log('elbaIsland.height -> ' + newHeight);
 
 	var centerX = (getContainerWidth() - newWidth) / 2;
 	var centerY = (getContainerHeight() - newHeight) / 2;
@@ -683,7 +646,6 @@ function imageAspectRatio(img){
     return img.naturalHeight / img.naturalWidth;
 }
 
-//TODO
 function containerAspectRatio(){
     var containerWidth = getContainerWidth();
     var containerHeight = getContainerHeight();
@@ -717,61 +679,17 @@ function getContainerHeight(){
      }
 }   
 
+function getLeftOffset(){
+  return - (getContainerWidth() * pointer);
+}
+
+
 function each(object, fn){
  		if(object && fn) {
  			var l = object.length;
  			for(var i = 0; i<l && fn(object[i], i) !== false; i++){}
  		}
 	 }
-
-
-
- // from: https://gist.github.com/streunerlein/2935794
-function getVendorPrefix(arrayOfPrefixes) {
- 
-var tmp = document.createElement("div");
-var result = "";
- 
-for (var i = 0; i < arrayOfPrefixes.length; ++i) {
- 
-if (typeof tmp.style[arrayOfPrefixes[i]] != 'undefined'){
-result = arrayOfPrefixes[i];
-break;
-}
-else {
-result = null;
-}
-}
- 
-return result;
-} 
-
- // from: https://gist.github.com/lorenzopolidori/3794226
-function threeDEnabled(){
-    var el = document.createElement('p'),
-    has3d,
-    transforms = {
-        'webkitTransform':'-webkit-transform',
-        'OTransform':'-o-transform',
-        'msTransform':'-ms-transform',
-        'MozTransform':'-moz-transform',
-        'transform':'transform'
-    };
- 
-    // Add it to the body to get the computed style
-    document.body.insertBefore(el, null);
- 
-    for(var t in transforms){
-        if( el.style[t] !== undefined ){
-            el.style[t] = 'translate3d(1px,1px,1px)';
-            has3d = window.getComputedStyle(el).getPropertyValue(transforms[t]);
-        }
-    }
- 
-    document.body.removeChild(el);
- 
-    return (has3d !== undefined && has3d.length > 0 && has3d !== "none");
-}
 
 function intVal(x){
 	if(x){

@@ -25,7 +25,6 @@ function cloningHeadAndTail(base){
 		base.appendChild(cloneHead);
 		slides.push(cloneHead);
 		count += 2;
-		console.log(slides);
 	}
 	
 }	
@@ -37,15 +36,18 @@ function setupNavigation(direction){
 	wrapper.appendChild(navigation[direction]);
 }
 
-function setupCarouselWidth(base){
-	var carouselWidth = count * 100;
-		carouselWidth += '%'; 
-	base.style.width = carouselWidth;
+function setSlidesWidth(){
 
-	if(count > 1){
-		base.style.left = (-getContainerWidth()) + 'px';
-	}
-}	
+	var containerWidth = getContainerWidth();
+
+	slides.forEach(function(el){
+		carouselWidth += containerWidth;
+		el.style.width = containerWidth + 'px';
+	});
+
+	base.style.width = carouselWidth + 'px';
+
+}
 
 function isElementLoaded(ele) {
 	return classie.has(ele, options.successClass);
@@ -56,9 +58,6 @@ function setupElbaIslands(){
 		var elbaIsland = document.createElement( 'img' );
 		elbaIsland.className = 'elba-island';
 		el.appendChild(elbaIsland);
-		if(has3D){
-			el.style[vendorTransform] = 'translate3d(0,0,0)';
-		}
 	});
 }
 
@@ -140,16 +139,7 @@ function loadLazyImage(ele){
 			}	
 	 }	 	 
 
-function setSlidesWidth(){
 
-	var windowWidth = getContainerWidth();
-
-	slides.forEach(function(el){
-		el.style.width = windowWidth + 'px';
-	});
-
-
-}
 
 function setSource(){
 	source = 0;
@@ -245,9 +235,6 @@ function goTo(ele, direction){
 }
 
 
-function getLeftOffset(){
-	return - (getContainerWidth() * pointer);
-}
 
 
 

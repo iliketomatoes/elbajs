@@ -1,15 +1,7 @@
 function setImageSize(elbaIsland){
 
-
-
 	var imgRatio = imageAspectRatio(elbaIsland);
 	var containerRatio = containerAspectRatio();
-	//centerImage(elbaIsland);
-	console.log('img ratio -> ' + imgRatio);
-	console.log('container ratio -> ' + containerRatio);
-	//console.log(getContainer(elbaIsland, options.container));	
-	
-	//centerImage(elbaIsland);
 
     var containerWidth = getContainerWidth();
     var containerHeight = getContainerHeight();
@@ -17,34 +9,19 @@ function setImageSize(elbaIsland){
     var newHeight, newWidth;
 
     if (containerRatio >= imgRatio){
-    	elbaIsland.height = newHeight = containerHeight;
-    	elbaIsland.width = newWidth = containerHeight / imgRatio;
+    	elbaIsland.height = newHeight = Math.ceil(containerHeight);
+    	elbaIsland.width = newWidth = Math.ceil(containerHeight / imgRatio);
     }else{
-    	elbaIsland.height = newHeight = containerWidth * imgRatio;
-    	elbaIsland.width = newWidth = containerWidth;
+    	elbaIsland.height = newHeight = Math.ceil(containerWidth * imgRatio);
+    	elbaIsland.width = newWidth = Math.ceil(containerWidth);
     }
 
     centerImage(elbaIsland, newHeight, newWidth);
-	/*if (containerRatio > imgRatio) {
-		elbaIsland.height = getWindowHeight();
-		elbaIsland.width = getWindowHeight() * imgRatio;
-	}else{
-		elbaIsland.height = getWindowWidth() * imgRatio;
-		elbaIsland.width = getWindowWidth();
-	}*/
+
 }	 
 
-/*function setImageData(img){
-
-	img.setAttribute( 'data-natural-w', img.width);
-	img.setAttribute( 'data-natural-h', img.height);
-	
-}*/
 
 function centerImage(elbaIsland , newHeight, newWidth){
-	//elbaIsland.left =
-	console.log('elbaIsland.width -> ' + newWidth);
-	console.log('elbaIsland.height -> ' + newHeight);
 
 	var centerX = (getContainerWidth() - newWidth) / 2;
 	var centerY = (getContainerHeight() - newHeight) / 2;
@@ -58,7 +35,6 @@ function imageAspectRatio(img){
     return img.naturalHeight / img.naturalWidth;
 }
 
-//TODO
 function containerAspectRatio(){
     var containerWidth = getContainerWidth();
     var containerHeight = getContainerHeight();

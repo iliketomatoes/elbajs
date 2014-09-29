@@ -20,7 +20,7 @@ function animate(ele, target, direction) {
     
     //var powerEaseOut = makeEaseOut(options.delta);
     //var delta = powerEaseOut(progress);
-    var delta = squareRoot(progress);
+    var delta = options.delta(progress);
     step(ele, delta, startingOffset, deltaOffset);
     
     if (progress == 1) {
