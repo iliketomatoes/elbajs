@@ -13,11 +13,7 @@ Elba.prototype = {
 		error : false,
 		success : false,
 		duration : 800,
-		delta : function(progress){
-			return squareRoot(progress);
-		},
-		delay : 25,
-		transitionEase : 'ease-in-out'
+		easing: null
 	},
 	swipe : function(direction){
 		var self = this;

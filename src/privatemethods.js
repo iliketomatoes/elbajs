@@ -205,7 +205,6 @@ function destroy(){
 	for(var i = 0; i < slides.length; i++){
 			var slide = slides[i];
  			if(slide) {
-				var elbaIsland = slide.querySelector('.elba-island');
 				classie.remove(slide,'no-bg-img');
 				classie.remove(slide,  options.successClass);
  			} 
