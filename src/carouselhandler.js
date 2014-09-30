@@ -18,11 +18,17 @@ function CarouselHandler(base, options){
 
     if(self.count > 1){
     	self.cloningHeadAndTail(base);
-    }
 
-    //Setting up the navigation
-    self.setupNavigation('left');
-	self.setupNavigation('right');
+    	//Setting up the navigation
+	    if(options.navigation){
+	    	self.setupNavigation('left');
+			self.setupNavigation('right');
+	    }
+
+	    if(options.dots){
+	    	self.setupDots();
+	    }
+    }
 
 	self.setupElbaIslands();
 }
@@ -68,6 +74,23 @@ CarouselHandler.prototype.setupNavigation = function(direction){
 	self.wrapper.appendChild(self.navigation[direction]);
 };
 
+CarouselHandler.prototype.setupDots = function(){
+	var self = this;
+
+	self.navigation.dots = [];
+
+	var dotsContainer = document.createElement('div');
+	dotsContainer.className = 'elba-dots-ctr';
+	self.wrapper.appendChild(dotsContainer);
+
+	for(var i = 1; i < self.count - 1; i++){
+		self.navigation.dots[i]  = document.createElement('a');
+		self.navigation.dots[i].className  = 'elba-dot';
+		dotsContainer.appendChild(self.navigation.dots[i]);
+	}
+
+};
+
 CarouselHandler.prototype.setupElbaIslands = function(){
 	var self = this;
 	self.slides.forEach(function(el){
@@ -87,4 +110,8 @@ CarouselHandler.prototype.getLeftNav = function(){
 
 CarouselHandler.prototype.getRightNav = function(){
 	return this.navigation.right;
+};
+
+CarouselHandler.prototype.getDots = function(){
+	return this.navigation.dots;
 };

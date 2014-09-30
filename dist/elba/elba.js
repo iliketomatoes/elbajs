@@ -231,26 +231,44 @@ Function.prototype.setScope = function(scope) {
 			self.pointer 		= 1;
 			self.loaderPointer   = 1;
 			self.el.style.left = (- self.getContainerWidth()) + 'px';
+
+			//Bind navigation events
+			if(self.options.navigation){
+			bindEvent(ELBA.getLeftNav(), 'click', function(ev) { 
+				ev.preventDefault();
+				self.goTo('left');
+				});
+
+			bindEvent(ELBA.getRightNav(), 'click', function(ev) { 
+				ev.preventDefault();
+				self.goTo('right');
+				});
+			}
+			
+			if(self.options.dots){
+				self.dots = ELBA.getDots();
+
+				classie.add(self.dots[self.pointer], 'active-dot');
+
+				for(var i = 1; i < self.slides.length - 1; i++){
+					self.dots[i].setAttribute('data-target', i);
+					bindEvent(self.dots[i], 'click', function(ev){
+						ev.preventDefault();
+						self.dotTo(this.getAttribute('data-target'));
+					});
+				}
+
+			}
 		}
 
+		//Set images' src
 		self.setSource();
 		
 		//Starting lazy load 
 		loadLazyImage.call(self);
 
-		//Bind events
-
+		//Bind resize event
 		bindEvent(window, 'resize', resizeHandler.setScope(self));
-
-		bindEvent(ELBA.getLeftNav(), 'click', function(ev) { 
-			ev.preventDefault();
-			self.goTo('left');
-		});
-
-		bindEvent(ELBA.getRightNav(), 'click', function(ev) { 
-			ev.preventDefault();
-			self.goTo('right');
-		});
 	
 function isElementLoaded(ele, successClass) {
 	return classie.has(ele, successClass);
@@ -411,7 +429,9 @@ Elba.prototype.defaults = {
 	error : false,
 	success : false,
 	duration : 1000,
-	easing: 'easeInOutCubic'
+	easing: 'easeInOutCubic',
+	navigation : true,
+	dots: true
 };
 
 Elba.prototype.getContainerWidth = function(){
@@ -454,10 +474,10 @@ Elba.prototype.setSource = function(){
 
 Elba.prototype.goTo = function(direction){
 	var self = this;
-	if(typeof direction === 'string'){
+	if(typeof direction === 'string' && isNaN(direction)){
 		var count = self.slides.length;
 		if(direction === 'right'){
-			if(self.pointer + 1 >= count ){
+			if(self.pointer + 1 >= count){
 				return false;
 			}
 			self.pointer++;
@@ -469,9 +489,49 @@ Elba.prototype.goTo = function(direction){
 			self.pointer--;
 			animate.call(self, 'left');
 		}
+	}else if(!isNaN(direction)){
+		var oldPointer = self.pointer;
+		self.pointer = parseInt(direction);
+		if(self.pointer > oldPointer){
+			animate.call(self, 'right');
+		}else{
+			animate.call(self, 'left');
+		}	
 	}else{
 		self.el.style.left = intVal(self.getLeftOffset()) + 'px';
 	}	
+};
+
+Elba.prototype.dotTo = function(index){
+	var self = this;
+
+	if(parseInt(index) === self.pointer){
+		return false;
+	}else{
+		self.goTo(index);
+	}
+
+};
+
+Elba.prototype.updateDots = function(){
+	var self = this;
+
+	self.dots.forEach(function(el){
+		classie.remove(el,'active-dot');
+	});
+
+	var index;
+
+	if(self.pointer === self.slides.length - 1){
+		index = 1;
+	}else if(self.pointer === 0){
+		index = self.slides.length - 2;
+	}else{
+		index = self.pointer;
+	}
+
+	classie.add(self.dots[index],'active-dot');
+
 };
 
 Elba.prototype.getLeftOffset = function(){
@@ -557,6 +617,9 @@ function animate(direction) {
          self.animated = false;
          start = null;
          cancelAnimationFrame(myReq);
+         if(self.dots){
+            self.updateDots();
+          }
       }else{
         requestAnimationFrame(animationStep);
       }
@@ -598,6 +661,9 @@ function animate(direction) {
          clearInterval(id);
          start = null;
          self.animated = false;
+         if(self.dots){
+            self.updateDots();
+          }
       }
     },25);
   }                             
@@ -688,11 +754,17 @@ function CarouselHandler(base, options){
 
     if(self.count > 1){
     	self.cloningHeadAndTail(base);
-    }
 
-    //Setting up the navigation
-    self.setupNavigation('left');
-	self.setupNavigation('right');
+    	//Setting up the navigation
+	    if(options.navigation){
+	    	self.setupNavigation('left');
+			self.setupNavigation('right');
+	    }
+
+	    if(options.dots){
+	    	self.setupDots();
+	    }
+    }
 
 	self.setupElbaIslands();
 }
@@ -738,6 +810,23 @@ CarouselHandler.prototype.setupNavigation = function(direction){
 	self.wrapper.appendChild(self.navigation[direction]);
 };
 
+CarouselHandler.prototype.setupDots = function(){
+	var self = this;
+
+	self.navigation.dots = [];
+
+	var dotsContainer = document.createElement('div');
+	dotsContainer.className = 'elba-dots-ctr';
+	self.wrapper.appendChild(dotsContainer);
+
+	for(var i = 1; i < self.count - 1; i++){
+		self.navigation.dots[i]  = document.createElement('a');
+		self.navigation.dots[i].className  = 'elba-dot';
+		dotsContainer.appendChild(self.navigation.dots[i]);
+	}
+
+};
+
 CarouselHandler.prototype.setupElbaIslands = function(){
 	var self = this;
 	self.slides.forEach(function(el){
@@ -757,6 +846,10 @@ CarouselHandler.prototype.getLeftNav = function(){
 
 CarouselHandler.prototype.getRightNav = function(){
 	return this.navigation.right;
+};
+
+CarouselHandler.prototype.getDots = function(){
+	return this.navigation.dots;
 };
 function extend( a, b ) {
 	for( var key in b ) { 

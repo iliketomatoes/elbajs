@@ -48,6 +48,9 @@ function animate(direction) {
          self.animated = false;
          start = null;
          cancelAnimationFrame(myReq);
+         if(self.dots){
+            self.updateDots();
+          }
       }else{
         requestAnimationFrame(animationStep);
       }
@@ -89,6 +92,9 @@ function animate(direction) {
          clearInterval(id);
          start = null;
          self.animated = false;
+         if(self.dots){
+            self.updateDots();
+          }
       }
     },25);
   }                             

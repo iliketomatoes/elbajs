@@ -62,24 +62,42 @@
 			self.pointer 		= 1;
 			self.loaderPointer   = 1;
 			self.el.style.left = (- self.getContainerWidth()) + 'px';
+
+			//Bind navigation events
+			if(self.options.navigation){
+			bindEvent(ELBA.getLeftNav(), 'click', function(ev) { 
+				ev.preventDefault();
+				self.goTo('left');
+				});
+
+			bindEvent(ELBA.getRightNav(), 'click', function(ev) { 
+				ev.preventDefault();
+				self.goTo('right');
+				});
+			}
+			
+			if(self.options.dots){
+				self.dots = ELBA.getDots();
+
+				classie.add(self.dots[self.pointer], 'active-dot');
+
+				for(var i = 1; i < self.slides.length - 1; i++){
+					self.dots[i].setAttribute('data-target', i);
+					bindEvent(self.dots[i], 'click', function(ev){
+						ev.preventDefault();
+						self.dotTo(this.getAttribute('data-target'));
+					});
+				}
+
+			}
 		}
 
+		//Set images' src
 		self.setSource();
 		
 		//Starting lazy load 
 		loadLazyImage.call(self);
 
-		//Bind events
-
+		//Bind resize event
 		bindEvent(window, 'resize', resizeHandler.setScope(self));
-
-		bindEvent(ELBA.getLeftNav(), 'click', function(ev) { 
-			ev.preventDefault();
-			self.goTo('left');
-		});
-
-		bindEvent(ELBA.getRightNav(), 'click', function(ev) { 
-			ev.preventDefault();
-			self.goTo('right');
-		});
 	

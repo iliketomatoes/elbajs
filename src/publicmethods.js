@@ -19,7 +19,9 @@ Elba.prototype.defaults = {
 	error : false,
 	success : false,
 	duration : 1000,
-	easing: 'easeInOutCubic'
+	easing: 'easeInOutCubic',
+	navigation : true,
+	dots: true
 };
 
 Elba.prototype.getContainerWidth = function(){
@@ -62,10 +64,10 @@ Elba.prototype.setSource = function(){
 
 Elba.prototype.goTo = function(direction){
 	var self = this;
-	if(typeof direction === 'string'){
+	if(typeof direction === 'string' && isNaN(direction)){
 		var count = self.slides.length;
 		if(direction === 'right'){
-			if(self.pointer + 1 >= count ){
+			if(self.pointer + 1 >= count){
 				return false;
 			}
 			self.pointer++;
@@ -77,9 +79,49 @@ Elba.prototype.goTo = function(direction){
 			self.pointer--;
 			animate.call(self, 'left');
 		}
+	}else if(!isNaN(direction)){
+		var oldPointer = self.pointer;
+		self.pointer = parseInt(direction);
+		if(self.pointer > oldPointer){
+			animate.call(self, 'right');
+		}else{
+			animate.call(self, 'left');
+		}	
 	}else{
 		self.el.style.left = intVal(self.getLeftOffset()) + 'px';
 	}	
+};
+
+Elba.prototype.dotTo = function(index){
+	var self = this;
+
+	if(parseInt(index) === self.pointer){
+		return false;
+	}else{
+		self.goTo(index);
+	}
+
+};
+
+Elba.prototype.updateDots = function(){
+	var self = this;
+
+	self.dots.forEach(function(el){
+		classie.remove(el,'active-dot');
+	});
+
+	var index;
+
+	if(self.pointer === self.slides.length - 1){
+		index = 1;
+	}else if(self.pointer === 0){
+		index = self.slides.length - 2;
+	}else{
+		index = self.pointer;
+	}
+
+	classie.add(self.dots[index],'active-dot');
+
 };
 
 Elba.prototype.getLeftOffset = function(){
