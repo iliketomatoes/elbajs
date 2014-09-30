@@ -26,7 +26,6 @@ module.exports = function(grunt) {
               'src/privatemethods.js',
               'src/publicmethods.js',
               'src/animations.js',
-              'src/images.js',
               'src/carouselhandler.js',
               'src/helpers.js',
               'src/outro.js'

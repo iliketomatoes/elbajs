@@ -4,11 +4,6 @@ function isElementLoaded(ele, successClass) {
 	return classie.has(ele, successClass);
 }
 
-/*function setupLazySlide(slides,loaderPointer){
-	var slide = slides[loaderPointer];
-	 loadLazyImage(slide);	
-}*/
-
 function loadLazyImage(loadIndex){
 
 	var self = this;
@@ -40,8 +35,7 @@ function loadLazyImage(loadIndex){
 			
 			elbaIsland.src = src;
 
-			//setImageData(elbaIsland);
-			setImageSize(elbaIsland);
+			self.setImageSize(elbaIsland);
 
 			classie.add(ele,'no-bg-img');
 			classie.add(ele,  self.options.successClass);
@@ -67,7 +61,7 @@ function loadLazyImage(loadIndex){
 					elbaClone = parentClone.querySelector('.elba-island');
 
 					elbaClone.src = src;
-					setImageSize(elbaClone);
+					self.setImageSize(elbaClone);
 					
 					classie.add(parentClone,'no-bg-img');
 					classie.add(parentClone,  self.options.successClass);
@@ -96,7 +90,7 @@ function loadLazyImage(loadIndex){
 function resizeHandler() {
 		var self = this;
 		function delayed() {
-			doResize(self.el);
+			doResize.call(self);
 			self._resizeTimeout = null;
 		}
 
@@ -107,23 +101,24 @@ function resizeHandler() {
 		self._resizeTimeout = setTimeout( delayed, 100 );
 	}
 
-function doResize(ele){
-	setSlidesWidth();
+function doResize(){
+	var self = this;
 
-	goTo(ele);
+	self.setSlidesWidth();
+	self.goTo();
 
-	var oldSource = source;
-	setSource();
+	var oldSource = self.source;
+	self.setSource();
 
-	if(oldSource !== source){
-		destroy();
-		setupLazySlide(loaderPointer);
+	if(oldSource !== self.source){
+		destroy.call(self);
+		loadLazyImage.call(self);
 	}else{
-		for(var i = 0; i < slides.length; i++){
-			var slide = slides[i];
+		for(var i = 0; i < self.slides.length; i++){
+			var slide = self.slides[i];
  			if(slide) {
 				var elbaIsland = slide.querySelector('.elba-island');
-				setImageSize(elbaIsland);
+				self.setImageSize(elbaIsland);
  			} 
  		}
 	}
@@ -131,153 +126,20 @@ function doResize(ele){
 
 
 function destroy(){
+	var self = this;
+	var count = self.slides.length;
 	if(count > 1){
-		loaderPointer   = 1;
+		self.loaderPointer   = 1;
 	}else{
-		loaderPointer   = 0;
+		self.loaderPointer   = 0;
 	}
 	
-	for(var i = 0; i < slides.length; i++){
-			var slide = slides[i];
+	for(var i = 0; i < count; i++){
+			var slide = self.slides[i];
  			if(slide) {
 				classie.remove(slide,'no-bg-img');
-				classie.remove(slide,  options.successClass);
+				classie.remove(slide,  self.options.successClass);
  			} 
  		}
 }
 
-
-function goTo(ele, direction){
-
-	if(typeof direction === 'string'){
-		if(direction === 'right'){
-			if(pointer + 1 >= count ){
-				return false;
-			}
-			pointer++;
-			animate(ele, intVal(getLeftOffset()), 'right');
-		}else{
-			if(pointer - 1 < 0 ){
-				return false;
-			}
-			pointer--;
-			animate(ele, intVal(getLeftOffset()), 'left');
-		}
-	}else{
-		ele.style.left = intVal(getLeftOffset()) + 'px';
-	}	
-}
-
-function animate(ele, target, direction) {
-  
-  if(animated){
-  	return false;
-  }
-
-  animated = true;
-
-  var startingOffset = intVal(ele.style.left);
-  
-  var deltaOffset = Math.abs(startingOffset - target);
-  if(direction === 'right') deltaOffset = -deltaOffset;
-
-  var duration = options.duration; // duration of animation in milliseconds.
-  var epsilon = (1000 / 60 / duration) / 4;
-
-  var easeing = bezier(0.445, 0.05, 0.55, 0.95, epsilon);
-
-  var start = null, myReq;
-
-  var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
-                              window.webkitRequestAnimationFrame || window.oRequestAnimationFrame;
-
-  var cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
-
-   function animationStep(timestamp) {
-    console.log(timestamp);
-      if (start === null) start = timestamp;
-
-      var timePassed = (timestamp - start);
-      var progress = timePassed / duration;
-
-      //console.log('progress -> ' + progress);
-
-      if (progress > 1) progress = 1;
-
-      var delta = easeing(progress).toFixed(6);
-        //console.log('delta -> ' + delta);
-        step(ele, delta, startingOffset, deltaOffset);
-
-      if (progress == 1){
-        progress = 1;
-        if(count > 1){
-          if(pointer === (count - 1)){
-            pointer = 1;
-            ele.style.left = intVal(getLeftOffset()) + 'px';
-          }else if(pointer === 0){
-            pointer = count - 2;
-            ele.style.left = intVal(getLeftOffset()) + 'px';
-          }
-        }
-         animated = false;
-         start = null;
-         cancelAnimationFrame(myReq);
-      }else{
-        requestAnimationFrame(animationStep);
-      }
-
-    }
-                                
-  if(requestAnimationFrame && cancelAnimationFrame){
-
-  myReq = requestAnimationFrame(animationStep);
-
-  }else{
-
-      //TODO a bettert fallback if window.requestAnimationFrame is not supported
-      var id = setInterval(function() {
-
-      if (start === null) start = new Date();  
-
-      var timePassed = new Date() - start;
-      var progress = timePassed / duration;
-
-      if (progress > 1) progress = 1;
-
-      var delta = easeing(progress).toFixed(6);
-
-      step(ele, delta, startingOffset, deltaOffset);
-      
-      if (progress == 1) {
-
-        if(count > 1){
-          if(pointer === (count - 1)){
-            pointer = 1;
-            ele.style.left = intVal(getLeftOffset()) + 'px';
-          }else if(pointer === 0){
-            pointer = count - 2;
-            ele.style.left = intVal(getLeftOffset()) + 'px';
-          }
-        }
-         clearInterval(id);
-         start = null;
-         animated = false;
-      }
-    },25);
-  }                             
-
-}
-
-
-function step(ele, delta, startingOffset, deltaOffset){
-	var actualOffset = startingOffset + (deltaOffset * delta);
-	ele.style.left = Math.ceil(actualOffset) + 'px'; 
-}
-
-this.prova = function(){
-	return test();
-}
-
-function test(){
-	console.log('fsfsdfsd');
-}

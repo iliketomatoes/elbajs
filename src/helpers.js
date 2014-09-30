@@ -23,11 +23,6 @@ function getContainerHeight(container){
      }
 }   
 
-function getLeftOffset(pointer,container){
-  return - (getContainerWidth(container) * pointer);
-}
-
-
 function each(object, fn){
  		if(object && fn) {
  			var l = object.length;
@@ -43,6 +38,13 @@ function intVal(x){
 	}
 }
 
+function bindEvent(ele, type, fn) {
+     if (ele.attachEvent) {
+            ele.attachEvent && ele.attachEvent('on' + type, fn);
+          } else {
+                 ele.addEventListener(type, fn, false);
+          }
+   }
 
 function getContainer(el, parentClass){
 

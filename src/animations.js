@@ -1,3 +1,110 @@
+function animate(direction) {
+  
+  var self = this;
+  var ele = self.el;    
+  var target = self.getLeftOffset();
+  var count = self.slides.length;
+
+  if(self.animated){
+    return false;
+  }
+
+  self.animated = true;
+
+  var startingOffset = intVal(ele.style.left);
+  
+  var deltaOffset = Math.abs(startingOffset - target);
+  if(direction === 'right') deltaOffset = -deltaOffset;
+
+  var duration = self.options.duration; // duration of animation in milliseconds.
+  var epsilon = (1000 / 60 / duration) / 4;
+
+  var easeing = bezier(0.445, 0.05, 0.55, 0.95, epsilon);
+
+  var start = null, myReq;
+
+   function animationStep(timestamp) {
+    console.log(timestamp);
+      if (start === null) start = timestamp;
+
+      var timePassed = (timestamp - start);
+      var progress = timePassed / duration;
+
+      //console.log('progress -> ' + progress);
+
+      if (progress > 1) progress = 1;
+
+      var delta = easeing(progress).toFixed(6);
+        //console.log('delta -> ' + delta);
+        step(ele, delta, startingOffset, deltaOffset);
+
+      if (progress == 1){
+        progress = 1;
+        if(count > 1){
+          if(self.pointer === (count - 1)){
+            self.pointer = 1;
+            ele.style.left = intVal(self.getLeftOffset()) + 'px';
+          }else if(self.pointer === 0){
+            self.pointer = count - 2;
+            ele.style.left = intVal(self.getLeftOffset()) + 'px';
+          }
+        }
+         self.animated = false;
+         start = null;
+         cancelAnimationFrame(myReq);
+      }else{
+        requestAnimationFrame(animationStep);
+      }
+
+    }
+  
+  //Global variables                              
+  if(requestAnimationFrame && cancelAnimationFrame){
+
+  myReq = requestAnimationFrame(animationStep);
+
+  }else{
+
+      //TODO a bettert fallback if window.requestAnimationFrame is not supported
+      var id = setInterval(function() {
+
+      if (start === null) start = new Date();  
+
+      var timePassed = new Date() - start;
+      var progress = timePassed / duration;
+
+      if (progress > 1) progress = 1;
+
+      var delta = easeing(progress).toFixed(6);
+
+      step(ele, delta, startingOffset, deltaOffset);
+      
+      if (progress == 1) {
+
+        if(count > 1){
+          if(self.pointer === (count - 1)){
+            self.pointer = 1;
+            ele.style.left = intVal(self.getLeftOffset()) + 'px';
+          }else if(self.pointer === 0){
+            self.pointer = count - 2;
+            ele.style.left = intVal(self.getLeftOffset()) + 'px';
+          }
+        }
+         clearInterval(id);
+         start = null;
+         self.animated = false;
+      }
+    },25);
+  }                             
+
+}
+
+
+function step(ele, delta, startingOffset, deltaOffset){
+  var actualOffset = startingOffset + (deltaOffset * delta);
+  ele.style.left = Math.ceil(actualOffset) + 'px'; 
+}
+
 // from https://github.com/arian/cubic-bezier
 function bezier(x1, y1, x2, y2, epsilon){
 

@@ -5,24 +5,18 @@
 	var classie = window.classie;
 	var isRetina = window.devicePixelRatio > 1;
 
+	var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+                              window.webkitRequestAnimationFrame || window.oRequestAnimationFrame;
+
+  	var cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
+
 	//Elba constructor
 	function Elba( el, settings ) {
-
-		//vars
-		var wrapper, pointer, loaderPointer, options, count, source, destroyed, carouselWidth = 0;
-
-		var navigation = {
-			left : null,
-			right : null,
-			dots : null
-		};
-
-		var animated = false;
 		
 		var self = this;
 
 		self.el = el;
-		destroyed 		= true;
+		self.animated = false;
 		self.options 	= extend( self.defaults, settings );
 		
 		self.pointer 		= 0;
@@ -44,23 +38,20 @@
 
 		self.setSource();
 		
-		//Starting loading 
+		//Starting lazy load 
 		loadLazyImage.call(self);
 
 		//Bind events
-		//window.addEventListener('resize', resizeHandler.setScope(self), false);
 
-		ELBA.getLeftNav().addEventListener('click', function(ev) { 
-			ev.preventDefault();
-			//self.swipe('left');
-			console.log(self);
-			self.prova();
-		}, false);
+		bindEvent(window, 'resize', resizeHandler.setScope(self));
 
-		ELBA.getRightNav().addEventListener('click', function(ev) { 
+		bindEvent(ELBA.getLeftNav(), 'click', function(ev) { 
 			ev.preventDefault();
-			//self.swipe('right');
-			console.log(self);
-			self.prova();
-		}, false);
+			self.goTo('left');
+		});
+
+		bindEvent(ELBA.getRightNav(), 'click', function(ev) { 
+			ev.preventDefault();
+			self.goTo('right');
+		});
 	

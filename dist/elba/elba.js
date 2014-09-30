@@ -1,4 +1,4 @@
-/*! elba - v0.0.1 - 2014-09-29
+/*! elba - v0.0.1 - 2014-09-30
 * https://github.com/dedalodesign/elbajs
 * Copyright (c) 2014 ; Licensed  */
 /*!
@@ -174,24 +174,18 @@ Function.prototype.setScope = function(scope) {
 	var classie = window.classie;
 	var isRetina = window.devicePixelRatio > 1;
 
+	var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+                              window.webkitRequestAnimationFrame || window.oRequestAnimationFrame;
+
+  	var cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
+
 	//Elba constructor
 	function Elba( el, settings ) {
-
-		//vars
-		var wrapper, pointer, loaderPointer, options, count, source, destroyed, carouselWidth = 0;
-
-		var navigation = {
-			left : null,
-			right : null,
-			dots : null
-		};
-
-		var animated = false;
 		
 		var self = this;
 
 		self.el = el;
-		destroyed 		= true;
+		self.animated = false;
 		self.options 	= extend( self.defaults, settings );
 		
 		self.pointer 		= 0;
@@ -213,34 +207,26 @@ Function.prototype.setScope = function(scope) {
 
 		self.setSource();
 		
-		//Starting loading 
+		//Starting lazy load 
 		loadLazyImage.call(self);
 
 		//Bind events
-		//window.addEventListener('resize', resizeHandler.setScope(self), false);
 
-		ELBA.getLeftNav().addEventListener('click', function(ev) { 
-			ev.preventDefault();
-			//self.swipe('left');
-			console.log(self);
-			self.prova();
-		}, false);
+		bindEvent(window, 'resize', resizeHandler.setScope(self));
 
-		ELBA.getRightNav().addEventListener('click', function(ev) { 
+		bindEvent(ELBA.getLeftNav(), 'click', function(ev) { 
 			ev.preventDefault();
-			//self.swipe('right');
-			console.log(self);
-			self.prova();
-		}, false);
+			self.goTo('left');
+		});
+
+		bindEvent(ELBA.getRightNav(), 'click', function(ev) { 
+			ev.preventDefault();
+			self.goTo('right');
+		});
 	
 function isElementLoaded(ele, successClass) {
 	return classie.has(ele, successClass);
 }
-
-/*function setupLazySlide(slides,loaderPointer){
-	var slide = slides[loaderPointer];
-	 loadLazyImage(slide);	
-}*/
 
 function loadLazyImage(loadIndex){
 
@@ -273,8 +259,7 @@ function loadLazyImage(loadIndex){
 			
 			elbaIsland.src = src;
 
-			//setImageData(elbaIsland);
-			setImageSize(elbaIsland);
+			self.setImageSize(elbaIsland);
 
 			classie.add(ele,'no-bg-img');
 			classie.add(ele,  self.options.successClass);
@@ -300,7 +285,7 @@ function loadLazyImage(loadIndex){
 					elbaClone = parentClone.querySelector('.elba-island');
 
 					elbaClone.src = src;
-					setImageSize(elbaClone);
+					self.setImageSize(elbaClone);
 					
 					classie.add(parentClone,'no-bg-img');
 					classie.add(parentClone,  self.options.successClass);
@@ -329,7 +314,7 @@ function loadLazyImage(loadIndex){
 function resizeHandler() {
 		var self = this;
 		function delayed() {
-			doResize(self.el);
+			doResize.call(self);
 			self._resizeTimeout = null;
 		}
 
@@ -340,23 +325,24 @@ function resizeHandler() {
 		self._resizeTimeout = setTimeout( delayed, 100 );
 	}
 
-function doResize(ele){
-	setSlidesWidth();
+function doResize(){
+	var self = this;
 
-	goTo(ele);
+	self.setSlidesWidth();
+	self.goTo();
 
-	var oldSource = source;
-	setSource();
+	var oldSource = self.source;
+	self.setSource();
 
-	if(oldSource !== source){
-		destroy();
-		setupLazySlide(loaderPointer);
+	if(oldSource !== self.source){
+		destroy.call(self);
+		loadLazyImage.call(self);
 	}else{
-		for(var i = 0; i < slides.length; i++){
-			var slide = slides[i];
+		for(var i = 0; i < self.slides.length; i++){
+			var slide = self.slides[i];
  			if(slide) {
 				var elbaIsland = slide.querySelector('.elba-island');
-				setImageSize(elbaIsland);
+				self.setImageSize(elbaIsland);
  			} 
  		}
 	}
@@ -364,156 +350,23 @@ function doResize(ele){
 
 
 function destroy(){
+	var self = this;
+	var count = self.slides.length;
 	if(count > 1){
-		loaderPointer   = 1;
+		self.loaderPointer   = 1;
 	}else{
-		loaderPointer   = 0;
+		self.loaderPointer   = 0;
 	}
 	
-	for(var i = 0; i < slides.length; i++){
-			var slide = slides[i];
+	for(var i = 0; i < count; i++){
+			var slide = self.slides[i];
  			if(slide) {
 				classie.remove(slide,'no-bg-img');
-				classie.remove(slide,  options.successClass);
+				classie.remove(slide,  self.options.successClass);
  			} 
  		}
 }
 
-
-function goTo(ele, direction){
-
-	if(typeof direction === 'string'){
-		if(direction === 'right'){
-			if(pointer + 1 >= count ){
-				return false;
-			}
-			pointer++;
-			animate(ele, intVal(getLeftOffset()), 'right');
-		}else{
-			if(pointer - 1 < 0 ){
-				return false;
-			}
-			pointer--;
-			animate(ele, intVal(getLeftOffset()), 'left');
-		}
-	}else{
-		ele.style.left = intVal(getLeftOffset()) + 'px';
-	}	
-}
-
-function animate(ele, target, direction) {
-  
-  if(animated){
-  	return false;
-  }
-
-  animated = true;
-
-  var startingOffset = intVal(ele.style.left);
-  
-  var deltaOffset = Math.abs(startingOffset - target);
-  if(direction === 'right') deltaOffset = -deltaOffset;
-
-  var duration = options.duration; // duration of animation in milliseconds.
-  var epsilon = (1000 / 60 / duration) / 4;
-
-  var easeing = bezier(0.445, 0.05, 0.55, 0.95, epsilon);
-
-  var start = null, myReq;
-
-  var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
-                              window.webkitRequestAnimationFrame || window.oRequestAnimationFrame;
-
-  var cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
-
-   function animationStep(timestamp) {
-    console.log(timestamp);
-      if (start === null) start = timestamp;
-
-      var timePassed = (timestamp - start);
-      var progress = timePassed / duration;
-
-      //console.log('progress -> ' + progress);
-
-      if (progress > 1) progress = 1;
-
-      var delta = easeing(progress).toFixed(6);
-        //console.log('delta -> ' + delta);
-        step(ele, delta, startingOffset, deltaOffset);
-
-      if (progress == 1){
-        progress = 1;
-        if(count > 1){
-          if(pointer === (count - 1)){
-            pointer = 1;
-            ele.style.left = intVal(getLeftOffset()) + 'px';
-          }else if(pointer === 0){
-            pointer = count - 2;
-            ele.style.left = intVal(getLeftOffset()) + 'px';
-          }
-        }
-         animated = false;
-         start = null;
-         cancelAnimationFrame(myReq);
-      }else{
-        requestAnimationFrame(animationStep);
-      }
-
-    }
-                                
-  if(requestAnimationFrame && cancelAnimationFrame){
-
-  myReq = requestAnimationFrame(animationStep);
-
-  }else{
-
-      //TODO a bettert fallback if window.requestAnimationFrame is not supported
-      var id = setInterval(function() {
-
-      if (start === null) start = new Date();  
-
-      var timePassed = new Date() - start;
-      var progress = timePassed / duration;
-
-      if (progress > 1) progress = 1;
-
-      var delta = easeing(progress).toFixed(6);
-
-      step(ele, delta, startingOffset, deltaOffset);
-      
-      if (progress == 1) {
-
-        if(count > 1){
-          if(pointer === (count - 1)){
-            pointer = 1;
-            ele.style.left = intVal(getLeftOffset()) + 'px';
-          }else if(pointer === 0){
-            pointer = count - 2;
-            ele.style.left = intVal(getLeftOffset()) + 'px';
-          }
-        }
-         clearInterval(id);
-         start = null;
-         animated = false;
-      }
-    },25);
-  }                             
-
-}
-
-
-function step(ele, delta, startingOffset, deltaOffset){
-	var actualOffset = startingOffset + (deltaOffset * delta);
-	ele.style.left = Math.ceil(actualOffset) + 'px'; 
-}
-
-this.prova = function(){
-	return test();
-}
-
-function test(){
-	console.log('fsfsdfsd');
-}
 
 //Closing Elba constructor
 }
@@ -560,7 +413,6 @@ Elba.prototype.setSlidesWidth = function(){
 
 Elba.prototype.setSource = function(){
 	var self = this;
-
 	self.source = 0;
 	var mediaQueryMin = 0;
 	var screenWidth = self.getContainerWidth();
@@ -574,15 +426,168 @@ Elba.prototype.setSource = function(){
 	});
 };
 
-/*Elba.prototype.swipe = function(direction){
+Elba.prototype.goTo = function(direction){
+	var self = this;
+	if(typeof direction === 'string'){
+		var count = self.slides.length;
+		if(direction === 'right'){
+			if(self.pointer + 1 >= count ){
+				return false;
+			}
+			self.pointer++;
+			animate.call(self, 'right');
+		}else{
+			if(self.pointer - 1 < 0 ){
+				return false;
+			}
+			self.pointer--;
+			animate.call(self, 'left');
+		}
+	}else{
+		self.el.style.left = intVal(self.getLeftOffset()) + 'px';
+	}	
+};
+
+Elba.prototype.getLeftOffset = function(){
+	var self = this;	
+	return - (self.getContainerWidth() * self.pointer);
+};
+
+Elba.prototype.setImageSize = function(elbaIsland){
 	var self = this;
 
-		if(direction === 'right'){
-			goTo(self.el, 'right');
-		}else{
-			goTo(self.el, 'left');
-		}
-}*/
+	var imgRatio = elbaIsland.naturalHeight / elbaIsland.naturalWidth;
+	
+    var containerWidth = self.getContainerWidth();
+    var containerHeight = self.getContainerHeight();
+    var containerRatio = containerHeight / containerWidth;
+
+    var newHeight, newWidth;
+
+    if (containerRatio >= imgRatio){
+    	elbaIsland.height = newHeight = Math.ceil(containerHeight);
+    	elbaIsland.width = newWidth = Math.ceil(containerHeight / imgRatio);
+    }else{
+    	elbaIsland.height = newHeight = Math.ceil(containerWidth * imgRatio);
+    	elbaIsland.width = newWidth = Math.ceil(containerWidth);
+    }
+
+    var centerX = (containerWidth - newWidth) / 2;
+	var centerY = (containerHeight - newHeight) / 2;
+
+	elbaIsland.style.left = Math.ceil(centerX) + 'px';
+	elbaIsland.style.top = Math.ceil(centerY) + 'px';
+};
+
+
+
+function animate(direction) {
+  
+  var self = this;
+  var ele = self.el;    
+  var target = self.getLeftOffset();
+  var count = self.slides.length;
+
+  if(self.animated){
+    return false;
+  }
+
+  self.animated = true;
+
+  var startingOffset = intVal(ele.style.left);
+  
+  var deltaOffset = Math.abs(startingOffset - target);
+  if(direction === 'right') deltaOffset = -deltaOffset;
+
+  var duration = self.options.duration; // duration of animation in milliseconds.
+  var epsilon = (1000 / 60 / duration) / 4;
+
+  var easeing = bezier(0.445, 0.05, 0.55, 0.95, epsilon);
+
+  var start = null, myReq;
+
+   function animationStep(timestamp) {
+    console.log(timestamp);
+      if (start === null) start = timestamp;
+
+      var timePassed = (timestamp - start);
+      var progress = timePassed / duration;
+
+      //console.log('progress -> ' + progress);
+
+      if (progress > 1) progress = 1;
+
+      var delta = easeing(progress).toFixed(6);
+        //console.log('delta -> ' + delta);
+        step(ele, delta, startingOffset, deltaOffset);
+
+      if (progress == 1){
+        progress = 1;
+        if(count > 1){
+          if(self.pointer === (count - 1)){
+            self.pointer = 1;
+            ele.style.left = intVal(self.getLeftOffset()) + 'px';
+          }else if(self.pointer === 0){
+            self.pointer = count - 2;
+            ele.style.left = intVal(self.getLeftOffset()) + 'px';
+          }
+        }
+         self.animated = false;
+         start = null;
+         cancelAnimationFrame(myReq);
+      }else{
+        requestAnimationFrame(animationStep);
+      }
+
+    }
+  
+  //Global variables                              
+  if(requestAnimationFrame && cancelAnimationFrame){
+
+  myReq = requestAnimationFrame(animationStep);
+
+  }else{
+
+      //TODO a bettert fallback if window.requestAnimationFrame is not supported
+      var id = setInterval(function() {
+
+      if (start === null) start = new Date();  
+
+      var timePassed = new Date() - start;
+      var progress = timePassed / duration;
+
+      if (progress > 1) progress = 1;
+
+      var delta = easeing(progress).toFixed(6);
+
+      step(ele, delta, startingOffset, deltaOffset);
+      
+      if (progress == 1) {
+
+        if(count > 1){
+          if(self.pointer === (count - 1)){
+            self.pointer = 1;
+            ele.style.left = intVal(self.getLeftOffset()) + 'px';
+          }else if(self.pointer === 0){
+            self.pointer = count - 2;
+            ele.style.left = intVal(self.getLeftOffset()) + 'px';
+          }
+        }
+         clearInterval(id);
+         start = null;
+         self.animated = false;
+      }
+    },25);
+  }                             
+
+}
+
+
+function step(ele, delta, startingOffset, deltaOffset){
+  var actualOffset = startingOffset + (deltaOffset * delta);
+  ele.style.left = Math.ceil(actualOffset) + 'px'; 
+}
+
 // from https://github.com/arian/cubic-bezier
 function bezier(x1, y1, x2, y2, epsilon){
 
@@ -635,51 +640,6 @@ function bezier(x1, y1, x2, y2, epsilon){
 
 
 
-
-
-function setImageSize(elbaIsland){
-
-	var imgRatio = imageAspectRatio(elbaIsland);
-	var containerRatio = containerAspectRatio();
-
-    var containerWidth = getContainerWidth();
-    var containerHeight = getContainerHeight();
-
-    var newHeight, newWidth;
-
-    if (containerRatio >= imgRatio){
-    	elbaIsland.height = newHeight = Math.ceil(containerHeight);
-    	elbaIsland.width = newWidth = Math.ceil(containerHeight / imgRatio);
-    }else{
-    	elbaIsland.height = newHeight = Math.ceil(containerWidth * imgRatio);
-    	elbaIsland.width = newWidth = Math.ceil(containerWidth);
-    }
-
-    centerImage(elbaIsland, newHeight, newWidth);
-
-}	 
-
-
-function centerImage(elbaIsland , newHeight, newWidth){
-
-	var centerX = (getContainerWidth() - newWidth) / 2;
-	var centerY = (getContainerHeight() - newHeight) / 2;
-
-	elbaIsland.style.left = Math.ceil(centerX) + 'px';
-	elbaIsland.style.top = Math.ceil(centerY) + 'px';
-}
-
-function imageAspectRatio(img){
-
-    return img.naturalHeight / img.naturalWidth;
-}
-
-function containerAspectRatio(){
-    var containerWidth = getContainerWidth();
-    var containerHeight = getContainerHeight();
-
-    return containerHeight / containerWidth;
-}
 
 
 function CarouselHandler(base, options){
@@ -797,11 +757,6 @@ function getContainerHeight(container){
      }
 }   
 
-function getLeftOffset(pointer,container){
-  return - (getContainerWidth(container) * pointer);
-}
-
-
 function each(object, fn){
  		if(object && fn) {
  			var l = object.length;
@@ -817,6 +772,13 @@ function intVal(x){
 	}
 }
 
+function bindEvent(ele, type, fn) {
+     if (ele.attachEvent) {
+            ele.attachEvent && ele.attachEvent('on' + type, fn);
+          } else {
+                 ele.addEventListener(type, fn, false);
+          }
+   }
 
 function getContainer(el, parentClass){
 
