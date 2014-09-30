@@ -14,7 +14,6 @@ function loadLazyImage(loadIndex){
 	if(isElementLoaded(ele, self.options.successClass)){
 		if(count > 1 && ((loaderPointer + 1) < (count - 1))){
 				loaderPointer++;
-				console.log('recursively fired');
 				loadLazyImage.call(self,loaderPointer);
 			}
 	}
@@ -71,7 +70,6 @@ function loadLazyImage(loadIndex){
 
 			if(count > 1 && loaderPointer + 1 < count - 1){
 				loaderPointer++;
-				console.log('recursively fired');
 				loadLazyImage.call(self,loaderPointer);
 			}
 			

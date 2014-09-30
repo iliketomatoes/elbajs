@@ -19,7 +19,7 @@ Elba.prototype.defaults = {
 	error : false,
 	success : false,
 	duration : 1000,
-	easing: null
+	easing: 'easeInOutCubic'
 };
 
 Elba.prototype.getContainerWidth = function(){

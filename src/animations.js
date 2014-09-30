@@ -19,23 +19,19 @@ function animate(direction) {
   var duration = self.options.duration; // duration of animation in milliseconds.
   var epsilon = (1000 / 60 / duration) / 4;
 
-  var easeing = bezier(0.445, 0.05, 0.55, 0.95, epsilon);
+  var easeing = getBezier(easingObj[self.options.easing],epsilon);
 
   var start = null, myReq;
 
    function animationStep(timestamp) {
-    console.log(timestamp);
       if (start === null) start = timestamp;
 
       var timePassed = (timestamp - start);
       var progress = timePassed / duration;
 
-      //console.log('progress -> ' + progress);
-
       if (progress > 1) progress = 1;
 
       var delta = easeing(progress).toFixed(6);
-        //console.log('delta -> ' + delta);
         step(ele, delta, startingOffset, deltaOffset);
 
       if (progress == 1){
@@ -103,6 +99,10 @@ function animate(direction) {
 function step(ele, delta, startingOffset, deltaOffset){
   var actualOffset = startingOffset + (deltaOffset * delta);
   ele.style.left = Math.ceil(actualOffset) + 'px'; 
+}
+
+function getBezier(easingArr, epsilon){
+  return bezier(easingArr[0], easingArr[1], easingArr[2], easingArr[3], epsilon);
 }
 
 // from https://github.com/arian/cubic-bezier
