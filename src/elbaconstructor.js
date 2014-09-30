@@ -68,11 +68,17 @@
 			bindEvent(ELBA.getLeftNav(), 'click', function(ev) { 
 				ev.preventDefault();
 				self.goTo('left');
+				if(self.options.slideshow){
+					self.startSlideshow();
+				}
 				});
 
 			bindEvent(ELBA.getRightNav(), 'click', function(ev) { 
 				ev.preventDefault();
 				self.goTo('right');
+				if(self.options.slideshow){
+					self.startSlideshow();
+				}
 				});
 			}
 			
@@ -86,6 +92,9 @@
 					bindEvent(self.dots[i], 'click', function(ev){
 						ev.preventDefault();
 						self.dotTo(this.getAttribute('data-target'));
+						if(self.options.slideshow){
+							self.startSlideshow();
+						}
 					});
 				}
 
@@ -100,4 +109,8 @@
 
 		//Bind resize event
 		bindEvent(window, 'resize', resizeHandler.setScope(self));
+
+		if(self.options.slideshow){
+			self.startSlideshow();
+		}
 	

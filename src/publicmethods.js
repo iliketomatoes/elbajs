@@ -21,7 +21,8 @@ Elba.prototype.defaults = {
 	duration : 1000,
 	easing: 'easeInOutCubic',
 	navigation : true,
-	dots: true
+	dots: true,
+	slideshow : 5000
 };
 
 Elba.prototype.getContainerWidth = function(){
@@ -153,6 +154,25 @@ Elba.prototype.setImageSize = function(elbaIsland){
 
 	elbaIsland.style.left = Math.ceil(centerX) + 'px';
 	elbaIsland.style.top = Math.ceil(centerY) + 'px';
+};
+
+Elba.prototype.startSlideshow = function(){
+	var self = this;
+	if(self.slideshow){
+		clearInterval(self.slideshow);
+	}	
+	self.slideshow = setInterval(function(){
+		if(classie.has(self.slides[self.pointer + 1],'elba-loaded')){
+			self.goTo('right');
+		}
+	},self.options.slideshow);
+};
+
+Elba.prototype.clearSlideshow = function(){
+	var self = this;	
+	if(self.slideshow){
+		clearInterval(self.slideshow);
+	}
 };
 
 
