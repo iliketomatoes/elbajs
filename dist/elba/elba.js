@@ -379,7 +379,7 @@ function resizeHandler() {
 			clearTimeout( self._resizeTimeout );
 		}
 
-		self._resizeTimeout = setTimeout( delayed, 100 );
+		self._resizeTimeout = setTimeout( delayed, 200 );
 	}
 
 function doResize(){
