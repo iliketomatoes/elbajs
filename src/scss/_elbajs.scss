@@ -1,4 +1,4 @@
-@import url(http://fonts.googleapis.com/css?family=Petit+Formal+Script|Open+Sans:800);
+@import url(http://fonts.googleapis.com/css?family=Petit+Formal+Script);
 
 body,html{
 	width: 100%;
@@ -7,6 +7,7 @@ body,html{
 	padding: 0px;
 	border: 0px none;
 	font-size: 100%;
+	font-family: "Lucida Console", Monaco, monospace;
 }
 
  *, *:before, *:after {
@@ -87,31 +88,24 @@ body,html{
 	position: absolute;
 	width: 100%;
 	height: 100%;
-	text-align: center;
 	padding: 2.5em;
 	overflow: auto;
 	z-index: 5;
 	text-indent: 0;
 	opacity: 0;
 	color: #000;
-	font-family: "Lucida Console", Monaco, monospace;
-	h1{
+	
+	h1,h2,h3,h4,h5,h6{
 		font-family: 'Petit Formal Script', cursive;
 	}
 
-	h2,h3,h4,h5,h6{
-		
-		font-family: 'Open Sans', sans-serif;
-		font-weight: 800;
-	}
 	//@include single-transition(all, 500ms, ease-in-out);
 }
 
 .elba-banner{
 	position: relative;
-	margin: 4em auto;
 	display: inline-block;
-	padding: 2em;
+	padding: 1.2em 2em;
 	border-top: 4px solid $elba;
 	border-bottom: 4px solid $elba;
 	background-color: rgba(255,255,255,0.9);

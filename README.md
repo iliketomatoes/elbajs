@@ -1,5 +1,5 @@
 elbajs
 ======
 
-Responsive design and content full screen gallery.
-Widely inspired by bLazy.js
+Pure Javascript, responsive, retina ready.
+Hardware accelerated, multi-serving lazy load images.

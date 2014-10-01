@@ -1,7 +1,6 @@
 ! function(){
 	var gallery = new Elba( document.getElementById('carousel'), {
-		easing : 'easeInOutSine',
-		slideshow : 0,
+		slideshow: 10000,
         breakpoints: [{
 	          width: 768 // min-width
 			, src: 'data-src-medium'
