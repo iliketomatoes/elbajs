@@ -1,12 +1,12 @@
 {
   "name": "elbajs",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "homepage": "https://github.com/dedalodesign/elbajs",
   "authors": [
     "Giancarlo Soverini <giancarlosoverini@gmail.com>"
   ],
   "license": "MIT",
-  "private": true,
+  "private": false,
   "ignore": [
     "**/.*",
     "node_modules",
