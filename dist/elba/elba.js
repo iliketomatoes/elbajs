@@ -1,4 +1,4 @@
-/*! elba - v0.1.0 - 2014-10-01
+/*! elba - v0.1.0 - 2014-10-02
 * https://github.com/dedalodesign/elbajs
 * Copyright (c) 2014 ; Licensed  */
 /*!
@@ -581,7 +581,8 @@ Elba.prototype.setImageSize = function(elbaIsland){
 
 Elba.prototype.startSlideshow = function(){
 	var self = this;
-	if(self.slideshow){
+	if(self.slides.length > 1){
+		if(self.slideshow){
 		clearInterval(self.slideshow);
 	}	
 	self.slideshow = setInterval(function(){
@@ -589,6 +590,8 @@ Elba.prototype.startSlideshow = function(){
 			self.goTo('right');
 		}
 	},self.options.slideshow);
+
+	}
 };
 
 Elba.prototype.clearSlideshow = function(){
