@@ -63,7 +63,7 @@ body,html{
 
 .elba-island{
 	position: absolute;
-	//max-width: none;
+	max-width: none;
 	-webkit-transform: translate3d(0, 0, 0);
 	@include single-transition(all, 500ms, ease-in-out);
 	opacity: 0;
