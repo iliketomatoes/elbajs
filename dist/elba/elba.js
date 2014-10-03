@@ -855,7 +855,7 @@ CarouselHandler.prototype.setupDots = function(dotsContainer){
 	var actualContainer;
 
 	if(dotsContainer){
-		actualContainer = document.getElementById('dotsContainer');
+		actualContainer = document.getElementById(dotsContainer);
 	}else{
 		actualContainer = document.createElement('div');
 		actualContainer.className = 'elba-dots-ctr';
