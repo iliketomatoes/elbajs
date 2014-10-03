@@ -29,6 +29,11 @@ function loadLazyImage(loadIndex){
 		img.onerror = function() {
 			if(self.options.error) self.options.error(ele, "invalid");
 			ele.className = ele.className + ' ' + self.options.errorClass;
+
+			if(count > 1 && loaderPointer + 1 < count - 1){
+				loaderPointer++;
+				loadLazyImage.call(self,loaderPointer);
+			}
 		}; 
 		img.onload = function() {
 			
