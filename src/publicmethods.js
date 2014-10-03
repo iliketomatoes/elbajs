@@ -22,6 +22,7 @@ Elba.prototype.defaults = {
 	easing: 'easeInOutCubic',
 	navigation : true,
 	dots: true,
+	dotsContainer: false, 
 	slideshow : 5000
 };
 

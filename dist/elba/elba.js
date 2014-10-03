@@ -1,4 +1,4 @@
-/*! elba - v0.1.0 - 2014-10-02
+/*! elba - v0.1.0 - 2014-10-03
 * https://github.com/dedalodesign/elbajs
 * Copyright (c) 2014 ; Licensed  */
 /*!
@@ -445,6 +445,7 @@ Elba.prototype.defaults = {
 	easing: 'easeInOutCubic',
 	navigation : true,
 	dots: true,
+	dotsContainer: false, 
 	slideshow : 5000
 };
 
@@ -798,7 +799,7 @@ function CarouselHandler(base, options){
 	    }
 
 	    if(options.dots){
-	    	self.setupDots();
+	    	self.setupDots(options.dotsContainer);
 	    }
     }
 
@@ -846,19 +847,25 @@ CarouselHandler.prototype.setupNavigation = function(direction){
 	self.wrapper.appendChild(self.navigation[direction]);
 };
 
-CarouselHandler.prototype.setupDots = function(){
+CarouselHandler.prototype.setupDots = function(dotsContainer){
 	var self = this;
 
 	self.navigation.dots = [];
 
-	var dotsContainer = document.createElement('div');
-	dotsContainer.className = 'elba-dots-ctr';
-	self.wrapper.appendChild(dotsContainer);
+	var actualContainer;
+
+	if(dotsContainer){
+		actualContainer = document.getElementById('dotsContainer');
+	}else{
+		actualContainer = document.createElement('div');
+		actualContainer.className = 'elba-dots-ctr';
+		self.wrapper.appendChild(actualContainer);
+	}
 
 	for(var i = 1; i < self.count - 1; i++){
 		self.navigation.dots[i]  = document.createElement('a');
 		self.navigation.dots[i].className  = 'elba-dot';
-		dotsContainer.appendChild(self.navigation.dots[i]);
+		actualContainer.appendChild(self.navigation.dots[i]);
 	}
 
 };

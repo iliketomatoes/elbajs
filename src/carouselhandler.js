@@ -26,7 +26,7 @@ function CarouselHandler(base, options){
 	    }
 
 	    if(options.dots){
-	    	self.setupDots();
+	    	self.setupDots(options.dotsContainer);
 	    }
     }
 
@@ -74,19 +74,25 @@ CarouselHandler.prototype.setupNavigation = function(direction){
 	self.wrapper.appendChild(self.navigation[direction]);
 };
 
-CarouselHandler.prototype.setupDots = function(){
+CarouselHandler.prototype.setupDots = function(dotsContainer){
 	var self = this;
 
 	self.navigation.dots = [];
 
-	var dotsContainer = document.createElement('div');
-	dotsContainer.className = 'elba-dots-ctr';
-	self.wrapper.appendChild(dotsContainer);
+	var actualContainer;
+
+	if(dotsContainer){
+		actualContainer = document.getElementById('dotsContainer');
+	}else{
+		actualContainer = document.createElement('div');
+		actualContainer.className = 'elba-dots-ctr';
+		self.wrapper.appendChild(actualContainer);
+	}
 
 	for(var i = 1; i < self.count - 1; i++){
 		self.navigation.dots[i]  = document.createElement('a');
 		self.navigation.dots[i].className  = 'elba-dot';
-		dotsContainer.appendChild(self.navigation.dots[i]);
+		actualContainer.appendChild(self.navigation.dots[i]);
 	}
 
 };
