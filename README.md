@@ -1,10 +1,9 @@
 elbajs
 ======
 
-This is a pure javascript slider, responsive, serving lazy loading images according to the screen size.
-Inspirenizing
-d by many sources such as bLazy and Superslides.
-Recog
+This is a pure javascript slider, responsive, serving lazy loading images according to the screen size, hardware accelerated.
+Inspired by many sources such as bLazy and Superslides. 
+
 ##INSTALL
 
 Besides cloning this repo or downloading it, you can either get it through Bower.
