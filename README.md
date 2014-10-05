@@ -6,7 +6,7 @@ Inspired by many sources such as bLazy and Superslides.
 
 ##INSTALL
 
-Besides clongin this repo or downloading it, you can either get it through Bower.
+Besides cloning this repo or downloading it, you can either get it through Bower.
 
 ```
 bower install elbajs
@@ -15,7 +15,7 @@ bower install elbajs
 
 ##USAGE
 
-Import the css:
+Include the css into your page:
 <pre lang="html">
 &lt;link rel="stylesheet" href="path/to/elba.css"&gt;
 </pre>
@@ -54,4 +54,62 @@ Then activate the plugin:
     });
 </pre>
 
-<b>The width is referred to the width of the gallery container, that can be smaller than the screen, according to your taste.</b>          	
+*The width is referred to the width of the gallery container, that can be smaller than the screen, according to your taste*  
+
+##OPTIONS
+
+When you make a new Elba class instance, you can override defaults options by passing an object { ... } as the second argument to the constructor.
+
+Available options:
+
+| Property         | Description                                                      | Type        | DEFAULT |
+| ---------------- |----------------------------------------------------------------  | ----------- | ------- |
+| separator        | Separator between sources for normal screens and retina screens  | String      | '|'     |
+| breakpoints      | Array containing objects having *width* and *src* properties. If set to false Elba js will look for just the default *data-src* attribute     | Boolean/Array  | false |
+| container        | Setting the parent container's class which will constrain the slide size |  String  |	'elba-wrapper' |	
+| error            | Callback function in case of image unsuccesful load. //TODO | Boolean/Function | false        |
+| success          | Callback function in case of image succesful load. //TODO | Boolean/Function | false        |
+| duration         | The duration of the sliding animation. Expressed in milliseconds  | Number |	1000	|
+| easing           | The easing of the animation. You can pick among 24 pre-set easings:
+1. easeInSine
+2. easeOutSine
+3. easeInOutSine
+4. easeInQuad
+5. easeOutQuad
+6. easeInOutQuad
+7. easeInCubic
+8. easeOutCubic
+9. easeInOutCubic
+10. easeInQuart
+11. easeOutQuart
+12. easeInOutQuart
+13. easeInQuint
+14. easeOutQuint
+15. easeInOutQuint
+16. easeInExpo
+17. easeOutExpo
+18. easeInOutExpo
+19. easeInCirc
+20. easeOutCirc
+21. easeInOutCirc
+22. easeInBack
+23. easeOutBack
+24. easeInOutBack
+ | String | easeInOutCubic |
+| navigation       | Whether to set or not the arrows for the navigation      |  Boolean |	true	  |
+| dots             | Whether to set or not the dots for the navigation      |  Boolean |	true	  |
+| dotsContainer    | Append the dots to a default HTML element by passing its ID      | Boolean/String |		false  |
+| slideshow        | Interval between any slide. Set 0 to disable slideshow. Expressed in milliseconds      |  Number | 10000		  |		
+
+##BROWSER SUPPORT
+
+Not tested yet, but working on all modern browser, IE9+.
+
+##CHANGELOG
+
+1. ###v 0.1
+   Initial release
+
+##ROADMAP
++ Touch events
++ Tests   
