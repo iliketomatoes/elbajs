@@ -70,7 +70,7 @@ Available options:
 | error            | Callback function in case of image unsuccesful load. //TODO | Boolean/Function | false        |
 | success          | Callback function in case of image succesful load. //TODO | Boolean/Function | false        |
 | duration         | The duration of the sliding animation. Expressed in milliseconds  | Number |	1000	|
-| easing           | The easing of the animation. You can pick among 24 pre-set easings:| String | easeInOutCubic |
+| easing           | The easing of the animation. You can pick among 24 pre-set easings:| String | 'easeInOutCubic' |
 | navigation       | Whether to set or not the arrows for the navigation      |  Boolean |	true	  |
 | dots             | Whether to set or not the dots for the navigation      |  Boolean |	true	  |
 | dotsContainer    | Append the dots to a default HTML element by passing its ID      | Boolean/String |		false  |
