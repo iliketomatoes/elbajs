@@ -28,10 +28,10 @@ Include the script into your page:
 Add the markup for your gallery:
 <pre lang="html">
 &lt;div id="your-carousel" class="elba-carousel"&gt;
-    &lt;div class="elba" data-src="http://yourpicdefault [| http://yourpicdefault@2x]" [data-src-medium="http://yourpicmedium | http://yourpicmedium@2x"] [data-src-large="http://yourpiclarge | http://yourpiclarge@2x"]&gt;
+    &lt;div class="elba" data-src="http://yourpicdefault|http://yourpicdefault@2x" data-src-medium="http://yourpicmedium|http://yourpicmedium@2x" data-src-large="http://yourpiclarge|http://yourpiclarge@2x"&gt;
     &lt;/div&gt;
     ...
-    &lt;div class="elba" data-src="http://yourpicdefault [| http://yourpicdefault@2x]" [data-src-medium="http://yourpicmedium | http://yourpicmedium@2x"] [data-src-large="http://yourpiclarge | http://yourpiclarge@2x"]&gt;
+    &lt;div class="elba" data-src="http://yourpicdefault|http://yourpicdefault@2x" data-src-medium="http://yourpicmedium|http://yourpicmedium@2x" data-src-large="http://yourpiclarge|http://yourpiclarge@2x"&gt;
     &lt;/div&gt;
     ...
 &lt;/div&gt;	    	
