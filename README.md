@@ -39,7 +39,7 @@ Add the markup for your gallery:
 
 Then activate the plugin: 
 <pre lang="javascript">
-	var gallery = new Elba( document.getElementById('carousel'), {
+	var gallery = new Elba( document.getElementById('your-carousel'), {
 		/*****************************/
 		/*REGISTERING THE BREAKPOINTS*/
 		/*****************************/
@@ -64,13 +64,20 @@ Available options:
 
 | Property         | Description                                                      | Type        | DEFAULT |
 | ---------------- |----------------------------------------------------------------  | ----------- | ------- |
-| separator        | Separator between sources for normal screens and retina screens  | String      | '|'     |
+| separator        | Separator between sources for normal screens and retina screens  | String      |  '\|'    |
 | breakpoints      | Array containing objects having *width* and *src* properties. If set to false Elba js will look for just the default *data-src* attribute     | Boolean/Array  | false |
 | container        | Setting the parent container's class which will constrain the slide size |  String  |	'elba-wrapper' |	
 | error            | Callback function in case of image unsuccesful load. //TODO | Boolean/Function | false        |
 | success          | Callback function in case of image succesful load. //TODO | Boolean/Function | false        |
 | duration         | The duration of the sliding animation. Expressed in milliseconds  | Number |	1000	|
-| easing           | The easing of the animation. You can pick among 24 pre-set easings:
+| easing           | The easing of the animation. You can pick among 24 pre-set easings:| String | easeInOutCubic |
+| navigation       | Whether to set or not the arrows for the navigation      |  Boolean |	true	  |
+| dots             | Whether to set or not the dots for the navigation      |  Boolean |	true	  |
+| dotsContainer    | Append the dots to a default HTML element by passing its ID      | Boolean/String |		false  |
+| slideshow        | Interval between any slide. Set 0 to disable slideshow. Expressed in milliseconds      |  Number | 10000		  |		
+
+
+###List of predefined easings
 1. easeInSine
 2. easeOutSine
 3. easeInOutSine
@@ -95,11 +102,6 @@ Available options:
 22. easeInBack
 23. easeOutBack
 24. easeInOutBack
- | String | easeInOutCubic |
-| navigation       | Whether to set or not the arrows for the navigation      |  Boolean |	true	  |
-| dots             | Whether to set or not the dots for the navigation      |  Boolean |	true	  |
-| dotsContainer    | Append the dots to a default HTML element by passing its ID      | Boolean/String |		false  |
-| slideshow        | Interval between any slide. Set 0 to disable slideshow. Expressed in milliseconds      |  Number | 10000		  |		
 
 ##BROWSER SUPPORT
 
@@ -107,9 +109,10 @@ Not tested yet, but working on all modern browser, IE9+.
 
 ##CHANGELOG
 
-1. ###v 0.1
-   Initial release
+###v 0.1
+Initial release
 
 ##ROADMAP
 + Touch events
-+ Tests   
++ Tests
++ ?   
