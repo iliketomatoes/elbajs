@@ -115,6 +115,7 @@ Not tested yet, but working on all modern browser, IE9+.
 Initial release
 
 ##ROADMAP
++ API
 + Touch events
 + Tests
 + More intelligent conditional loading   
