@@ -2,8 +2,9 @@ elbajs
 ======
 
 This is a pure javascript slider, responsive, serving lazy loading images according to the screen size.
-Inspired by many sources such as bLazy and Superslides.
-
+Inspirenizing
+d by many sources such as bLazy and Superslides.
+Recog
 ##INSTALL
 
 Besides cloning this repo or downloading it, you can either get it through Bower.
@@ -36,6 +37,8 @@ Add the markup for your gallery:
     ...
 &lt;/div&gt;	    	
 </pre> 
+
+As shown above you can optionally set multiple sources depending on the width of the device. A further option is declaring different sources for the same breakpoint, one for normal screens and the other one for retina screens, separating the sources with the default separator '|'.
 
 Then activate the plugin: 
 <pre lang="javascript">
