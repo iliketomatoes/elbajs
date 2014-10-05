@@ -117,4 +117,9 @@ Initial release
 ##ROADMAP
 + Touch events
 + Tests
-+ ?   
++ More intelligent conditional loading   
++ Activate slideshow only if in viewport
++ AMD ready
+
+##LICENSE
+MIT
