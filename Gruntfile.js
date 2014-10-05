@@ -60,7 +60,7 @@ module.exports = function(grunt) {
           outputStyle: 'compressed'
         },
         files: {
-          'dist/assets/css/main.css': 'src/scss/app.scss'
+          'dist/assets/css/elba.css': 'src/scss/app.scss'
         }        
       }
     },
