@@ -45,15 +45,16 @@ Then activate the plugin:
 		/*****************************/
 		/*REGISTERING THE BREAKPOINTS*/
 		/*****************************/
-        breakpoints: [{
-	          width: 768 // min-width
-			, src: 'data-src-medium'
-	     }
-           , {
-	          width: 1080 // min-width
-	        , src: 'data-src-large'
-	}]
-    });
+        	breakpoints: [
+        		{
+        			width: 768, // min-width
+				src: 'data-src-medium'
+			},
+        		 {
+	        		width: 1080, // min-width
+	         		src: 'data-src-large'
+			}
+		]});
 </pre>
 
 *The width is referred to the width of the gallery container, that can be smaller than the screen, according to your taste*  
@@ -75,7 +76,7 @@ Available options:
 | easing           | The easing of the animation. You can pick among 24 pre-set easings:| String | 'easeInOutCubic' |
 | navigation       | Whether to set or not the arrows for the navigation      |  Boolean |	true	  |
 | dots             | Whether to set or not the dots for the navigation      |  Boolean |	true	  |
-| dotsContainer    | Append the dots to a default HTML element by passing its ID      | Boolean/String |		false  |
+| dotsContainer    | Append the dots to a custom HTML element by passing its ID      | Boolean/String |		false  |
 | slideshow        | Interval between any slide. Set 0 to disable slideshow. Expressed in milliseconds      |  Number | 10000		  |		
 
 
