@@ -1,6 +1,22 @@
-/*! elba - v0.1.0 - 2014-10-05
+/*! elba - v0.1.0 - 2014-10-09
 * https://github.com/dedalodesign/elbajs
 * Copyright (c) 2014 ; Licensed  */
+;(function(elbaJS) {
+
+	'use strict';
+	
+	if (typeof define === 'function' && define.amd) {
+        	// Register elba as an AMD module
+        	define(elbaJS);
+	} else {
+        	// Register elba on window
+        	window.Elba = elbaJS();
+	}
+})
+(function () {
+
+'use strict';
+
 /*!
  * classie v1.0.1
  * class helper functions
@@ -15,10 +31,6 @@
 
 /*jshint browser: true, strict: true, undef: true, unused: true */
 /*global define: false, module: false */
-
-( function( window ) {
-
-'use strict';
 
 // class helper functions from bonzo https://github.com/ded/bonzo
 
@@ -73,27 +85,15 @@ var classie = {
   toggle: toggleClass
 };
 
-// transport
-if ( typeof define === 'function' && define.amd ) {
-  // AMD
-  define( classie );
-} else if ( typeof exports === 'object' ) {
-  // CommonJS
-  module.exports = classie;
-} else {
-  // browser global
-  window.classie = classie;
-}
 
-})( window );
+  window.classie = classie;
+
 
 
 /*
  * Wrap an HTMLElement around each element in an HTMLElement array.
  */
-( function( window ) {
 
-'use strict';
 
 HTMLElement.prototype.wrap = function (elms) {
 	// Convert `elms` to an array, if necessary.
@@ -136,15 +136,9 @@ NodeList.prototype.remove = window.HTMLCollection.prototype.remove = function() 
     }
 };
 
-})( window );
-
-
 /*
  * Set function scope's trick
  */
-( function() {
-
-'use strict';
 
 Function.prototype.setScope = function(scope) {
   var f = this;
@@ -153,25 +147,11 @@ Function.prototype.setScope = function(scope) {
   };
 };
 
-})();
 
-;(function(elbaJS) {
 
-	'use strict';
-	
-	if (typeof define === 'function' && define.amd) {
-        	// Register elba as an AMD module
-        	define(elbaJS);
-	} else {
-        	// Register elba on window
-        	window.Elba = elbaJS();
-	}
-})
-(function () {
 
-'use strict';
  
-	var classie = window.classie;
+	//var classie = window.classie;
 	var isRetina = window.devicePixelRatio > 1;
 
 	var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||

@@ -1,8 +1,6 @@
-(function () {
 
-'use strict';
  
-	var classie = window.classie;
+	//var classie = window.classie;
 	var isRetina = window.devicePixelRatio > 1;
 
 	var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||

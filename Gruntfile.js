@@ -20,8 +20,8 @@ module.exports = function(grunt) {
       },
       dist: {
         src: [
-              'src/dependencies.js',
               'src/intro.js',
+              'src/dependencies.js',
               'src/elbaconstructor.js',
               'src/privatemethods.js',
               'src/publicmethods.js',
