@@ -1,4 +1,4 @@
-/*! elba - v0.1.0 - 2014-10-09
+/*! elba - v0.1.1 - 2014-10-09
 * https://github.com/dedalodesign/elbajs
 * Copyright (c) 2014 ; Licensed  */
 ;(function(elba) {

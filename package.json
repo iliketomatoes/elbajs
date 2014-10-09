@@ -1,6 +1,6 @@
 {
   "name": "elba",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "RWD, multi-serving, pure javascript gallery",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
