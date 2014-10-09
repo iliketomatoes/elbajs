@@ -1,16 +1,16 @@
 /*! elba - v0.1.0 - 2014-10-09
 * https://github.com/dedalodesign/elbajs
 * Copyright (c) 2014 ; Licensed  */
-;(function(elbaJS) {
+;(function(elba) {
 
 	'use strict';
 	
 	if (typeof define === 'function' && define.amd) {
         	// Register elba as an AMD module
-        	define(elbaJS);
+        	define(elba);
 	} else {
         	// Register elba on window
-        	window.Elba = elbaJS();
+        	window.Elba = elba();
 	}
 })
 (function () {
