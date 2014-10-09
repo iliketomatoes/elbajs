@@ -2,8 +2,12 @@ elbajs
 ======
 
 This is a pure javascript slider, responsive, serving lazy loading images according to the screen size, hardware accelerated.
-Inspired by many sources such as bLazy and Superslides. 
-You can use it together with RequireJs since it is AMD ready. At the moment this plugin's size is 10.7 KB Minified.
+
+Inspired by many sources such as bLazy and Superslides.
+
+You can use it together with RequireJs since it is AMD ready. 
+
+At the moment this plugin's size is 10.7 KB minified.
 
 ##INSTALL
 
@@ -73,7 +77,7 @@ require(['elba'], function(elba){
 	         		src: 'data-src-large'
 			}
 		]});
-}		
+})		
 </pre>
 
 *The width is referred to the width of the gallery container, that can be smaller than the screen, according to your taste*  
@@ -130,6 +134,9 @@ Available options:
 Not tested yet, but working on all modern browser, IE9+.
 
 ##CHANGELOG
+
+###v 0.1.1
+AMD ready
 
 ###v 0.1
 Initial release
