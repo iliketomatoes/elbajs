@@ -1,4 +1,4 @@
-/*! elba - v0.1.1 - 2014-10-09
+/*! elba - v0.1.1 - 2014-11-11
 * https://github.com/dedalodesign/elbajs
 * Copyright (c) 2014 ; Licensed  */
 ;(function(elba) {
@@ -149,123 +149,144 @@ Function.prototype.setScope = function(scope) {
 
 
 
+//var classie = window.classie;
+var isRetina = window.devicePixelRatio > 1;
 
- 
-	//var classie = window.classie;
-	var isRetina = window.devicePixelRatio > 1;
+var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+                      window.webkitRequestAnimationFrame || window.oRequestAnimationFrame;
 
-	var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
-                              window.webkitRequestAnimationFrame || window.oRequestAnimationFrame;
+var cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 
-  	var cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
+//from http://easings.net/
+var easingObj = {
+	easeInSine : [0.47, 0, 0.745, 0.715],
+	easeOutSine : [0.39, 0.575, 0.565, 1],
+	easeInOutSine : [0.445, 0.05, 0.55, 0.95],
+	easeInQuad : [0.55, 0.085, 0.68, 0.53],
+	easeOutQuad : [0.25, 0.46, 0.45, 0.94],
+	easeInOutQuad : [0.455, 0.03, 0.515, 0.955],
+	easeInCubic : [0.55, 0.055, 0.675, 0.19],
+	easeOutCubic : [0.215, 0.61, 0.355, 1],
+	easeInOutCubic : [0.645, 0.045, 0.355, 1],
+	easeInQuart : [0.895, 0.03, 0.685, 0.22],
+	easeOutQuart : [0.165, 0.84, 0.44, 1],
+	easeInOutQuart : [0.77, 0, 0.175, 1],
+	easeInQuint : [0.755, 0.05, 0.855, 0.06],
+	easeOutQuint : [0.23, 1, 0.32, 1],
+	easeInOutQuint : [0.86, 0, 0.07, 1],
+	easeInExpo : [0.95, 0.05, 0.795, 0.035],
+	easeOutExpo : [0.19, 1, 0.22, 1],
+	easeInOutExpo : [1, 0, 0, 1],
+	easeInCirc : [0.6, 0.04, 0.98, 0.335],
+	easeOutCirc : [0.075, 0.82, 0.165, 1],
+	easeInOutCirc : [0.785, 0.135, 0.15, 0.86],
+	easeInBack : [0.6, -0.28, 0.735, 0.045],
+	easeOutBack  : [0.175, 0.885, 0.32, 1.275],
+	easeInOutBack  : [0.68, -0.55, 0.265, 1.55],
+};
 
-  	//from http://easings.net/
-  	var easingObj = {
-  		easeInSine : [0.47, 0, 0.745, 0.715],
-  		easeOutSine : [0.39, 0.575, 0.565, 1],
-  		easeInOutSine : [0.445, 0.05, 0.55, 0.95],
-  		easeInQuad : [0.55, 0.085, 0.68, 0.53],
-  		easeOutQuad : [0.25, 0.46, 0.45, 0.94],
-  		easeInOutQuad : [0.455, 0.03, 0.515, 0.955],
-  		easeInCubic : [0.55, 0.055, 0.675, 0.19],
-  		easeOutCubic : [0.215, 0.61, 0.355, 1],
-  		easeInOutCubic : [0.645, 0.045, 0.355, 1],
-  		easeInQuart : [0.895, 0.03, 0.685, 0.22],
-  		easeOutQuart : [0.165, 0.84, 0.44, 1],
-  		easeInOutQuart : [0.77, 0, 0.175, 1],
-  		easeInQuint : [0.755, 0.05, 0.855, 0.06],
-  		easeOutQuint : [0.23, 1, 0.32, 1],
-  		easeInOutQuint : [0.86, 0, 0.07, 1],
-  		easeInExpo : [0.95, 0.05, 0.795, 0.035],
-  		easeOutExpo : [0.19, 1, 0.22, 1],
-  		easeInOutExpo : [1, 0, 0, 1],
-  		easeInCirc : [0.6, 0.04, 0.98, 0.335],
-  		easeOutCirc : [0.075, 0.82, 0.165, 1],
-  		easeInOutCirc : [0.785, 0.135, 0.15, 0.86],
-  		easeInBack : [0.6, -0.28, 0.735, 0.045],
-  		easeOutBack  : [0.175, 0.885, 0.32, 1.275],
-  		easeInOutBack  : [0.68, -0.55, 0.265, 1.55],
-  	};
+//Elba constructor
+function Elba( el, settings ) {
 
-	//Elba constructor
-	function Elba( el, settings ) {
-		
-		var self = this;
-
-		self.el = el;
-		self.animated = false;
-		self.options 	= extend( self.defaults, settings );
-		
-		self.pointer 		= 0;
-		self.loaderPointer   = 0;
-
-		var ELBA = new CarouselHandler(self.el, self.options);
-
-		self.slides = ELBA.getSlides();
-
-		self.container = getContainer(el, self.options.container);
-
-		self.setSlidesWidth();
-
-		if(self.slides.length > 1){
-			self.pointer 		= 1;
-			self.loaderPointer   = 1;
-			self.el.style.left = (- self.getContainerWidth()) + 'px';
-
-			//Bind navigation events
-			if(self.options.navigation){
-			bindEvent(ELBA.getLeftNav(), 'click', function(ev) { 
-				ev.preventDefault();
-				self.goTo('left');
-				if(self.options.slideshow){
-					self.startSlideshow();
-				}
-				});
-
-			bindEvent(ELBA.getRightNav(), 'click', function(ev) { 
-				ev.preventDefault();
-				self.goTo('right');
-				if(self.options.slideshow){
-					self.startSlideshow();
-				}
-				});
-			}
-			
-			if(self.options.dots){
-				self.dots = ELBA.getDots();
-
-				classie.add(self.dots[self.pointer], 'active-dot');
-
-				for(var i = 1; i < self.slides.length - 1; i++){
-					self.dots[i].setAttribute('data-target', i);
-					bindEvent(self.dots[i], 'click', function(ev){
-						ev.preventDefault();
-						self.dotTo(this.getAttribute('data-target'));
-						if(self.options.slideshow){
-							self.startSlideshow();
-						}
-					});
-				}
-
-			}
-		}
-
-		//Set images' src
-		self.setSource();
-		
-		//Starting lazy load 
-		loadLazyImage.call(self);
-
-		//Bind resize event
-		bindEvent(window, 'resize', resizeHandler.setScope(self));
-
-		if(self.options.slideshow){
-			self.startSlideshow();
-		}
 	
-function isElementLoaded(ele, successClass) {
-	return classie.has(ele, successClass);
-}
+
+	
+/**
+* Store the slides into _base.slides array
+* @param {Object} _base
+*/
+var _createSlideArray = function(_base){
+	var parent = _base.el || document;
+	var nodelist = parent.querySelectorAll(_options.selector);
+	_base.count 	= nodelist.length;
+	//converting nodelist to array
+	for(var i = _base.count; i--; _base.slides.unshift(nodelist[i])){}
+};
+
+/**
+* Wrap the carousel into the elba-wrapper class div
+* @param {Object} _base
+*/
+var _setupWrapper = function(_base){
+	_base.wrapper = document.createElement( 'div' );
+	_base.wrapper.className = 'elba-wrapper';
+	_base.wrapper.wrap(_base.el);
+};
+
+/**
+* Clone head and tail of the gallery to make the sliding show circular,
+* set up the navigation, attach empty images to each slide
+* @param {Object} _base
+* @param {Object} _options
+*/
+var _setUpNavAndImg = function(_base, _options){
+	if(_base.count > 1){
+		var cloneTail = _base.slides[_base.count - 1].cloneNode(true);
+		_base.el.insertBefore(cloneTail, _base.el.firstChild);
+		_base.slides.unshift(cloneTail);
+
+		var cloneHead = _base.slides[1].cloneNode(true);
+		_base.el.appendChild(cloneHead);
+		_base.slides.push(cloneHead);
+		_base.count += 2;
+
+		//Setting up the navigation
+	    if(_options.navigation){
+
+	    	/**
+			* Set up arrows for the navigation
+			* @param {String} direction
+			*/
+			var _setupNavigation = function(direction){
+				_base.navigation[direction] = document.createElement( 'a' );
+				_base.navigation[direction].className = 'elba-' + direction + '-nav';
+				_base.navigation[direction].innerHtml = direction;
+				_base.wrapper.appendChild(_base.navigation[direction]);
+			};
+
+	    	_setupNavigation('left');
+			_setupNavigation('right');
+	    }
+
+	    if(_options.dots){
+
+	    	/**
+			* Set up the navigation dots
+			* @param {String} the container's ID which holds the dots
+			*/
+	    	var _setupDots = function(dotsContainer){
+
+				_base.navigation.dots = [];
+
+				var actualContainer;
+
+				if(dotsContainer){
+					actualContainer = document.getElementById(dotsContainer);
+				}else{
+					actualContainer = document.createElement('div');
+					actualContainer.className = 'elba-dots-ctr';
+					_base.wrapper.appendChild(actualContainer);
+				}
+
+				for(var i = 1; i < _base.count - 1; i++){
+					_base.navigation.dots[i]  = document.createElement('a');
+					_base.navigation.dots[i].className  = 'elba-dot';
+					actualContainer.appendChild(_base.navigation.dots[i]);
+				}
+
+			};
+
+	    	_setupDots(_options.dotsContainer);
+	    }
+	}
+
+	//Append an empty image tag to each slide
+	_base.slides.forEach(function(el){
+		var elbaIsland = document.createElement( 'img' );
+		elbaIsland.className = 'elba-island';
+		el.appendChild(elbaIsland);
+	});	
+};
 
 function loadLazyImage(loadIndex){
 
@@ -410,6 +431,53 @@ function destroy(){
 }
 
 
+	//Declare a private variable to hold the options
+	var _options;
+
+	//Declare an object holding the main parts of the gallery
+	var _base = {
+		el : null,
+		slides : [],
+		wrapper : null,
+		count : 0,
+		navigation : {
+			left : null,
+			right : null,
+			dots : null
+		}
+	};	
+
+	var self = this;
+
+	//self.el = el;
+	_base.el = self.el = el;
+	self.animated = false;
+
+	//Overwrite the default options
+	_options = self.options = extend( self.defaults, settings );
+
+	//Init the pointer to the visible slide
+	self.pointer = 0;
+
+	//Init pointer for loading slides
+	self.loaderPointer = 0;
+
+	/**
+	 * Store the slides into _base.slides array
+	 */
+	_createSlideArray(_base);
+
+	/**
+	 * Wrap the carousel into the elba-wrapper class div
+	 */
+	_setupWrapper(_base);
+
+	/**
+	 * Clone head and tail of the gallery to make the sliding show circular
+	 */
+	_setUpNavAndImg(_base, _options);
+
+	self.init(_base,_options);
 //Closing Elba constructor
 }
 
@@ -432,6 +500,75 @@ Elba.prototype.defaults = {
 	dots: true,
 	dotsContainer: false, 
 	slideshow : 5000
+};
+
+Elba.prototype.init = function(_base,_options){
+
+	var self = this;
+
+	//self.slides = ELBA.getSlides();
+	self.slides = _base.slides;
+	console.log(self.slides);
+
+	self.container = getContainer(_base.el, _options.container);
+
+	self.setSlidesWidth();
+
+	if(self.slides.length > 1){
+		self.pointer 		= 1;
+		self.loaderPointer   = 1;
+		self.el.style.left = (- self.getContainerWidth()) + 'px';
+
+		//Bind navigation events
+		if(self.options.navigation){
+		bindEvent(ELBA.getLeftNav(), 'click', function(ev) { 
+			ev.preventDefault();
+			self.goTo('left');
+			if(self.options.slideshow){
+				self.startSlideshow();
+			}
+			});
+
+		bindEvent(ELBA.getRightNav(), 'click', function(ev) { 
+			ev.preventDefault();
+			self.goTo('right');
+			if(self.options.slideshow){
+				self.startSlideshow();
+			}
+			});
+		}
+		
+		if(self.options.dots){
+			self.dots = ELBA.getDots();
+
+			classie.add(self.dots[self.pointer], 'active-dot');
+
+			for(var i = 1; i < self.slides.length - 1; i++){
+				self.dots[i].setAttribute('data-target', i);
+				bindEvent(self.dots[i], 'click', function(ev){
+					ev.preventDefault();
+					self.dotTo(this.getAttribute('data-target'));
+					if(self.options.slideshow){
+						self.startSlideshow();
+					}
+				});
+			}
+
+		}
+	}
+
+	//Set images' src
+	self.setSource();
+
+	//Starting lazy load 
+	loadLazyImage.call(self);
+
+	//Bind resize event
+	bindEvent(window, 'resize', resizeHandler.setScope(self));
+
+	if(self.options.slideshow){
+		self.startSlideshow();
+	}
 };
 
 Elba.prototype.getContainerWidth = function(){
@@ -756,129 +893,6 @@ function bezier(x1, y1, x2, y2, epsilon){
 
 
 
-function CarouselHandler(base, options){
-
-	var self = this;
-
-	self.slides = [];
-	self.count = 0;
-	self.navigation = {
-		left : null,
-		right : null,
-		dots : null
-	};
-
-	// First we create an array of slides to lazy load
-    self.createSlideArray(options.selector, base);
-
-    // Then set up the carousel wrapper
-    self.setupWrapper(base);
-
-    if(self.count > 1){
-    	self.cloningHeadAndTail(base);
-
-    	//Setting up the navigation
-	    if(options.navigation){
-	    	self.setupNavigation('left');
-			self.setupNavigation('right');
-	    }
-
-	    if(options.dots){
-	    	self.setupDots(options.dotsContainer);
-	    }
-    }
-
-	self.setupElbaIslands();
-}
-
-CarouselHandler.prototype.createSlideArray = function(selector, parentSelector){
-	var self = this;
-	var parent = parentSelector || document;
-	var nodelist = parent.querySelectorAll(selector);
-	self.count 	= nodelist.length;
-	//converting nodelist to array
-	for(var i = self.count; i--; self.slides.unshift(nodelist[i])){}
-};
-
-CarouselHandler.prototype.cloningHeadAndTail = function(base){
-	var self = this;
-
-	if(self.count > 1){
-		var cloneTail = self.slides[self.count - 1].cloneNode(true);
-		base.insertBefore(cloneTail, base.firstChild);
-		self.slides.unshift(cloneTail);
-
-		var cloneHead = self.slides[1].cloneNode(true);
-		base.appendChild(cloneHead);
-		self.slides.push(cloneHead);
-		self.count += 2;
-	}	
-};
-
-CarouselHandler.prototype.setupWrapper = function(base){
-	var self = this;
-
-	self.wrapper = document.createElement( 'div' );
-	self.wrapper.className = 'elba-wrapper';
-	self.wrapper.wrap(base);
-};
-
-CarouselHandler.prototype.setupNavigation = function(direction){
-	var self = this;
-
-	self.navigation[direction] = document.createElement( 'a' );
-	self.navigation[direction].className = 'elba-' + direction + '-nav';
-	self.navigation[direction].innerHtml = direction;
-	self.wrapper.appendChild(self.navigation[direction]);
-};
-
-CarouselHandler.prototype.setupDots = function(dotsContainer){
-	var self = this;
-
-	self.navigation.dots = [];
-
-	var actualContainer;
-
-	if(dotsContainer){
-		actualContainer = document.getElementById(dotsContainer);
-	}else{
-		actualContainer = document.createElement('div');
-		actualContainer.className = 'elba-dots-ctr';
-		self.wrapper.appendChild(actualContainer);
-	}
-
-	for(var i = 1; i < self.count - 1; i++){
-		self.navigation.dots[i]  = document.createElement('a');
-		self.navigation.dots[i].className  = 'elba-dot';
-		actualContainer.appendChild(self.navigation.dots[i]);
-	}
-
-};
-
-CarouselHandler.prototype.setupElbaIslands = function(){
-	var self = this;
-	self.slides.forEach(function(el){
-		var elbaIsland = document.createElement( 'img' );
-		elbaIsland.className = 'elba-island';
-		el.appendChild(elbaIsland);
-	});
-};
-
-CarouselHandler.prototype.getSlides = function(){
-	return this.slides;
-};
-
-CarouselHandler.prototype.getLeftNav = function(){
-	return this.navigation.left;
-};
-
-CarouselHandler.prototype.getRightNav = function(){
-	return this.navigation.right;
-};
-
-CarouselHandler.prototype.getDots = function(){
-	return this.navigation.dots;
-};
 function extend( a, b ) {
 	for( var key in b ) { 
 		if( b.hasOwnProperty( key ) ) {
@@ -941,6 +955,10 @@ function getContainer(el, parentClass){
       // It would be OK to omit the following and just
       // return undefined
       return null;
+}
+
+function isElementLoaded(ele, successClass) {
+  return classie.has(ele, successClass);
 }
 
 

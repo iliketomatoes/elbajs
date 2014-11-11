@@ -26,6 +26,75 @@ Elba.prototype.defaults = {
 	slideshow : 5000
 };
 
+Elba.prototype.init = function(_base,_options){
+
+	var self = this;
+
+	//self.slides = ELBA.getSlides();
+	self.slides = _base.slides;
+	console.log(self.slides);
+
+	self.container = getContainer(_base.el, _options.container);
+
+	self.setSlidesWidth();
+
+	if(self.slides.length > 1){
+		self.pointer 		= 1;
+		self.loaderPointer   = 1;
+		self.el.style.left = (- self.getContainerWidth()) + 'px';
+
+		//Bind navigation events
+		if(self.options.navigation){
+		bindEvent(ELBA.getLeftNav(), 'click', function(ev) { 
+			ev.preventDefault();
+			self.goTo('left');
+			if(self.options.slideshow){
+				self.startSlideshow();
+			}
+			});
+
+		bindEvent(ELBA.getRightNav(), 'click', function(ev) { 
+			ev.preventDefault();
+			self.goTo('right');
+			if(self.options.slideshow){
+				self.startSlideshow();
+			}
+			});
+		}
+		
+		if(self.options.dots){
+			self.dots = ELBA.getDots();
+
+			classie.add(self.dots[self.pointer], 'active-dot');
+
+			for(var i = 1; i < self.slides.length - 1; i++){
+				self.dots[i].setAttribute('data-target', i);
+				bindEvent(self.dots[i], 'click', function(ev){
+					ev.preventDefault();
+					self.dotTo(this.getAttribute('data-target'));
+					if(self.options.slideshow){
+						self.startSlideshow();
+					}
+				});
+			}
+
+		}
+	}
+
+	//Set images' src
+	self.setSource();
+
+	//Starting lazy load 
+	loadLazyImage.call(self);
+
+	//Bind resize event
+	bindEvent(window, 'resize', resizeHandler.setScope(self));
+
+	if(self.options.slideshow){
+		self.startSlideshow();
+	}
+};
+
 Elba.prototype.getContainerWidth = function(){
 	var self = this;
 	return getContainerWidth(self.container);

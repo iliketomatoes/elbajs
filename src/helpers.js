@@ -62,3 +62,7 @@ function getContainer(el, parentClass){
       return null;
 }
 
+function isElementLoaded(ele, successClass) {
+  return classie.has(ele, successClass);
+}
+

@@ -1,8 +1,104 @@
-/* private functions
-************************************/
-function isElementLoaded(ele, successClass) {
-	return classie.has(ele, successClass);
-}
+/* 
+====================================
+PRIVATE FUNCTIONS
+====================================*/
+
+/**
+* Store the slides into _base.slides array
+* @param {Object} _base
+*/
+var _createSlideArray = function(_base){
+	var parent = _base.el || document;
+	var nodelist = parent.querySelectorAll(_options.selector);
+	_base.count 	= nodelist.length;
+	//converting nodelist to array
+	for(var i = _base.count; i--; _base.slides.unshift(nodelist[i])){}
+};
+
+/**
+* Wrap the carousel into the elba-wrapper class div
+* @param {Object} _base
+*/
+var _setupWrapper = function(_base){
+	_base.wrapper = document.createElement( 'div' );
+	_base.wrapper.className = 'elba-wrapper';
+	_base.wrapper.wrap(_base.el);
+};
+
+/**
+* Clone head and tail of the gallery to make the sliding show circular,
+* set up the navigation, attach empty images to each slide
+* @param {Object} _base
+* @param {Object} _options
+*/
+var _setUpNavAndImg = function(_base, _options){
+	if(_base.count > 1){
+		var cloneTail = _base.slides[_base.count - 1].cloneNode(true);
+		_base.el.insertBefore(cloneTail, _base.el.firstChild);
+		_base.slides.unshift(cloneTail);
+
+		var cloneHead = _base.slides[1].cloneNode(true);
+		_base.el.appendChild(cloneHead);
+		_base.slides.push(cloneHead);
+		_base.count += 2;
+
+		//Setting up the navigation
+	    if(_options.navigation){
+
+	    	/**
+			* Set up arrows for the navigation
+			* @param {String} direction
+			*/
+			var _setupNavigation = function(direction){
+				_base.navigation[direction] = document.createElement( 'a' );
+				_base.navigation[direction].className = 'elba-' + direction + '-nav';
+				_base.navigation[direction].innerHtml = direction;
+				_base.wrapper.appendChild(_base.navigation[direction]);
+			};
+
+	    	_setupNavigation('left');
+			_setupNavigation('right');
+	    }
+
+	    if(_options.dots){
+
+	    	/**
+			* Set up the navigation dots
+			* @param {String} the container's ID which holds the dots
+			*/
+	    	var _setupDots = function(dotsContainer){
+
+				_base.navigation.dots = [];
+
+				var actualContainer;
+
+				if(dotsContainer){
+					actualContainer = document.getElementById(dotsContainer);
+				}else{
+					actualContainer = document.createElement('div');
+					actualContainer.className = 'elba-dots-ctr';
+					_base.wrapper.appendChild(actualContainer);
+				}
+
+				for(var i = 1; i < _base.count - 1; i++){
+					_base.navigation.dots[i]  = document.createElement('a');
+					_base.navigation.dots[i].className  = 'elba-dot';
+					actualContainer.appendChild(_base.navigation.dots[i]);
+				}
+
+			};
+
+	    	_setupDots(_options.dotsContainer);
+	    }
+	}
+
+	//Append an empty image tag to each slide
+	_base.slides.forEach(function(el){
+		var elbaIsland = document.createElement( 'img' );
+		elbaIsland.className = 'elba-island';
+		el.appendChild(elbaIsland);
+	});	
+};
 
 function loadLazyImage(loadIndex){
 
