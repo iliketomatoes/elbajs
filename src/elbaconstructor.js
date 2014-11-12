@@ -37,6 +37,32 @@ var easingObj = {
 //Elba constructor
 function Elba( el, settings ) {
 
-	
+	//Declare an object holding the main parts of the gallery
+	this.base = {
+		el : el,
+		container : null,
+		slides : [],
+		wrapper : null,
+		count : 0,
+		source : 0,
+		navigation : {
+			left : null,
+			right : null,
+			dots : null
+		},
+		//Init the pointer to the visible slide
+		pointer : 0,
+		//Init pointer for loading slides
+		loaderPointer : 0,
+		//Hint for the direction to load
+		directionHint : 'right',
+		resizeTimout : null
+	};
 
+	//Overwrite the default options
+	this.options = extend( this.defaults, settings );
+
+	this.animated = false; 
+
+	var _resizeTimout = null;
 	
