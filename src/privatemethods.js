@@ -293,15 +293,17 @@ var _doResize = function(_base, _options){
 	_setSlidesWidth(_base);
 	
 	//Fix the gallery offset since it's been resized
-	_base.el.style.left = intVal(- (getContainerWidth(_base.container) * _base.pointer)) + 'px';
+	_base.el.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
 
 	var oldSource = _base.source;
 	_setSource(_base,_options);
 
+	//If the source changed, we re-init the gallery
 	if(oldSource !== _base.source){
 		_destroy(_base, _options);
 		_lazyLoadImages(_base, _options);
 	}else{
+		//Otherwise we just resize the current images
 		for(var i = 0; i < _base.slides.length; i++){
 			var slide = _base.slides[i];
  			if(slide) {

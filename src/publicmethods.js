@@ -20,52 +20,39 @@ Elba.prototype.defaults = {
 	dotsContainer: false, 
 	slideshow : 5000
 };
-
-Elba.prototype.getContainerWidth = function(){
-	var self = this;
-	return getContainerWidth(self.base.container);
-};
-
-Elba.prototype.getContainerHeight = function(){
-	var self = this;
-	return getContainerHeight(self.base.container);
-};		
-
-
+	
 Elba.prototype.goTo = function(direction){
 	var self = this;
 	if(typeof direction === 'string' && isNaN(direction)){
-		var count = self.slides.length;
+		var count = self.base.slides.length;
 		if(direction === 'right'){
-			if(self.pointer + 1 >= count){
+			if(self.base.pointer + 1 >= count){
 				return false;
 			}
-			self.pointer++;
-			animate.call(self, 'right');
+			self.base.pointer++;
+			animate(self.base, self.options,'right');
 		}else{
-			if(self.pointer - 1 < 0 ){
+			if(self.base.pointer - 1 < 0 ){
 				return false;
 			}
-			self.pointer--;
-			animate.call(self, 'left');
+			self.base.pointer--;
+			animate(self.base, self.options,'left');
 		}
 	}else if(!isNaN(direction)){
-		var oldPointer = self.pointer;
-		self.pointer = parseInt(direction);
-		if(self.pointer > oldPointer){
-			animate.call(self, 'right');
+		var oldPointer = self.base.pointer;
+		self.base.pointer = parseInt(direction);
+		if(self.base.pointer > oldPointer){
+			animate(self.base, self.options, 'right');
 		}else{
-			animate.call(self, 'left');
+			animate(self.base, self.options, 'left');
 		}	
-	}else{
-		self.el.style.left = intVal(self.getLeftOffset()) + 'px';
-	}	
+	}
 };
 
 Elba.prototype.dotTo = function(index){
 	var self = this;
 
-	if(parseInt(index) === self.pointer){
+	if(parseInt(index) === self.base.pointer){
 		return false;
 	}else{
 		self.goTo(index);
@@ -73,41 +60,15 @@ Elba.prototype.dotTo = function(index){
 
 };
 
-Elba.prototype.updateDots = function(){
-	var self = this;
-
-	self.dots.forEach(function(el){
-		classie.remove(el,'active-dot');
-	});
-
-	var index;
-
-	if(self.pointer === self.slides.length - 1){
-		index = 1;
-	}else if(self.pointer === 0){
-		index = self.slides.length - 2;
-	}else{
-		index = self.pointer;
-	}
-
-	classie.add(self.dots[index],'active-dot');
-
-};
-
-Elba.prototype.getLeftOffset = function(){
-	var self = this;	
-	return - (self.getContainerWidth() * self.pointer);
-};
-
-
 Elba.prototype.startSlideshow = function(){
 	var self = this;
-	if(self.slides.length > 1){
+	if(self.base.slides.length > 1){
 		if(self.slideshow){
 		clearInterval(self.slideshow);
 	}	
 	self.slideshow = setInterval(function(){
-		if(classie.has(self.slides[self.pointer + 1],'elba-loaded')){
+		//TODO: animate only if it is in the viewport
+		if(classie.has(self.base.slides[self.base.pointer + 1],'elba-loaded')){
 			self.goTo('right');
 		}
 	},self.options.slideshow);

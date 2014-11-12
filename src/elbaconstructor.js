@@ -56,13 +56,10 @@ function Elba( el, settings ) {
 		loaderPointer : 0,
 		//Hint for the direction to load
 		directionHint : 'right',
-		resizeTimout : null
+		resizeTimout : null,
+		animated : false
 	};
 
 	//Overwrite the default options
 	this.options = extend( this.defaults, settings );
-
-	this.animated = false; 
-
-	var _resizeTimout = null;
 	

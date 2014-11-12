@@ -16,19 +16,19 @@ function getContainerWidth(container){
 }	 	
 
 function getContainerHeight(container){
-     if(typeof container !== 'undefined' && container){
+    if(typeof container !== 'undefined' && container){
         return container.offsetHeight;
     }else{
         return window.innerHeight || document.documentElement.clientHeight;
-     }
+    }
 }   
 
 function each(object, fn){
- 		if(object && fn) {
- 			var l = object.length;
- 			for(var i = 0; i<l && fn(object[i], i) !== false; i++){}
- 		}
-	 }
+	if(object && fn) {
+		var l = object.length;
+		for(var i = 0; i<l && fn(object[i], i) !== false; i++){}
+	}
+}
 
 function intVal(x){
 	if(x){
@@ -38,31 +38,31 @@ function intVal(x){
 	}
 }
 
+function getLeftOffset(element , multiplier){
+	return intVal(- (getContainerWidth(element) * multiplier));
+}
+
 function bindEvent(ele, type, fn) {
-     if (ele.attachEvent) {
-            ele.attachEvent && ele.attachEvent('on' + type, fn);
-          } else {
-                 ele.addEventListener(type, fn, false);
-          }
-   }
+    ele.addEventListener(type, fn, false);
+}
 
 function getContainer(el, parentClass){
 
-      while (el && el.parentNode) {
-        el = el.parentNode;
-        if (el.className === parentClass) {
-          return el;
-        }
-      }
+	while (el && el.parentNode) {
+		el = el.parentNode;
+		if (el.className === parentClass) {
+	  		return el;
+		}
+	}
 
-      // Many DOM methods return null if they don't 
-      // find the element they are searching for
-      // It would be OK to omit the following and just
-      // return undefined
-      return null;
+	// Many DOM methods return null if they don't 
+	// find the element they are searching for
+	// It would be OK to omit the following and just
+	// return undefined
+	return null;
 }
 
 function isElementLoaded(ele, successClass) {
-  return classie.has(ele, successClass);
+	return classie.has(ele, successClass);
 }
 

@@ -207,15 +207,12 @@ function Elba( el, settings ) {
 		loaderPointer : 0,
 		//Hint for the direction to load
 		directionHint : 'right',
-		resizeTimout : null
+		resizeTimout : null,
+		animated : false
 	};
 
 	//Overwrite the default options
 	this.options = extend( this.defaults, settings );
-
-	this.animated = false; 
-
-	var _resizeTimout = null;
 	
 /**
 * Store the slides into _base.slides array
@@ -507,15 +504,17 @@ var _doResize = function(_base, _options){
 	_setSlidesWidth(_base);
 	
 	//Fix the gallery offset since it's been resized
-	_base.el.style.left = intVal(- (getContainerWidth(_base.container) * _base.pointer)) + 'px';
+	_base.el.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
 
 	var oldSource = _base.source;
 	_setSource(_base,_options);
 
+	//If the source changed, we re-init the gallery
 	if(oldSource !== _base.source){
 		_destroy(_base, _options);
 		_lazyLoadImages(_base, _options);
 	}else{
+		//Otherwise we just resize the current images
 		for(var i = 0; i < _base.slides.length; i++){
 			var slide = _base.slides[i];
  			if(slide) {
@@ -612,15 +611,21 @@ this.init = function(){
 
     	classie.add(self.base.navigation.dots[self.base.pointer], 'active-dot');
 
-			for(var i = 1; i < self.base.slides.length - 1; i++){
+    	var dotHandler = function(i){
+
+    		return function(){
+    			self.dotTo(self.base.navigation.dots[i].getAttribute('data-target'));
+	    		if(self.options.slideshow){
+					self.startSlideshow();
+				}
+
+				return false;
+    		};	
+    	};
+
+    	for(var i = 1; i < self.base.slides.length - 1; i++){
 				self.base.navigation.dots[i].setAttribute('data-target', i);
-				bindEvent(self.base.navigation.dots[i], 'click', function(ev){
-					ev.preventDefault();
-					self.dotTo(this.getAttribute('data-target'));
-					if(self.options.slideshow){
-						self.startSlideshow();
-					}
-				});
+				bindEvent(self.base.navigation.dots[i], 'click', dotHandler(i));
 			}
     }
 
@@ -639,9 +644,9 @@ this.init = function(){
 		_resizeHandler(self.base, self.options);
 	});
 
-	/*if(self.options.slideshow){
+	if(self.options.slideshow){
 		self.startSlideshow();
-	}*/
+	}
 };
 
 
@@ -667,52 +672,39 @@ Elba.prototype.defaults = {
 	dotsContainer: false, 
 	slideshow : 5000
 };
-
-Elba.prototype.getContainerWidth = function(){
-	var self = this;
-	return getContainerWidth(self.base.container);
-};
-
-Elba.prototype.getContainerHeight = function(){
-	var self = this;
-	return getContainerHeight(self.base.container);
-};		
-
-
+	
 Elba.prototype.goTo = function(direction){
 	var self = this;
 	if(typeof direction === 'string' && isNaN(direction)){
-		var count = self.slides.length;
+		var count = self.base.slides.length;
 		if(direction === 'right'){
-			if(self.pointer + 1 >= count){
+			if(self.base.pointer + 1 >= count){
 				return false;
 			}
-			self.pointer++;
-			animate.call(self, 'right');
+			self.base.pointer++;
+			animate(self.base, self.options,'right');
 		}else{
-			if(self.pointer - 1 < 0 ){
+			if(self.base.pointer - 1 < 0 ){
 				return false;
 			}
-			self.pointer--;
-			animate.call(self, 'left');
+			self.base.pointer--;
+			animate(self.base, self.options,'left');
 		}
 	}else if(!isNaN(direction)){
-		var oldPointer = self.pointer;
-		self.pointer = parseInt(direction);
-		if(self.pointer > oldPointer){
-			animate.call(self, 'right');
+		var oldPointer = self.base.pointer;
+		self.base.pointer = parseInt(direction);
+		if(self.base.pointer > oldPointer){
+			animate(self.base, self.options, 'right');
 		}else{
-			animate.call(self, 'left');
+			animate(self.base, self.options, 'left');
 		}	
-	}else{
-		self.el.style.left = intVal(self.getLeftOffset()) + 'px';
-	}	
+	}
 };
 
 Elba.prototype.dotTo = function(index){
 	var self = this;
 
-	if(parseInt(index) === self.pointer){
+	if(parseInt(index) === self.base.pointer){
 		return false;
 	}else{
 		self.goTo(index);
@@ -720,41 +712,15 @@ Elba.prototype.dotTo = function(index){
 
 };
 
-Elba.prototype.updateDots = function(){
-	var self = this;
-
-	self.dots.forEach(function(el){
-		classie.remove(el,'active-dot');
-	});
-
-	var index;
-
-	if(self.pointer === self.slides.length - 1){
-		index = 1;
-	}else if(self.pointer === 0){
-		index = self.slides.length - 2;
-	}else{
-		index = self.pointer;
-	}
-
-	classie.add(self.dots[index],'active-dot');
-
-};
-
-Elba.prototype.getLeftOffset = function(){
-	var self = this;	
-	return - (self.getContainerWidth() * self.pointer);
-};
-
-
 Elba.prototype.startSlideshow = function(){
 	var self = this;
-	if(self.slides.length > 1){
+	if(self.base.slides.length > 1){
 		if(self.slideshow){
 		clearInterval(self.slideshow);
 	}	
 	self.slideshow = setInterval(function(){
-		if(classie.has(self.slides[self.pointer + 1],'elba-loaded')){
+		//TODO: animate only if it is in the viewport
+		if(classie.has(self.base.slides[self.base.pointer + 1],'elba-loaded')){
 			self.goTo('right');
 		}
 	},self.options.slideshow);
@@ -771,28 +737,47 @@ Elba.prototype.clearSlideshow = function(){
 
 
 
-function animate(direction) {
+function animate(_base, _options,direction) {
   
-  var self = this;
-  var ele = self.el;    
-  var target = self.getLeftOffset();
-  var count = self.slides.length;
+  var ele = _base.el;
 
-  if(self.animated){
+  var target = getLeftOffset(_base.container, _base.pointer);
+  var count = _base.slides.length;
+
+  if(_base.animated){
     return false;
   }
 
-  self.animated = true;
+  _base.animated = true;
+
+  var updateDots = function(){
+
+    _base.navigation.dots.forEach(function(el){
+    	classie.remove(el,'active-dot');
+    });
+
+    var index;
+
+    if(_base.pointer === _base.slides.length - 1){
+      index = 1;
+      }else if(_base.pointer === 0){
+        index = _base.slides.length - 2;
+        }else{
+          index = _base.pointer;
+    }
+
+    classie.add(_base.navigation.dots[index],'active-dot');
+  };
 
   var startingOffset = intVal(ele.style.left);
   
   var deltaOffset = Math.abs(startingOffset - target);
-  if(direction === 'right') deltaOffset = -deltaOffset;
+  if(direction === 'right') deltaOffset = - deltaOffset;
 
-  var duration = self.options.duration; // duration of animation in milliseconds.
+  var duration = _options.duration; // duration of animation in milliseconds.
   var epsilon = (1000 / 60 / duration) / 4;
 
-  var easeing = getBezier(easingObj[self.options.easing],epsilon);
+  var easeing = getBezier(easingObj[_options.easing],epsilon);
 
   var start = null, myReq;
 
@@ -810,19 +795,19 @@ function animate(direction) {
       if (progress == 1){
         progress = 1;
         if(count > 1){
-          if(self.pointer === (count - 1)){
-            self.pointer = 1;
-            ele.style.left = intVal(self.getLeftOffset()) + 'px';
-          }else if(self.pointer === 0){
-            self.pointer = count - 2;
-            ele.style.left = intVal(self.getLeftOffset()) + 'px';
+          if(_base.pointer === (count - 1)){
+            _base.pointer = 1;
+            ele.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
+          }else if(_base.pointer === 0){
+            _base.pointer = count - 2;
+            ele.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
           }
         }
-         self.animated = false;
+         _base.animated = false;
          start = null;
          cancelAnimationFrame(myReq);
-         if(self.dots){
-            self.updateDots();
+         if(_options.dots){
+            updateDots();
           }
       }else{
         requestAnimationFrame(animationStep);
@@ -856,17 +841,17 @@ function animate(direction) {
         if(count > 1){
           if(self.pointer === (count - 1)){
             self.pointer = 1;
-            ele.style.left = intVal(self.getLeftOffset()) + 'px';
+            ele.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
           }else if(self.pointer === 0){
             self.pointer = count - 2;
-            ele.style.left = intVal(self.getLeftOffset()) + 'px';
+            ele.style.left = (_base.container, _base.pointer) + 'px';
           }
         }
          clearInterval(id);
          start = null;
          self.animated = false;
-         if(self.dots){
-            self.updateDots();
+         if(_options.dots){
+            updateDots();
           }
       }
     },25);
@@ -876,58 +861,60 @@ function animate(direction) {
 
 
 function step(ele, delta, startingOffset, deltaOffset){
-  var actualOffset = startingOffset + (deltaOffset * delta);
-  ele.style.left = Math.ceil(actualOffset) + 'px'; 
+	var actualOffset = startingOffset + (deltaOffset * delta);
+	ele.style.left = Math.ceil(actualOffset) + 'px'; 
 }
 
 function getBezier(easingArr, epsilon){
-  return bezier(easingArr[0], easingArr[1], easingArr[2], easingArr[3], epsilon);
+	return bezier(easingArr[0], easingArr[1], easingArr[2], easingArr[3], epsilon);
 }
 
 // from https://github.com/arian/cubic-bezier
 function bezier(x1, y1, x2, y2, epsilon){
 
-  var curveX = function(t){
-    var v = 1 - t;
-    return 3 * v * v * t * x1 + 3 * v * t * t * x2 + t * t * t;
+  	var curveX = function(t){
+	    var v = 1 - t;
+	    return 3 * v * v * t * x1 + 3 * v * t * t * x2 + t * t * t;
     };
 
-  var curveY = function(t){
-    var v = 1 - t;
-    return 3 * v * v * t * y1 + 3 * v * t * t * y2 + t * t * t;
+  	var curveY = function(t){
+	    var v = 1 - t;
+	    return 3 * v * v * t * y1 + 3 * v * t * t * y2 + t * t * t;
     };
 
-  var derivativeCurveX = function(t){
-    var v = 1 - t;
-    return 3 * (2 * (t - 1) * t + v * v) * x1 + 3 * (- t * t * t + 2 * v * t) * x2;
+  	var derivativeCurveX = function(t){
+	    var v = 1 - t;
+	    return 3 * (2 * (t - 1) * t + v * v) * x1 + 3 * (- t * t * t + 2 * v * t) * x2;
     };
 
-  return function(t){
-    var x = t, t0, t1, t2, x2, d2, i;
+  	return function(t){
+    	var x = t, t0, t1, t2, x2, d2, i;
 
-    // First try a few iterations of Newton's method -- normally very fast.
-    for (t2 = x, i = 0; i < 8; i++){
-      x2 = curveX(t2) - x;
-      if (Math.abs(x2) < epsilon) return curveY(t2);
-      d2 = derivativeCurveX(t2);
-      if (Math.abs(d2) < 1e-6) break;
-      t2 = t2 - x2 / d2;
-    }
+	    // First try a few iterations of Newton's method -- normally very fast.
+	    for (t2 = x, i = 0; i < 8; i++){
+	      x2 = curveX(t2) - x;
+	      if (Math.abs(x2) < epsilon) return curveY(t2);
+	      d2 = derivativeCurveX(t2);
+	      if (Math.abs(d2) < 1e-6) break;
+	      t2 = t2 - x2 / d2;
+	    }
 
-    t0 = 0, t1 = 1, t2 = x;
+	    t0 = 0;
+	    t1 = 1; 
+	    t2 = x;
 
-    if (t2 < t0) return curveY(t0);
-    if (t2 > t1) return curveY(t1);
-    // Fallback to the bisection method for reliability.
-    while (t0 < t1){
-      x2 = curveX(t2);
-      if (Math.abs(x2 - x) < epsilon) return curveY(t2);
-      if (x > x2) t0 = t2;
-      else t1 = t2;
-      t2 = (t1 - t0) * 0.5 + t0;
-    }
-    // Failure
-    return curveY(t2);
+	    if (t2 < t0) return curveY(t0);
+	    if (t2 > t1) return curveY(t1);
+	    // Fallback to the bisection method for reliability.
+	    while (t0 < t1){
+	      x2 = curveX(t2);
+	      if (Math.abs(x2 - x) < epsilon) return curveY(t2);
+	      if (x > x2) t0 = t2;
+	      else t1 = t2;
+	      t2 = (t1 - t0) * 0.5 + t0;
+	    }
+	    // Failure
+	    return curveY(t2);
     };
 }
 
@@ -956,19 +943,19 @@ function getContainerWidth(container){
 }	 	
 
 function getContainerHeight(container){
-     if(typeof container !== 'undefined' && container){
+    if(typeof container !== 'undefined' && container){
         return container.offsetHeight;
     }else{
         return window.innerHeight || document.documentElement.clientHeight;
-     }
+    }
 }   
 
 function each(object, fn){
- 		if(object && fn) {
- 			var l = object.length;
- 			for(var i = 0; i<l && fn(object[i], i) !== false; i++){}
- 		}
-	 }
+	if(object && fn) {
+		var l = object.length;
+		for(var i = 0; i<l && fn(object[i], i) !== false; i++){}
+	}
+}
 
 function intVal(x){
 	if(x){
@@ -978,32 +965,32 @@ function intVal(x){
 	}
 }
 
+function getLeftOffset(element , multiplier){
+	return intVal(- (getContainerWidth(element) * multiplier));
+}
+
 function bindEvent(ele, type, fn) {
-     if (ele.attachEvent) {
-            ele.attachEvent && ele.attachEvent('on' + type, fn);
-          } else {
-                 ele.addEventListener(type, fn, false);
-          }
-   }
+    ele.addEventListener(type, fn, false);
+}
 
 function getContainer(el, parentClass){
 
-      while (el && el.parentNode) {
-        el = el.parentNode;
-        if (el.className === parentClass) {
-          return el;
-        }
-      }
+	while (el && el.parentNode) {
+		el = el.parentNode;
+		if (el.className === parentClass) {
+	  		return el;
+		}
+	}
 
-      // Many DOM methods return null if they don't 
-      // find the element they are searching for
-      // It would be OK to omit the following and just
-      // return undefined
-      return null;
+	// Many DOM methods return null if they don't 
+	// find the element they are searching for
+	// It would be OK to omit the following and just
+	// return undefined
+	return null;
 }
 
 function isElementLoaded(ele, successClass) {
-  return classie.has(ele, successClass);
+	return classie.has(ele, successClass);
 }
 
 

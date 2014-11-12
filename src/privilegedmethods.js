@@ -54,15 +54,21 @@ this.init = function(){
 
     	classie.add(self.base.navigation.dots[self.base.pointer], 'active-dot');
 
-			for(var i = 1; i < self.base.slides.length - 1; i++){
+    	var dotHandler = function(i){
+
+    		return function(){
+    			self.dotTo(self.base.navigation.dots[i].getAttribute('data-target'));
+	    		if(self.options.slideshow){
+					self.startSlideshow();
+				}
+
+				return false;
+    		};	
+    	};
+
+    	for(var i = 1; i < self.base.slides.length - 1; i++){
 				self.base.navigation.dots[i].setAttribute('data-target', i);
-				bindEvent(self.base.navigation.dots[i], 'click', function(ev){
-					ev.preventDefault();
-					self.dotTo(this.getAttribute('data-target'));
-					if(self.options.slideshow){
-						self.startSlideshow();
-					}
-				});
+				bindEvent(self.base.navigation.dots[i], 'click', dotHandler(i));
 			}
     }
 
@@ -81,8 +87,8 @@ this.init = function(){
 		_resizeHandler(self.base, self.options);
 	});
 
-	/*if(self.options.slideshow){
+	if(self.options.slideshow){
 		self.startSlideshow();
-	}*/
+	}
 };
 
