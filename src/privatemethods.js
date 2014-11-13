@@ -1,6 +1,6 @@
 /* 
 ====================================
-PRIVATE FUNCTIONS
+PRIVATE METHODS
 ====================================*/
 
 /**
@@ -257,6 +257,35 @@ var _lazyLoadImages = function(_base, _options, loadIndex){
 		ele.className = ele.className + ' ' + _options.errorClass;
 	}	
 };	 	 
+
+
+/**
+* Update the dots after sliding 
+* @param {Object} _base
+*/
+var _updateDots = function(_base){
+
+    _base.navigation.dots.forEach(function(el){
+    	if(!!el){
+    		classie.remove(el,'active-dot');
+    	}
+    });
+
+    var index;
+
+    if(_base.pointer === _base.slides.length - 1){
+      index = 1;
+      }else if(_base.pointer === 0){
+        index = _base.slides.length - 2;
+        }else{
+          index = _base.pointer;
+    }
+
+    if(!!_base.navigation.dots[index]){
+    	classie.add(_base.navigation.dots[index],'active-dot');
+    }
+    
+};
 
 
 /**

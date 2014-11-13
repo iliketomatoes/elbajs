@@ -1,5 +1,7 @@
-/* public functions
-*************************************/
+/* 
+====================================
+PUBLIC METHODS
+====================================*/
 
 /* Extending Elba constructor
 ************************************/
@@ -20,34 +22,6 @@ Elba.prototype.defaults = {
 	dotsContainer: false, 
 	slideshow : 5000
 };
-	
-Elba.prototype.goTo = function(direction){
-	var self = this;
-	if(typeof direction === 'string' && isNaN(direction)){
-		var count = self.base.slides.length;
-		if(direction === 'right'){
-			if(self.base.pointer + 1 >= count){
-				return false;
-			}
-			self.base.pointer++;
-			animate(self.base, self.options,'right');
-		}else{
-			if(self.base.pointer - 1 < 0 ){
-				return false;
-			}
-			self.base.pointer--;
-			animate(self.base, self.options,'left');
-		}
-	}else if(!isNaN(direction)){
-		var oldPointer = self.base.pointer;
-		self.base.pointer = parseInt(direction);
-		if(self.base.pointer > oldPointer){
-			animate(self.base, self.options, 'right');
-		}else{
-			animate(self.base, self.options, 'left');
-		}	
-	}
-};
 
 Elba.prototype.dotTo = function(index){
 	var self = this;
@@ -67,8 +41,12 @@ Elba.prototype.startSlideshow = function(){
 		clearInterval(self.slideshow);
 	}	
 	self.slideshow = setInterval(function(){
-		//TODO: animate only if it is in the viewport
-		if(classie.has(self.base.slides[self.base.pointer + 1],'elba-loaded')){
+	
+		if(!isElementInViewport(self.base.container)){
+			return false;	
+		}
+
+		if(!!self.base.slides[self.base.pointer + 1] && classie.has(self.base.slides[self.base.pointer + 1],'elba-loaded')){
 			self.goTo('right');
 		}
 	},self.options.slideshow);

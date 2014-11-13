@@ -1,122 +1,99 @@
-function animate(_base, _options,direction) {
+function animate(_base, _options, direction) {
   
-  var ele = _base.el;
+	var ele = _base.el;
 
-  var target = getLeftOffset(_base.container, _base.pointer);
-  var count = _base.slides.length;
+	if(_base.animated){
+    	return false;
+  	}
 
-  if(_base.animated){
-    return false;
-  }
+  	_base.animated = true;
 
-  _base.animated = true;
+	var target = getLeftOffset(_base.container, _base.pointer);
+	var count = _base.slides.length;
 
-  var updateDots = function(){
+	var startingOffset = intVal(ele.style.left);
 
-    _base.navigation.dots.forEach(function(el){
-    	classie.remove(el,'active-dot');
-    });
+	var deltaOffset = Math.abs(startingOffset - target);
+	if(direction === 'right') deltaOffset = - deltaOffset;
 
-    var index;
+	var duration = _options.duration; // duration of animation in milliseconds.
+	var epsilon = (1000 / 60 / duration) / 4;
 
-    if(_base.pointer === _base.slides.length - 1){
-      index = 1;
-      }else if(_base.pointer === 0){
-        index = _base.slides.length - 2;
-        }else{
-          index = _base.pointer;
-    }
+	var easeing = getBezier(easingObj[_options.easing],epsilon);
 
-    classie.add(_base.navigation.dots[index],'active-dot');
-  };
+	var start = null, myReq;
 
-  var startingOffset = intVal(ele.style.left);
-  
-  var deltaOffset = Math.abs(startingOffset - target);
-  if(direction === 'right') deltaOffset = - deltaOffset;
+	function animationStep(timestamp){
+	  if (start === null) start = timestamp;
 
-  var duration = _options.duration; // duration of animation in milliseconds.
-  var epsilon = (1000 / 60 / duration) / 4;
+	  var timePassed = (timestamp - start);
+	  var progress = timePassed / duration;
 
-  var easeing = getBezier(easingObj[_options.easing],epsilon);
+	  if (progress > 1) progress = 1;
 
-  var start = null, myReq;
+	  var delta = easeing(progress).toFixed(6);
+	    step(ele, delta, startingOffset, deltaOffset);
 
-   function animationStep(timestamp) {
-      if (start === null) start = timestamp;
+	  if (progress == 1){
+	    progress = 1;
+	    if(count > 1){
+	      if(_base.pointer === (count - 1)){
+	        _base.pointer = 1;
+	        ele.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
+	      }else if(_base.pointer === 0){
+	        _base.pointer = count - 2;
+	        ele.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
+	      }
+	    }
+	     _base.animated = false;
+	     start = null;
+	     cancelAnimationFrame(myReq);
+	    
+	  }else{
+	    requestAnimationFrame(animationStep);
+	  }
 
-      var timePassed = (timestamp - start);
-      var progress = timePassed / duration;
-
-      if (progress > 1) progress = 1;
-
-      var delta = easeing(progress).toFixed(6);
-        step(ele, delta, startingOffset, deltaOffset);
-
-      if (progress == 1){
-        progress = 1;
-        if(count > 1){
-          if(_base.pointer === (count - 1)){
-            _base.pointer = 1;
-            ele.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
-          }else if(_base.pointer === 0){
-            _base.pointer = count - 2;
-            ele.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
-          }
-        }
-         _base.animated = false;
-         start = null;
-         cancelAnimationFrame(myReq);
-         if(_options.dots){
-            updateDots();
-          }
-      }else{
-        requestAnimationFrame(animationStep);
-      }
-
-    }
+	}
   
   //Global variables                              
-  if(requestAnimationFrame && cancelAnimationFrame){
+	if(requestAnimationFrame && cancelAnimationFrame){
 
-  myReq = requestAnimationFrame(animationStep);
+		myReq = requestAnimationFrame(animationStep);
 
-  }else{
+	}else{
 
       //TODO a bettert fallback if window.requestAnimationFrame is not supported
-      var id = setInterval(function() {
+	  var id = setInterval(function() {
 
-      if (start === null) start = new Date();  
+		  if (start === null) start = new Date();  
 
-      var timePassed = new Date() - start;
-      var progress = timePassed / duration;
+		  var timePassed = new Date() - start;
+		  var progress = timePassed / duration;
 
-      if (progress > 1) progress = 1;
+		  if (progress > 1) progress = 1;
 
-      var delta = easeing(progress).toFixed(6);
+		  var delta = easeing(progress).toFixed(6);
 
-      step(ele, delta, startingOffset, deltaOffset);
-      
-      if (progress == 1) {
+		  step(ele, delta, startingOffset, deltaOffset);
+		  
+		  if (progress == 1) {
 
-        if(count > 1){
-          if(self.pointer === (count - 1)){
-            self.pointer = 1;
-            ele.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
-          }else if(self.pointer === 0){
-            self.pointer = count - 2;
-            ele.style.left = (_base.container, _base.pointer) + 'px';
-          }
-        }
-         clearInterval(id);
-         start = null;
-         self.animated = false;
-         if(_options.dots){
-            updateDots();
-          }
-      }
-    },25);
-  }                             
+		    if(count > 1){
+		      if(self.pointer === (count - 1)){
+		        self.pointer = 1;
+		        ele.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
+		      }else if(self.pointer === 0){
+		        self.pointer = count - 2;
+		        ele.style.left = (_base.container, _base.pointer) + 'px';
+		      }
+		    }
+		     clearInterval(id);
+		     start = null;
+		     self.animated = false;
+		  }
+		},25);
+
+	}                             
 
 }
 
@@ -178,10 +155,3 @@ function bezier(x1, y1, x2, y2, epsilon){
 	    return curveY(t2);
     };
 }
-
-
-
-
-
-
-

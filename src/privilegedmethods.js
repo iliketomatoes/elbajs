@@ -22,7 +22,7 @@ this.init = function(){
 	
 	//We move the first slide to the right because of the head clone
 	if(self.base.count > 1){
-		self.base.el.style.left = (- self.getContainerWidth()) + 'px';
+		self.base.el.style.left = (- getContainerWidth(self.base.container)) + 'px';
 	}
 
 	//Setting up the navigation arrows
@@ -88,7 +88,73 @@ this.init = function(){
 	});
 
 	if(self.options.slideshow){
+
+		if (typeof document.addEventListener !== 'undefined' || typeof document[hidden] !== 'undefined') {
+			// Set the name of the hidden property and the change event for visibility
+			var hidden, visibilityChange; 
+			if (typeof document.hidden !== 'undefined') { // Opera 12.10 and Firefox 18 and later support 
+			  hidden = 'hidden';
+			  visibilityChange = 'visibilitychange';
+			} else if (typeof document.mozHidden !== 'undefined') {
+			  hidden = 'mozHidden';
+			  visibilityChange = 'mozvisibilitychange';
+			} else if (typeof document.msHidden !== 'undefined') {
+			  hidden =' msHidden';
+			  visibilityChange = 'msvisibilitychange';
+			} else if (typeof document.webkitHidden !== 'undefined') {
+			  hidden = 'webkitHidden';
+			  visibilityChange = 'webkitvisibilitychange';
+			}
+
+			// If the page is hidden, pause the slideshow;
+			// if the page is shown, play the slideshow
+			var handleVisibilityChange = function() {
+			  if (document[hidden]) {
+			    self.clearSlideshow();
+			  } else {
+			    self.startSlideshow();
+			  }
+			};
+
+			// Handle page visibility change   
+  			document.addEventListener(visibilityChange, handleVisibilityChange, false);
+		}
+
 		self.startSlideshow();
 	}
+};
+
+
+this.goTo = function(direction){
+	var self = this;
+
+	if(typeof direction === 'string' && isNaN(direction)){
+		var count = self.base.slides.length;
+		if(direction === 'right'){
+			if(self.base.pointer + 1 >= count){
+				return false;
+			}
+			self.base.pointer++;
+			animate(self.base, self.options,'right');
+		}else{
+			if(self.base.pointer - 1 < 0 ){
+				return false;
+			}
+			self.base.pointer--;
+			animate(self.base, self.options,'left');
+		}
+	}else if(!isNaN(direction)){
+		var oldPointer = self.base.pointer;
+		self.base.pointer = parseInt(direction);
+		if(self.base.pointer > oldPointer){
+			animate(self.base, self.options, 'right');
+		}else{
+			animate(self.base, self.options, 'left');
+		}	
+	}
+
+	if(self.options.dots){
+        _updateDots(self.base);
+    }
 };
 

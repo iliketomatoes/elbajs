@@ -1,4 +1,4 @@
-/*! elba - v0.1.1 - 2014-11-12
+/*! elba - v0.1.1 - 2014-11-13
 * https://github.com/dedalodesign/elbajs
 * Copyright (c) 2014 ; Licensed  */
 ;(function(elba) {
@@ -471,6 +471,35 @@ var _lazyLoadImages = function(_base, _options, loadIndex){
 
 
 /**
+* Update the dots after sliding 
+* @param {Object} _base
+*/
+var _updateDots = function(_base){
+
+    _base.navigation.dots.forEach(function(el){
+    	if(!!el){
+    		classie.remove(el,'active-dot');
+    	}
+    });
+
+    var index;
+
+    if(_base.pointer === _base.slides.length - 1){
+      index = 1;
+      }else if(_base.pointer === 0){
+        index = _base.slides.length - 2;
+        }else{
+          index = _base.pointer;
+    }
+
+    if(!!_base.navigation.dots[index]){
+    	classie.add(_base.navigation.dots[index],'active-dot');
+    }
+    
+};
+
+
+/**
 * Destroy some variables before reloading the right size images
 * @param {Object} _base
 * @param {Object} _options
@@ -579,7 +608,7 @@ this.init = function(){
 	
 	//We move the first slide to the right because of the head clone
 	if(self.base.count > 1){
-		self.base.el.style.left = (- self.getContainerWidth()) + 'px';
+		self.base.el.style.left = (- getContainerWidth(self.base.container)) + 'px';
 	}
 
 	//Setting up the navigation arrows
@@ -645,8 +674,74 @@ this.init = function(){
 	});
 
 	if(self.options.slideshow){
+
+		if (typeof document.addEventListener !== 'undefined' || typeof document[hidden] !== 'undefined') {
+			// Set the name of the hidden property and the change event for visibility
+			var hidden, visibilityChange; 
+			if (typeof document.hidden !== 'undefined') { // Opera 12.10 and Firefox 18 and later support 
+			  hidden = 'hidden';
+			  visibilityChange = 'visibilitychange';
+			} else if (typeof document.mozHidden !== 'undefined') {
+			  hidden = 'mozHidden';
+			  visibilityChange = 'mozvisibilitychange';
+			} else if (typeof document.msHidden !== 'undefined') {
+			  hidden =' msHidden';
+			  visibilityChange = 'msvisibilitychange';
+			} else if (typeof document.webkitHidden !== 'undefined') {
+			  hidden = 'webkitHidden';
+			  visibilityChange = 'webkitvisibilitychange';
+			}
+
+			// If the page is hidden, pause the slideshow;
+			// if the page is shown, play the slideshow
+			var handleVisibilityChange = function() {
+			  if (document[hidden]) {
+			    self.clearSlideshow();
+			  } else {
+			    self.startSlideshow();
+			  }
+			};
+
+			// Handle page visibility change   
+  			document.addEventListener(visibilityChange, handleVisibilityChange, false);
+		}
+
 		self.startSlideshow();
 	}
+};
+
+
+this.goTo = function(direction){
+	var self = this;
+
+	if(typeof direction === 'string' && isNaN(direction)){
+		var count = self.base.slides.length;
+		if(direction === 'right'){
+			if(self.base.pointer + 1 >= count){
+				return false;
+			}
+			self.base.pointer++;
+			animate(self.base, self.options,'right');
+		}else{
+			if(self.base.pointer - 1 < 0 ){
+				return false;
+			}
+			self.base.pointer--;
+			animate(self.base, self.options,'left');
+		}
+	}else if(!isNaN(direction)){
+		var oldPointer = self.base.pointer;
+		self.base.pointer = parseInt(direction);
+		if(self.base.pointer > oldPointer){
+			animate(self.base, self.options, 'right');
+		}else{
+			animate(self.base, self.options, 'left');
+		}	
+	}
+
+	if(self.options.dots){
+        _updateDots(self.base);
+    }
 };
 
 
@@ -672,34 +767,6 @@ Elba.prototype.defaults = {
 	dotsContainer: false, 
 	slideshow : 5000
 };
-	
-Elba.prototype.goTo = function(direction){
-	var self = this;
-	if(typeof direction === 'string' && isNaN(direction)){
-		var count = self.base.slides.length;
-		if(direction === 'right'){
-			if(self.base.pointer + 1 >= count){
-				return false;
-			}
-			self.base.pointer++;
-			animate(self.base, self.options,'right');
-		}else{
-			if(self.base.pointer - 1 < 0 ){
-				return false;
-			}
-			self.base.pointer--;
-			animate(self.base, self.options,'left');
-		}
-	}else if(!isNaN(direction)){
-		var oldPointer = self.base.pointer;
-		self.base.pointer = parseInt(direction);
-		if(self.base.pointer > oldPointer){
-			animate(self.base, self.options, 'right');
-		}else{
-			animate(self.base, self.options, 'left');
-		}	
-	}
-};
 
 Elba.prototype.dotTo = function(index){
 	var self = this;
@@ -719,8 +786,12 @@ Elba.prototype.startSlideshow = function(){
 		clearInterval(self.slideshow);
 	}	
 	self.slideshow = setInterval(function(){
-		//TODO: animate only if it is in the viewport
-		if(classie.has(self.base.slides[self.base.pointer + 1],'elba-loaded')){
+	
+		if(!isElementInViewport(self.base.container)){
+			return false;	
+		}
+
+		if(!!self.base.slides[self.base.pointer + 1] && classie.has(self.base.slides[self.base.pointer + 1],'elba-loaded')){
 			self.goTo('right');
 		}
 	},self.options.slideshow);
@@ -737,125 +808,102 @@ Elba.prototype.clearSlideshow = function(){
 
 
 
-function animate(_base, _options,direction) {
+function animate(_base, _options, direction) {
   
-  var ele = _base.el;
+	var ele = _base.el;
 
-  var target = getLeftOffset(_base.container, _base.pointer);
-  var count = _base.slides.length;
+	if(_base.animated){
+    	return false;
+  	}
 
-  if(_base.animated){
-    return false;
-  }
+  	_base.animated = true;
 
-  _base.animated = true;
+	var target = getLeftOffset(_base.container, _base.pointer);
+	var count = _base.slides.length;
 
-  var updateDots = function(){
+	var startingOffset = intVal(ele.style.left);
 
-    _base.navigation.dots.forEach(function(el){
-    	classie.remove(el,'active-dot');
-    });
+	var deltaOffset = Math.abs(startingOffset - target);
+	if(direction === 'right') deltaOffset = - deltaOffset;
 
-    var index;
+	var duration = _options.duration; // duration of animation in milliseconds.
+	var epsilon = (1000 / 60 / duration) / 4;
 
-    if(_base.pointer === _base.slides.length - 1){
-      index = 1;
-      }else if(_base.pointer === 0){
-        index = _base.slides.length - 2;
-        }else{
-          index = _base.pointer;
-    }
+	var easeing = getBezier(easingObj[_options.easing],epsilon);
 
-    classie.add(_base.navigation.dots[index],'active-dot');
-  };
+	var start = null, myReq;
 
-  var startingOffset = intVal(ele.style.left);
-  
-  var deltaOffset = Math.abs(startingOffset - target);
-  if(direction === 'right') deltaOffset = - deltaOffset;
+	function animationStep(timestamp){
+	  if (start === null) start = timestamp;
 
-  var duration = _options.duration; // duration of animation in milliseconds.
-  var epsilon = (1000 / 60 / duration) / 4;
+	  var timePassed = (timestamp - start);
+	  var progress = timePassed / duration;
 
-  var easeing = getBezier(easingObj[_options.easing],epsilon);
+	  if (progress > 1) progress = 1;
 
-  var start = null, myReq;
+	  var delta = easeing(progress).toFixed(6);
+	    step(ele, delta, startingOffset, deltaOffset);
 
-   function animationStep(timestamp) {
-      if (start === null) start = timestamp;
+	  if (progress == 1){
+	    progress = 1;
+	    if(count > 1){
+	      if(_base.pointer === (count - 1)){
+	        _base.pointer = 1;
+	        ele.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
+	      }else if(_base.pointer === 0){
+	        _base.pointer = count - 2;
+	        ele.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
+	      }
+	    }
+	     _base.animated = false;
+	     start = null;
+	     cancelAnimationFrame(myReq);
+	    
+	  }else{
+	    requestAnimationFrame(animationStep);
+	  }
 
-      var timePassed = (timestamp - start);
-      var progress = timePassed / duration;
-
-      if (progress > 1) progress = 1;
-
-      var delta = easeing(progress).toFixed(6);
-        step(ele, delta, startingOffset, deltaOffset);
-
-      if (progress == 1){
-        progress = 1;
-        if(count > 1){
-          if(_base.pointer === (count - 1)){
-            _base.pointer = 1;
-            ele.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
-          }else if(_base.pointer === 0){
-            _base.pointer = count - 2;
-            ele.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
-          }
-        }
-         _base.animated = false;
-         start = null;
-         cancelAnimationFrame(myReq);
-         if(_options.dots){
-            updateDots();
-          }
-      }else{
-        requestAnimationFrame(animationStep);
-      }
-
-    }
+	}
   
   //Global variables                              
-  if(requestAnimationFrame && cancelAnimationFrame){
+	if(requestAnimationFrame && cancelAnimationFrame){
 
-  myReq = requestAnimationFrame(animationStep);
+		myReq = requestAnimationFrame(animationStep);
 
-  }else{
+	}else{
 
       //TODO a bettert fallback if window.requestAnimationFrame is not supported
-      var id = setInterval(function() {
+	  var id = setInterval(function() {
 
-      if (start === null) start = new Date();  
+		  if (start === null) start = new Date();  
 
-      var timePassed = new Date() - start;
-      var progress = timePassed / duration;
+		  var timePassed = new Date() - start;
+		  var progress = timePassed / duration;
 
-      if (progress > 1) progress = 1;
+		  if (progress > 1) progress = 1;
 
-      var delta = easeing(progress).toFixed(6);
+		  var delta = easeing(progress).toFixed(6);
 
-      step(ele, delta, startingOffset, deltaOffset);
-      
-      if (progress == 1) {
+		  step(ele, delta, startingOffset, deltaOffset);
+		  
+		  if (progress == 1) {
 
-        if(count > 1){
-          if(self.pointer === (count - 1)){
-            self.pointer = 1;
-            ele.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
-          }else if(self.pointer === 0){
-            self.pointer = count - 2;
-            ele.style.left = (_base.container, _base.pointer) + 'px';
-          }
-        }
-         clearInterval(id);
-         start = null;
-         self.animated = false;
-         if(_options.dots){
-            updateDots();
-          }
-      }
-    },25);
-  }                             
+		    if(count > 1){
+		      if(self.pointer === (count - 1)){
+		        self.pointer = 1;
+		        ele.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
+		      }else if(self.pointer === 0){
+		        self.pointer = count - 2;
+		        ele.style.left = (_base.container, _base.pointer) + 'px';
+		      }
+		    }
+		     clearInterval(id);
+		     start = null;
+		     self.animated = false;
+		  }
+		},25);
+
+	}                             
 
 }
 
@@ -917,13 +965,6 @@ function bezier(x1, y1, x2, y2, epsilon){
 	    return curveY(t2);
     };
 }
-
-
-
-
-
-
-
 
 function extend( a, b ) {
 	for( var key in b ) { 
@@ -993,6 +1034,29 @@ function isElementLoaded(ele, successClass) {
 	return classie.has(ele, successClass);
 }
 
+
+/**
+* Determine if an element is in the viewport, from:
+* http://stackoverflow.com/questions/123999/how-to-tell-if-a-dom-element-is-visible-in-the-current-viewport/7557433#7557433
+* 
+* @param {HTMLElement} el
+*/
+function isElementInViewport (el) {
+
+    //special bonus for those using jQuery
+    if (typeof jQuery === "function" && el instanceof jQuery) {
+        el = el[0];
+    }
+
+    var rect = el.getBoundingClientRect();
+
+    return (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && /*or $(window).height() */
+        rect.right <= (window.innerWidth || document.documentElement.clientWidth) /*or $(window).width() */
+    );
+}
 
 return Elba;
 });
