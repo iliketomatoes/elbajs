@@ -24,9 +24,10 @@ module.exports = function(grunt) {
               'src/dependencies.js',
               'src/elbaconstructor.js',
               'src/privatemethods.js',
+              'src/privilegedmethods.js',
+              'src/elbainit.js',
               'src/publicmethods.js',
               'src/animations.js',
-              'src/carouselhandler.js',
               'src/helpers.js',
               'src/outro.js'
              ],

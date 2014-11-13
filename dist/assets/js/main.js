@@ -1,6 +1,6 @@
 ! function(){
 	var gallery = new Elba( document.getElementById('carousel'), {
-		slideshow: 10000,
+		slideshow: 8000,
         breakpoints: [{
 	          width: 768 // min-width
 			, src: 'data-src-medium'
@@ -10,4 +10,8 @@
 	        , src: 'data-src-large'
 	}]
     });
+
+    /*var test = setTimeout(function() {
+    	console.log(gallery.stopSlideshow());
+    }, 15000);*/
 }();
