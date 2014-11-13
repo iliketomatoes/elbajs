@@ -20,7 +20,8 @@ Elba.prototype.defaults = {
 	navigation : true,
 	dots: true,
 	dotsContainer: false, 
-	slideshow : 5000
+	slideshow : 5000,
+	preload : 1
 };
 
 Elba.prototype.dotTo = function(index){
@@ -46,7 +47,9 @@ Elba.prototype.startSlideshow = function(){
 			return false;	
 		}
 
-		if(!!self.base.slides[self.base.pointer + 1] && classie.has(self.base.slides[self.base.pointer + 1],'elba-loaded')){
+		var nextSlide = self.base.slides[self.base.pointer + 1];
+
+		if(!!nextSlide && (classie.has(nextSlide, self.options.successClass) || classie.has(nextSlide, self.options.errorClass))){
 			self.goTo('right');
 		}
 	},self.options.slideshow);

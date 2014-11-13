@@ -87,7 +87,7 @@ this.init = function(){
 		_resizeHandler(self.base, self.options);
 	});
 
-	if(self.options.slideshow){
+	if(!!self.options.slideshow){
 
 		if (typeof document.addEventListener !== 'undefined' || typeof document[hidden] !== 'undefined') {
 			// Set the name of the hidden property and the change event for visibility
@@ -120,6 +120,7 @@ this.init = function(){
   			document.addEventListener(visibilityChange, handleVisibilityChange, false);
 		}
 
+		//We start the slideshow
 		self.startSlideshow();
 	}
 };
@@ -134,26 +135,34 @@ this.goTo = function(direction){
 			if(self.base.pointer + 1 >= count){
 				return false;
 			}
+			self.base.directionHint = 'right';
 			self.base.pointer++;
+			_lazyLoadImages(self.base, self.options);
 			animate(self.base, self.options,'right');
 		}else{
 			if(self.base.pointer - 1 < 0 ){
 				return false;
 			}
+			self.base.directionHint = 'left';
 			self.base.pointer--;
+			_lazyLoadImages(self.base, self.options);
 			animate(self.base, self.options,'left');
 		}
 	}else if(!isNaN(direction)){
 		var oldPointer = self.base.pointer;
 		self.base.pointer = parseInt(direction);
 		if(self.base.pointer > oldPointer){
+			self.base.directionHint = 'right';
+			_lazyLoadImages(self.base, self.options);
 			animate(self.base, self.options, 'right');
 		}else{
+			self.base.directionHint = 'left';
+			_lazyLoadImages(self.base, self.options);
 			animate(self.base, self.options, 'left');
 		}	
 	}
 
-	if(self.options.dots){
+	if(!!self.options.dots){
         _updateDots(self.base);
     }
 };

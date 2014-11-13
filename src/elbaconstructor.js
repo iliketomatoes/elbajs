@@ -52,8 +52,6 @@ function Elba( el, settings ) {
 		},
 		//Init the pointer to the visible slide
 		pointer : 0,
-		//Init pointer for loading slides
-		loaderPointer : 0,
 		//Hint for the direction to load
 		directionHint : 'right',
 		resizeTimout : null,

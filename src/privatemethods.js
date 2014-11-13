@@ -33,9 +33,8 @@ var _setupWrapper = function(_base){
 */
 var _cloneHeadAndTail = function(_base){
 	if(_base.count > 1){
-		//Update the pointer and loaderPointer
+		//Update the pointer
 		_base.pointer = 1;
-		_base.loaderPointer = 1;
 
 		var cloneTail = _base.slides[_base.count - 1].cloneNode(true);
 		_base.el.insertBefore(cloneTail, _base.el.firstChild);
@@ -165,7 +164,6 @@ var _setImageSize = function(_base, img){
 	img.style.top = Math.ceil(centerY) + 'px';
 };
 
-
 /**
 * Lazy load the images
 * @param {Object} _base
@@ -174,15 +172,11 @@ var _setImageSize = function(_base, img){
 */
 var _lazyLoadImages = function(_base, _options, loadIndex){
 
-	var loaderPointer = loadIndex || _base.loaderPointer;
+	var loaderPointer = loadIndex || _base.pointer;
 	var ele = _base.slides[loaderPointer];
-	var count = _base.slides.length;
 
-	if(isElementLoaded(ele, _options.successClass)){
-		if(count > 1 && ((loaderPointer + 1) < (count - 1))){
-				loaderPointer++;
-				_lazyLoadImages(_base, _options, loaderPointer);
-			}
+	if(isElementLoaded(ele, _options.successClass) || isElementLoaded(ele, _options.errorClass)){
+		_loadNext(_base, _options, loaderPointer);
 	}
 
 	var dataSrc = ele.getAttribute(_base.source || _options.src); // fallback to default data-src
@@ -199,11 +193,6 @@ var _lazyLoadImages = function(_base, _options, loadIndex){
 		img.onerror = function() {
 			if(_options.error) _options.error(ele, "invalid");
 			ele.className = ele.className + ' ' + _options.errorClass;
-
-			if(count > 1 && loaderPointer + 1 < count - 1){
-				loaderPointer++;
-				_lazyLoadImages(_base, _options, loaderPointer);
-			}
 		}; 
 
 		img.onload = function() {
@@ -218,16 +207,16 @@ var _lazyLoadImages = function(_base, _options, loadIndex){
 			if(_options.success) _options.success(ele);
 
 			//Update the Head and Tail clone
-			if(count > 1 && (loaderPointer === 1 || loaderPointer === 0 || loaderPointer === (count - 1) || loaderPointer === (count - 2))){
+			if(_base.count > 1 && (loaderPointer === 1 || loaderPointer === 0 || loaderPointer === (_base.count - 1) || loaderPointer === (_base.count - 2))){
 
 				var parentClone,elbaClone;
 
 				if(loaderPointer === 1){
-					parentClone = _base.slides[count - 1];
-				}else if(loaderPointer === (count - 1)){
-					parentClone = _base.lides[1];
+					parentClone = _base.slides[_base.count - 1];
+				}else if(loaderPointer === (_base.count - 1)){
+					parentClone = _base.slides[1];
 					}else if(loaderPointer === 0){
-						parentClone = _base.slides[count - 2];
+						parentClone = _base.slides[_base.count - 2];
 						}else{
 							parentClone = _base.slides[0];
 						}
@@ -243,20 +232,37 @@ var _lazyLoadImages = function(_base, _options, loadIndex){
 				}
 				
 			}
-
-			if(count > 1 && loaderPointer + 1 < count - 1){
-				loaderPointer++;
-				_lazyLoadImages(_base, _options, loaderPointer);
-			}
-			
+			_loadNext(_base, _options, loaderPointer);
 		};
+
 		img.src = src; //preload image
 
 	} else {
+		_loadNext(_base, _options, loaderPointer);
 		if(_options.error) _options.error(ele, "missing");
-		ele.className = ele.className + ' ' + _options.errorClass;
+		ele.className = ele.className + ' ' + _options.errorClass;	
 	}	
 };	 	 
+
+/**
+* Helper called in the previous _lazyLoadImages function
+* @param {Object} _base
+* @param {Object} _options
+* [@param {Number} the slide to be loaded]
+*/
+function _loadNext(_base, _options, loaderPointer){
+	if(_base.directionHint === 'right'){
+		if(_base.count > 1 && ( (loaderPointer + 1) < (_base.count - 1) ) && Math.abs( (loaderPointer + 1) - _base.pointer ) <= _options.preload){
+			loaderPointer++;
+			_lazyLoadImages(_base, _options, loaderPointer);
+		}
+	}else if(_base.count > 1 && ( (loaderPointer - 1) > 0 ) && Math.abs( (loaderPointer + 1) - _base.pointer ) <= _options.preload){
+			loaderPointer--;
+			_lazyLoadImages(_base, _options, loaderPointer);
+		}else{
+			return false;
+		}
+}
 
 
 /**
@@ -296,11 +302,6 @@ var _updateDots = function(_base){
 var _destroy = function(_base, _options){
 
 	var count = _base.slides.length;
-	if(count > 1){
-		_base.loaderPointer   = 1;
-	}else{
-		_base.loaderPointer   = 0;
-	}
 	
 	for(var i = 0; i < count; i++){
 			var slide = _base.slides[i];

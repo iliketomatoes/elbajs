@@ -55,7 +55,7 @@ function animate(_base, _options, direction) {
 
 	}
   
-  //Global variables                              
+  	//Global variables                              
 	if(requestAnimationFrame && cancelAnimationFrame){
 
 		myReq = requestAnimationFrame(animationStep);
@@ -63,34 +63,34 @@ function animate(_base, _options, direction) {
 	}else{
 
       //TODO a bettert fallback if window.requestAnimationFrame is not supported
-	  var id = setInterval(function() {
+	  	var id = setInterval(function() {
 
-		  if (start === null) start = new Date();  
+			if (start === null) start = new Date();  
 
-		  var timePassed = new Date() - start;
-		  var progress = timePassed / duration;
+			var timePassed = new Date() - start;
+			var progress = timePassed / duration;
 
-		  if (progress > 1) progress = 1;
+			if (progress > 1) progress = 1;
 
-		  var delta = easeing(progress).toFixed(6);
+			var delta = easeing(progress).toFixed(6);
 
-		  step(ele, delta, startingOffset, deltaOffset);
+			step(ele, delta, startingOffset, deltaOffset);
 		  
-		  if (progress == 1) {
+			if (progress == 1) {
+				if(count > 1){
+				  if(self.pointer === (count - 1)){
+				    self.pointer = 1;
+				    ele.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
+				  }else if(self.pointer === 0){
+				    self.pointer = count - 2;
+				    ele.style.left = (_base.container, _base.pointer) + 'px';
+				  }
+				}
+				 clearInterval(id);
+				 start = null;
+				 self.animated = false;
+				}
 
-		    if(count > 1){
-		      if(self.pointer === (count - 1)){
-		        self.pointer = 1;
-		        ele.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
-		      }else if(self.pointer === 0){
-		        self.pointer = count - 2;
-		        ele.style.left = (_base.container, _base.pointer) + 'px';
-		      }
-		    }
-		     clearInterval(id);
-		     start = null;
-		     self.animated = false;
-		  }
 		},25);
 
 	}                             
