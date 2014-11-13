@@ -1,3 +1,8 @@
+/* 
+====================================================
+FUNCTIONS DEALING WITH THE ACTUAL SLIDING ANIMATION
+====================================================*/
+
 function animate(_base, _options, direction) {
   
 	var ele = _base.el;

@@ -642,7 +642,13 @@ this.init = function(){
     	var dotHandler = function(i){
 
     		return function(){
-    			self.dotTo(self.base.navigation.dots[i].getAttribute('data-target'));
+    			var index = self.base.navigation.dots[i].getAttribute('data-target');
+
+    			if(parseInt(index) === self.base.pointer){
+					return false;
+				}else{
+					self.goTo(index);
+					}
 	    		if(self.options.slideshow){
 					self.startSlideshow();
 				}
@@ -651,6 +657,7 @@ this.init = function(){
     		};	
     	};
 
+    	//Binding the click event to the dots
     	for(var i = 1; i < self.base.slides.length - 1; i++){
 				self.base.navigation.dots[i].setAttribute('data-target', i);
 				bindEvent(self.base.navigation.dots[i], 'click', dotHandler(i));
@@ -711,10 +718,16 @@ this.init = function(){
 };
 
 
+/**
+* Manages which direction and which picture to slide to
+* @param {String} || {Number} accepts 'right','left'
+* or the numerical index of the slide
+*/
 this.goTo = function(direction){
 	var self = this;
 
-	if(typeof direction === 'string' && isNaN(direction)){
+	if(!self.base.animated){
+		if(typeof direction === 'string' && isNaN(direction)){
 		var count = self.base.slides.length;
 		if(direction === 'right'){
 			if(self.base.pointer + 1 >= count){
@@ -732,24 +745,26 @@ this.goTo = function(direction){
 			self.base.pointer--;
 			_lazyLoadImages(self.base, self.options);
 			animate(self.base, self.options,'left');
+			}
+		}else if(!isNaN(direction)){
+			var oldPointer = self.base.pointer;
+			self.base.pointer = parseInt(direction);
+			if(self.base.pointer > oldPointer){
+				self.base.directionHint = 'right';
+				_lazyLoadImages(self.base, self.options);
+				animate(self.base, self.options, 'right');
+			}else{
+				self.base.directionHint = 'left';
+				_lazyLoadImages(self.base, self.options);
+				animate(self.base, self.options, 'left');
+			}	
 		}
-	}else if(!isNaN(direction)){
-		var oldPointer = self.base.pointer;
-		self.base.pointer = parseInt(direction);
-		if(self.base.pointer > oldPointer){
-			self.base.directionHint = 'right';
-			_lazyLoadImages(self.base, self.options);
-			animate(self.base, self.options, 'right');
-		}else{
-			self.base.directionHint = 'left';
-			_lazyLoadImages(self.base, self.options);
-			animate(self.base, self.options, 'left');
-		}	
-	}
 
-	if(!!self.options.dots){
-        _updateDots(self.base);
-    }
+		if(!!self.options.dots){
+	        _updateDots(self.base);
+	    }
+	}
+	
 };
 
 
@@ -758,6 +773,10 @@ this.init();
 }
 /* Extending Elba constructor
 ************************************/
+
+/**
+* The object holding the default options.
+*/
 Elba.prototype.defaults = {
 	selector : '.elba',
 	separator : '|',
@@ -777,17 +796,9 @@ Elba.prototype.defaults = {
 	preload : 1
 };
 
-Elba.prototype.dotTo = function(index){
-	var self = this;
-
-	if(parseInt(index) === self.base.pointer){
-		return false;
-	}else{
-		self.goTo(index);
-	}
-
-};
-
+/**
+* A pretty self-explainatory method.
+*/
 Elba.prototype.startSlideshow = function(){
 	var self = this;
 	if(self.base.slides.length > 1){
@@ -810,11 +821,34 @@ Elba.prototype.startSlideshow = function(){
 	}
 };
 
+/**
+* This method temporarly stops the slideshow,
+* which is restarted after a click on a navigation button.
+*/
 Elba.prototype.clearSlideshow = function(){
 	var self = this;	
 	if(self.slideshow){
 		clearInterval(self.slideshow);
 	}
+};
+
+/**
+* This method permanently stops the slideshow.
+*/
+Elba.prototype.stopSlideshow = function(){
+	var self = this;	
+	if(self.slideshow){
+		clearInterval(self.slideshow);
+	}
+	self.options.slideshow = 0;
+};
+
+/**
+* This function returns the current index of the slideshow
+* @return {Number}
+*/
+Elba.prototype.getCurrent = function(){
+	return this.base.pointer;
 };
 
 

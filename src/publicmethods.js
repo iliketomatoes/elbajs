@@ -5,6 +5,10 @@ PUBLIC METHODS
 
 /* Extending Elba constructor
 ************************************/
+
+/**
+* The object holding the default options.
+*/
 Elba.prototype.defaults = {
 	selector : '.elba',
 	separator : '|',
@@ -24,17 +28,9 @@ Elba.prototype.defaults = {
 	preload : 1
 };
 
-Elba.prototype.dotTo = function(index){
-	var self = this;
-
-	if(parseInt(index) === self.base.pointer){
-		return false;
-	}else{
-		self.goTo(index);
-	}
-
-};
-
+/**
+* A pretty self-explainatory method.
+*/
 Elba.prototype.startSlideshow = function(){
 	var self = this;
 	if(self.base.slides.length > 1){
@@ -57,11 +53,34 @@ Elba.prototype.startSlideshow = function(){
 	}
 };
 
+/**
+* This method temporarly stops the slideshow,
+* which is restarted after a click on a navigation button.
+*/
 Elba.prototype.clearSlideshow = function(){
 	var self = this;	
 	if(self.slideshow){
 		clearInterval(self.slideshow);
 	}
+};
+
+/**
+* This method permanently stops the slideshow.
+*/
+Elba.prototype.stopSlideshow = function(){
+	var self = this;	
+	if(self.slideshow){
+		clearInterval(self.slideshow);
+	}
+	self.options.slideshow = 0;
+};
+
+/**
+* This function returns the current index of the slideshow
+* @return {Number}
+*/
+Elba.prototype.getCurrent = function(){
+	return this.base.pointer;
 };
 
 
