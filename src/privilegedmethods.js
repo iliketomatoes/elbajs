@@ -100,6 +100,8 @@ this.init = function(){
 		_resizeHandler(self.base, self.options);
 	},false);
 
+	self.bindTouchEvents();
+
 	if(!!self.options.slideshow){
 
 		// Set the name of the hidden property and the change event for visibility
@@ -186,5 +188,127 @@ this.goTo = function(direction){
 	    }
 	}
 	
+};
+
+
+this.bindTouchEvents = function(){
+
+	//if (typeof document.createEvent !== 'function') return false; // no tap events here
+
+	var self = this;
+
+	var touchStarted = false, // detect if a touch event is sarted
+		swipeTreshold = 80,
+		taptreshold = 200,
+		precision =  60 / 2, // touch events boundaries ( 60px by default )
+		tapNum = 0,
+		currX, currY, cachedX, cachedY, tapTimer;
+
+	var getPointerEvent = function(event) {
+			return event.targetTouches ? event.targetTouches[0] : event;
+		};
+
+	/*var	sendEvent = function(elm, eventName, originalEvent, data) {
+			var customEvent = document.createEvent('Event');
+			data = data || {};
+			data.x = currX;
+			data.y = currY;
+			data.distance = data.distance;
+			
+			customEvent.originalEvent = originalEvent;
+			for (var key in data) {
+				customEvent[key] = data[key];
+			}
+			customEvent.initEvent(eventName, true, true);
+			elm.dispatchEvent(customEvent);
+		};*/
+
+	var onTouchStart = function(e) {
+
+		var pointer = getPointerEvent(e);
+			// caching the current x
+			cachedX = currX = pointer.pageX;
+			// caching the current y
+			cachedY = currY = pointer.pageY;
+			// a touch event is detected
+			touchStarted = true;
+			tapNum++;
+			// detecting if after 200ms the finger is still in the same position
+			clearTimeout(tapTimer);
+			tapTimer = setTimeout(function() {
+				if (
+					cachedX >= currX - precision &&
+					cachedX <= currX + precision &&
+					cachedY >= currY - precision &&
+					cachedY <= currY + precision &&
+					!touchStarted
+				) {
+					// Here you get the Tap event
+					//sendEvent(e.target, (tapNum === 2) ? 'dbltap' : 'tap', e);
+				}
+				tapNum = 0;
+			}, taptreshold);
+
+	};
+
+	var	onTouchEnd = function(e) {
+
+		var eventsArr = [],
+				deltaY = cachedY - currY,
+				deltaX = cachedX - currX;
+			touchStarted = false;
+
+			if (deltaX <= -swipeTreshold){
+				eventsArr.push('swiperight');
+				console.log('swiperight');
+				self.goTo('left');
+			}
+				
+
+			if (deltaX >= swipeTreshold){
+				eventsArr.push('swipeleft');
+				console.log('swipeleft');
+				self.goTo('right');
+			}
+				
+
+			if (deltaY <= -swipeTreshold){
+				eventsArr.push('swipedown');
+				console.log('swipedown');
+			}
+				
+
+			if (deltaY >= swipeTreshold){
+				eventsArr.push('swipeup');
+				console.log('swipeup');
+			}
+				
+
+			if (eventsArr.length) {
+				for (var i = 0; i < eventsArr.length; i++) {
+					var eventName = eventsArr[i];
+					sendEvent(e.target, eventName, e, {
+						distance: {
+							x: Math.abs(deltaX),
+							y: Math.abs(deltaY)
+						}
+					});
+				}
+			}
+
+	};
+
+	var onTouchMove = function(e) {
+
+		var pointer = getPointerEvent(e);
+			currX = pointer.pageX;
+			currY = pointer.pageY;
+
+	};
+
+	//setting the events listeners
+	setListener(self.base.el, self.touchHandler.touchEvents.touchStart + ' mousedown', onTouchStart);
+	setListener(self.base.el, self.touchHandler.touchEvents.touchEnd + ' mouseup', onTouchEnd);
+	setListener(self.base.el, self.touchHandler.touchEvents.touchMove + ' mousemove', onTouchMove);
 };
 

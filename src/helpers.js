@@ -85,3 +85,12 @@ function isElementInViewport (el) {
         rect.right <= (window.innerWidth || document.documentElement.clientWidth) /*or $(window).width() */
     );
 }
+
+function setListener(elm, events, callback) {
+			var eventsArray = events.split(' '),
+				i = eventsArray.length;
+
+			while (i--) {
+				elm.addEventListener(eventsArray[i], callback, false);
+			}
+		}

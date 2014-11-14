@@ -147,6 +147,15 @@ var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAni
 
 var cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 
+var msPointerEnabled = !!navigator.pointerEnabled || navigator.msPointerEnabled;
+var	isTouch = (!!('ontouchstart' in window) && navigator.userAgent.indexOf('PhantomJS') < 0) || msPointerEnabled;
+
+var msEventType = function(type) {
+			var lo = type.toLowerCase(),
+				ms = 'MS' + type;
+			return navigator.msPointerEnabled ? ms : lo;
+		};
+
 //from http://easings.net/
 var easingObj = {
 	easeInSine : [0.47, 0, 0.745, 0.715],
@@ -201,6 +210,15 @@ function Elba( el, settings ) {
 
 	//Overwrite the default options
 	this.options = extend( this.defaults, settings );
+
+
+	this.touchHandler = {
+		touchEvents : {
+			touchStart: msEventType('PointerDown') + ' touchstart',
+			touchEnd: msEventType('PointerUp') + ' touchend',
+			touchMove: msEventType('PointerMove') + ' touchmove'
+		}
+	};
 	
 /**
 * Store the slides into _base.slides array
@@ -455,7 +473,7 @@ function _loadNext(_base, _options, loaderPointer){
 			loaderPointer++;
 			_lazyLoadImages(_base, _options, loaderPointer);
 		}
-	}else if(_base.count > 1 && ( (loaderPointer - 1) > 0 ) && Math.abs( (loaderPointer + 1) - _base.pointer ) <= _options.preload){
+	}else if(_base.count > 1 && ( (loaderPointer - 1) > 0 ) && Math.abs( (loaderPointer - 1) - _base.pointer ) <= _options.preload){
 			loaderPointer--;
 			_lazyLoadImages(_base, _options, loaderPointer);
 		}else{
@@ -572,7 +590,6 @@ var _resizeHandler = function(_base, _options) {
 
 
 
-
 this.init = function(){
 
 	var self = this;
@@ -669,6 +686,8 @@ this.init = function(){
 		_resizeHandler(self.base, self.options);
 	},false);
 
+	self.bindTouchEvents();
+
 	if(!!self.options.slideshow){
 
 		// Set the name of the hidden property and the change event for visibility
@@ -755,6 +774,128 @@ this.goTo = function(direction){
 	    }
 	}
 	
+};
+
+
+this.bindTouchEvents = function(){
+
+	//if (typeof document.createEvent !== 'function') return false; // no tap events here
+
+	var self = this;
+
+	var touchStarted = false, // detect if a touch event is sarted
+		swipeTreshold = 80,
+		taptreshold = 200,
+		precision =  60 / 2, // touch events boundaries ( 60px by default )
+		tapNum = 0,
+		currX, currY, cachedX, cachedY, tapTimer;
+
+	var getPointerEvent = function(event) {
+			return event.targetTouches ? event.targetTouches[0] : event;
+		};
+
+	/*var	sendEvent = function(elm, eventName, originalEvent, data) {
+			var customEvent = document.createEvent('Event');
+			data = data || {};
+			data.x = currX;
+			data.y = currY;
+			data.distance = data.distance;
+			
+			customEvent.originalEvent = originalEvent;
+			for (var key in data) {
+				customEvent[key] = data[key];
+			}
+			customEvent.initEvent(eventName, true, true);
+			elm.dispatchEvent(customEvent);
+		};*/
+
+	var onTouchStart = function(e) {
+
+		var pointer = getPointerEvent(e);
+			// caching the current x
+			cachedX = currX = pointer.pageX;
+			// caching the current y
+			cachedY = currY = pointer.pageY;
+			// a touch event is detected
+			touchStarted = true;
+			tapNum++;
+			// detecting if after 200ms the finger is still in the same position
+			clearTimeout(tapTimer);
+			tapTimer = setTimeout(function() {
+				if (
+					cachedX >= currX - precision &&
+					cachedX <= currX + precision &&
+					cachedY >= currY - precision &&
+					cachedY <= currY + precision &&
+					!touchStarted
+				) {
+					// Here you get the Tap event
+					//sendEvent(e.target, (tapNum === 2) ? 'dbltap' : 'tap', e);
+				}
+				tapNum = 0;
+			}, taptreshold);
+
+	};
+
+	var	onTouchEnd = function(e) {
+
+		var eventsArr = [],
+				deltaY = cachedY - currY,
+				deltaX = cachedX - currX;
+			touchStarted = false;
+
+			if (deltaX <= -swipeTreshold){
+				eventsArr.push('swiperight');
+				console.log('swiperight');
+				self.goTo('left');
+			}
+				
+
+			if (deltaX >= swipeTreshold){
+				eventsArr.push('swipeleft');
+				console.log('swipeleft');
+				self.goTo('right');
+			}
+				
+
+			if (deltaY <= -swipeTreshold){
+				eventsArr.push('swipedown');
+				console.log('swipedown');
+			}
+				
+
+			if (deltaY >= swipeTreshold){
+				eventsArr.push('swipeup');
+				console.log('swipeup');
+			}
+				
+
+			if (eventsArr.length) {
+				for (var i = 0; i < eventsArr.length; i++) {
+					var eventName = eventsArr[i];
+					sendEvent(e.target, eventName, e, {
+						distance: {
+							x: Math.abs(deltaX),
+							y: Math.abs(deltaY)
+						}
+					});
+				}
+			}
+
+	};
+
+	var onTouchMove = function(e) {
+
+		var pointer = getPointerEvent(e);
+			currX = pointer.pageX;
+			currY = pointer.pageY;
+
+	};
+
+	//setting the events listeners
+	setListener(self.base.el, self.touchHandler.touchEvents.touchStart + ' mousedown', onTouchStart);
+	setListener(self.base.el, self.touchHandler.touchEvents.touchEnd + ' mouseup', onTouchEnd);
+	setListener(self.base.el, self.touchHandler.touchEvents.touchMove + ' mousemove', onTouchMove);
 };
 
 
@@ -1089,5 +1230,13 @@ function isElementInViewport (el) {
     );
 }
 
+function setListener(elm, events, callback) {
+			var eventsArray = events.split(' '),
+				i = eventsArray.length;
+
+			while (i--) {
+				elm.addEventListener(eventsArray[i], callback, false);
+			}
+		}
 return Elba;
 });

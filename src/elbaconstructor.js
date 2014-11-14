@@ -6,6 +6,15 @@ var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAni
 
 var cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 
+var msPointerEnabled = !!navigator.pointerEnabled || navigator.msPointerEnabled;
+var	isTouch = (!!('ontouchstart' in window) && navigator.userAgent.indexOf('PhantomJS') < 0) || msPointerEnabled;
+
+var msEventType = function(type) {
+			var lo = type.toLowerCase(),
+				ms = 'MS' + type;
+			return navigator.msPointerEnabled ? ms : lo;
+		};
+
 //from http://easings.net/
 var easingObj = {
 	easeInSine : [0.47, 0, 0.745, 0.715],
@@ -60,4 +69,13 @@ function Elba( el, settings ) {
 
 	//Overwrite the default options
 	this.options = extend( this.defaults, settings );
+
+
+	this.touchHandler = {
+		touchEvents : {
+			touchStart: msEventType('PointerDown') + ' touchstart',
+			touchEnd: msEventType('PointerUp') + ' touchend',
+			touchMove: msEventType('PointerMove') + ' touchmove'
+		}
+	};
 	

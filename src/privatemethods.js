@@ -256,7 +256,7 @@ function _loadNext(_base, _options, loaderPointer){
 			loaderPointer++;
 			_lazyLoadImages(_base, _options, loaderPointer);
 		}
-	}else if(_base.count > 1 && ( (loaderPointer - 1) > 0 ) && Math.abs( (loaderPointer + 1) - _base.pointer ) <= _options.preload){
+	}else if(_base.count > 1 && ( (loaderPointer - 1) > 0 ) && Math.abs( (loaderPointer - 1) - _base.pointer ) <= _options.preload){
 			loaderPointer--;
 			_lazyLoadImages(_base, _options, loaderPointer);
 		}else{
@@ -366,7 +366,6 @@ var _resizeHandler = function(_base, _options) {
 
 	_base.resizeTimeout = setTimeout( delayed, 200 );
 };
-
 
 
 
