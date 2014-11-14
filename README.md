@@ -101,7 +101,7 @@ Available options:
 | dots             | Whether to set or not the dots for the navigation      |  Boolean |	true	  |
 | dotsContainer    | Append the dots to a custom HTML element by passing its ID      | Boolean/String |		false  |
 | slideshow        | Interval between any slide. Set 0 to disable slideshow. Expressed in milliseconds      |  Number | 10000		  |		
-|preload 		   | Number of pictures you want to load after the first one has been loaded | Number | 1 | 	
+|preload 		   | Number of pictures you want to load after the visible one has been loaded | Number | 1 | 	
 
 ###List of predefined easings
 1. easeInSine
