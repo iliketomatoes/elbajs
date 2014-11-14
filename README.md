@@ -7,7 +7,7 @@ Inspired by many sources such as bLazy and Superslides.
 
 You can load it as a module since it is AMD ready. 
 
-At the moment this plugin's size is 10.7 KB minified.
+At the moment this plugin's size is 11.3 KB minified.
 
 ##INSTALL
 
@@ -132,7 +132,9 @@ Available options:
 ##API
 <pre lang="javascript">
 	var gallery = new Elba( document.getElementById('your-carousel'), 
-				{ //Whatever options });
+				{ 
+					//Whatever options 
+				});
 
 	/**
 	* Goes to the next slide.
