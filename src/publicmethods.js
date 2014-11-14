@@ -34,7 +34,7 @@ Elba.prototype.defaults = {
 Elba.prototype.startSlideshow = function(){
 	var self = this;
 	if(self.base.slides.length > 1){
-		if(self.slideshow){
+		if(!!self.slideshow){
 		clearInterval(self.slideshow);
 	}	
 	self.slideshow = setInterval(function(){

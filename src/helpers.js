@@ -87,10 +87,10 @@ function isElementInViewport (el) {
 }
 
 function setListener(elm, events, callback) {
-			var eventsArray = events.split(' '),
-				i = eventsArray.length;
+	var eventsArray = events.split(' '),
+		i = eventsArray.length;
 
-			while (i--) {
-				elm.addEventListener(eventsArray[i], callback, false);
-			}
-		}
+	while (i--) {
+		elm.addEventListener(eventsArray[i], callback, false);
+	}
+}

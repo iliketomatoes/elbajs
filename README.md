@@ -3,11 +3,14 @@ elbajs
 
 This is a pure javascript slider, responsive, serving lazy loading images according to the screen size, hardware accelerated.
 
-Inspired by many sources such as bLazy and Superslides.
+Inspired by many sources such as:
+- [bLazy](https://github.com/dinbror/blazy) <br>
+- [Superslides](https://github.com/nicinabox/superslides) <br>
+- [Tocca.js](https://github.com/GianlucaGuarini/Tocca.js) <br>
 
 You can load it as a module since it is AMD ready. 
 
-At the moment this plugin's size is 11.3 KB minified.
+At the moment this plugin's size is 12.5 KB minified.
 
 ##INSTALL
 
@@ -184,6 +187,9 @@ Not tested yet, but working on all modern browser, IE9+.
 
 ##CHANGELOG
 
+###v 0.3.0
+Initial release with touch events and drag events enabled
+
 ###v 0.2.0
 Refactoring, conditional loading, active slideshow only if in viewport
 
@@ -195,7 +201,7 @@ Initial release
 
 ##ROADMAP
 + Better API
-+ Touch events
++ Better touch events
 + Tests
 
 ##LICENSE

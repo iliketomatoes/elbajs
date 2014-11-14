@@ -100,9 +100,10 @@ this.init = function(){
 		_resizeHandler(self.base, self.options);
 	},false);
 
+	//Let's bind the touchevents
 	self.bindTouchEvents();
 
-	if(!!self.options.slideshow){
+	if(self.options.slideshow){
 
 		// Set the name of the hidden property and the change event for visibility
 		var hidden, visibilityChange; 
@@ -183,7 +184,7 @@ this.goTo = function(direction){
 			}	
 		}
 
-		if(!!self.options.dots){
+		if(self.options.dots){
 	        _updateDots(self.base);
 	    }
 	}
@@ -192,8 +193,6 @@ this.goTo = function(direction){
 
 
 this.bindTouchEvents = function(){
-
-	//if (typeof document.createEvent !== 'function') return false; // no tap events here
 
 	var self = this;
 
@@ -251,50 +250,54 @@ this.bindTouchEvents = function(){
 
 	};
 
-	var	onTouchEnd = function(e) {
+	var	onTouchEnd = function() {
 
 		var eventsArr = [],
-				deltaY = cachedY - currY,
-				deltaX = cachedX - currX;
+			deltaY = cachedY - currY,
+			deltaX = cachedX - currX;
 			touchStarted = false;
 
 			if (deltaX <= -swipeTreshold){
 				eventsArr.push('swiperight');
-				console.log('swiperight');
+				//console.log('swiperight');
 				self.goTo('left');
 			}
 				
 
 			if (deltaX >= swipeTreshold){
 				eventsArr.push('swipeleft');
-				console.log('swipeleft');
+				//console.log('swipeleft');
 				self.goTo('right');
 			}
 				
 
 			if (deltaY <= -swipeTreshold){
 				eventsArr.push('swipedown');
-				console.log('swipedown');
+				//console.log('swipedown');
 			}
 				
 
 			if (deltaY >= swipeTreshold){
 				eventsArr.push('swipeup');
-				console.log('swipeup');
+				//console.log('swipeup');
 			}
 				
 
 			if (eventsArr.length) {
 				for (var i = 0; i < eventsArr.length; i++) {
 					var eventName = eventsArr[i];
-					sendEvent(e.target, eventName, e, {
+					/*sendEvent(e.target, eventName, e, {
 						distance: {
 							x: Math.abs(deltaX),
 							y: Math.abs(deltaY)
 						}
-					});
+					});*/
 				}
 			}
+
+			if(self.options.slideshow){
+					self.startSlideshow();
+				}
 
 	};
 
