@@ -5,7 +5,7 @@ This is a pure javascript slider, responsive, serving lazy loading images accord
 
 Inspired by many sources such as bLazy and Superslides.
 
-You can use it together with RequireJs since it is AMD ready. 
+You can load it as a module since it is AMD ready. 
 
 At the moment this plugin's size is 10.7 KB minified.
 
@@ -32,14 +32,14 @@ Include the script into your page:
 
 Add the markup for your gallery:
 <pre lang="html">
-&lt;div id="your-carousel" class="elba-carousel"&gt;
-    &lt;div class="elba" data-src="http://yourpicdefault|http://yourpicdefault@2x" data-src-medium="http://yourpicmedium|http://yourpicmedium@2x" data-src-large="http://yourpiclarge|http://yourpiclarge@2x"&gt;
-    &lt;/div&gt;
+&lt;figure id="your-carousel" class="elba-carousel"&gt;
+    &lt;figure class="elba" data-src="http://yourpicdefault|http://yourpicdefault@2x" data-src-medium="http://yourpicmedium|http://yourpicmedium@2x" data-src-large="http://yourpiclarge|http://yourpiclarge@2x"&gt;
+    &lt;figure&gt;
     ...
-    &lt;div class="elba" data-src="http://yourpicdefault|http://yourpicdefault@2x" data-src-medium="http://yourpicmedium|http://yourpicmedium@2x" data-src-large="http://yourpiclarge|http://yourpiclarge@2x"&gt;
-    &lt;/div&gt;
+    &lt;figure class="elba" data-src="http://yourpicdefault|http://yourpicdefault@2x" data-src-medium="http://yourpicmedium|http://yourpicmedium@2x" data-src-large="http://yourpiclarge|http://yourpiclarge@2x"&gt;
+    &lt;/figure&gt;
     ...
-&lt;/div&gt;	    	
+&lt;/figure&gt;	    	
 </pre> 
 
 As shown above you can optionally set multiple sources depending on the width of the device. A further option is declaring different sources for the same breakpoint, one for normal screens and the other one for retina screens, separating the sources with the default separator '|'.
@@ -53,7 +53,7 @@ Then activate the plugin:
         	breakpoints: [
         		{
         			width: 768, // min-width
-				src: 'data-src-medium'
+					src: 'data-src-medium'
 			},
         		 {
 	        		width: 1080, // min-width
@@ -73,8 +73,8 @@ require(['elba'], function(elba){
 				src: 'data-src-medium'
 			},
 			 {
-	        		width: 1080, // min-width
-	         		src: 'data-src-large'
+	        	width: 1080, // min-width
+	         	src: 'data-src-large'
 			}
 		]});
 })		
@@ -101,7 +101,7 @@ Available options:
 | dots             | Whether to set or not the dots for the navigation      |  Boolean |	true	  |
 | dotsContainer    | Append the dots to a custom HTML element by passing its ID      | Boolean/String |		false  |
 | slideshow        | Interval between any slide. Set 0 to disable slideshow. Expressed in milliseconds      |  Number | 10000		  |		
-
+|preload 		   | Number of pictures you want to load after the first one has been loaded | Number | 1 | 	
 
 ###List of predefined easings
 1. easeInSine
@@ -129,11 +129,61 @@ Available options:
 23. easeOutBack
 24. easeInOutBack
 
+##API
+<pre lang="javascript">
+	var gallery = new Elba( document.getElementById('your-carousel'), 
+				{ //Whatever options });
+
+	/**
+	* Goes to the next slide.
+	* @param {String}
+	*/			
+	gallery.goTo('right');
+
+	/**
+	* Goes to the previous slide.
+	* @param {String}
+	*/			
+	gallery.goTo('left');
+
+	/**
+	* Goes to the xth slide.
+	* @param {Number} starting from 1 to the [lenght]
+	*/			
+	gallery.goTo(x);
+
+	/**
+	* Starts the slideshow.
+	*/			
+	gallery.startSlideshow();
+
+	/**
+	* This method temporarly stops the slideshow,
+	* which is restarted after a click on a navigation button.
+	*/
+	gallery.clearSlideshow();
+
+	/**
+	* This method permanently stops the slideshow.
+	*/
+	gallery.stopSlideshow();
+
+	/**
+	* This function returns the current index of the slideshow
+	* @return {Number}
+	*/
+	gallery.getCurrent();
+
+</pre>	
+
 ##BROWSER SUPPORT
 
 Not tested yet, but working on all modern browser, IE9+.
 
 ##CHANGELOG
+
+###v 0.2.0
+Refactoring, conditional loading, active slideshow only if in viewport
 
 ###v 0.1.1
 AMD ready
@@ -142,11 +192,9 @@ AMD ready
 Initial release
 
 ##ROADMAP
-+ API
++ Better API
 + Touch events
 + Tests
-+ More intelligent conditional loading   
-+ Activate slideshow only if in viewport
 
 ##LICENSE
 MIT

@@ -42,10 +42,6 @@ function getLeftOffset(element , multiplier){
 	return intVal(- (getContainerWidth(element) * multiplier));
 }
 
-function bindEvent(ele, type, fn) {
-    ele.addEventListener(type, fn, false);
-}
-
 function getContainer(el, parentClass){
 
 	while (el && el.parentNode) {

@@ -121,15 +121,5 @@ NodeList.prototype.remove = window.HTMLCollection.prototype.remove = function() 
     }
 };
 
-/*
- * Set function scope's trick
- */
-
-Function.prototype.setScope = function(scope) {
-  var f = this;
-  return function() {
-    f.apply(scope);
-  };
-};
 
 

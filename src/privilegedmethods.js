@@ -37,21 +37,21 @@ this.init = function(){
 		_setupNavigation(self.base,'right');
 
 		//Attach events to the navigation arrows
-		bindEvent(self.base.navigation.left, 'click', function(ev) { 
+		self.base.navigation.left.addEventListener('click', function(ev) { 
 			ev.preventDefault();
 			self.goTo('left');
 			if(self.options.slideshow){
 				self.startSlideshow();
 			}
-			});
+			}, false);
 
-		bindEvent(self.base.navigation.right, 'click', function(ev) { 
+		self.base.navigation.right.addEventListener('click', function(ev) { 
 			ev.preventDefault();
 			self.goTo('right');
 			if(self.options.slideshow){
 				self.startSlideshow();
 			}
-			});
+			}, false);
     }
 
     //Setting up the dots
@@ -81,7 +81,7 @@ this.init = function(){
     	//Binding the click event to the dots
     	for(var i = 1; i < self.base.slides.length - 1; i++){
 				self.base.navigation.dots[i].setAttribute('data-target', i);
-				bindEvent(self.base.navigation.dots[i], 'click', dotHandler(i));
+				self.base.navigation.dots[i].addEventListener('click', dotHandler(i), false);
 			}
     }
 
@@ -96,29 +96,29 @@ this.init = function(){
 
 	
 	//Bind resize event
-	bindEvent(window, 'resize', function(){
+	window.addEventListener('resize', function(){
 		_resizeHandler(self.base, self.options);
-	});
+	},false);
 
 	if(!!self.options.slideshow){
 
-		if (typeof document.addEventListener !== 'undefined' || typeof document[hidden] !== 'undefined') {
-			// Set the name of the hidden property and the change event for visibility
-			var hidden, visibilityChange; 
-			if (typeof document.hidden !== 'undefined') { // Opera 12.10 and Firefox 18 and later support 
-			  hidden = 'hidden';
-			  visibilityChange = 'visibilitychange';
-			} else if (typeof document.mozHidden !== 'undefined') {
-			  hidden = 'mozHidden';
-			  visibilityChange = 'mozvisibilitychange';
-			} else if (typeof document.msHidden !== 'undefined') {
-			  hidden =' msHidden';
-			  visibilityChange = 'msvisibilitychange';
-			} else if (typeof document.webkitHidden !== 'undefined') {
-			  hidden = 'webkitHidden';
-			  visibilityChange = 'webkitvisibilitychange';
-			}
+		// Set the name of the hidden property and the change event for visibility
+		var hidden, visibilityChange; 
+		if (typeof document.hidden !== 'undefined') { // Opera 12.10 and Firefox 18 and later support 
+		  hidden = 'hidden';
+		  visibilityChange = 'visibilitychange';
+		} else if (typeof document.mozHidden !== 'undefined') {
+		  hidden = 'mozHidden';
+		  visibilityChange = 'mozvisibilitychange';
+		} else if (typeof document.msHidden !== 'undefined') {
+		  hidden =' msHidden';
+		  visibilityChange = 'msvisibilitychange';
+		} else if (typeof document.webkitHidden !== 'undefined') {
+		  hidden = 'webkitHidden';
+		  visibilityChange = 'webkitvisibilitychange';
+		}
 
+		if (typeof document[hidden] !== 'undefined') {
 			// If the page is hidden, pause the slideshow;
 			// if the page is shown, play the slideshow
 			var handleVisibilityChange = function() {
