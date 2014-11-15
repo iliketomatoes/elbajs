@@ -224,6 +224,9 @@ this.bindTouchEvents = function(){
 
 	var onTouchStart = function(e) {
 
+		//From http://stackoverflow.com/questions/9506041/javascript-events-mouseup-not-firing-after-mousemove
+		if(e.type === 'mousedown') e.preventDefault();
+
 		var pointer = getPointerEvent(e);
 			// caching the current x
 			cachedX = currX = pointer.pageX;

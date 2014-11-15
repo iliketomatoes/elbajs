@@ -1,4 +1,4 @@
-/*! elba - v0.3.0 - 2014-11-14
+/*! elba - v0.3.0 - 2014-11-15
 * https://github.com/iliketomatoes/elbajs
 * Copyright (c) 2014 ; Licensed  */
 ;(function(elba) {
@@ -809,6 +809,9 @@ this.bindTouchEvents = function(){
 		};*/
 
 	var onTouchStart = function(e) {
+
+		//From http://stackoverflow.com/questions/9506041/javascript-events-mouseup-not-firing-after-mousemove
+		if(e.type === 'mousedown') e.preventDefault();
 
 		var pointer = getPointerEvent(e);
 			// caching the current x
