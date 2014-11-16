@@ -39,7 +39,7 @@ function animate(_base, _options, direction) {
 	  var delta = easeing(progress).toFixed(6);
 	    step(ele, delta, startingOffset, deltaOffset);
 
-	  if (progress == 1){
+	  if (progress === 1){
 	    progress = 1;
 	    if(count > 1){
 	      if(_base.pointer === (count - 1)){
@@ -81,16 +81,17 @@ function animate(_base, _options, direction) {
 
 			step(ele, delta, startingOffset, deltaOffset);
 		  
-			if (progress == 1) {
-				if(count > 1){
-				  if(self.pointer === (count - 1)){
-				    self.pointer = 1;
-				    ele.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
-				  }else if(self.pointer === 0){
-				    self.pointer = count - 2;
-				    ele.style.left = (_base.container, _base.pointer) + 'px';
-				  }
-				}
+			if (progress === 1){
+			    progress = 1;
+			    if(count > 1){
+			      if(_base.pointer === (count - 1)){
+			        _base.pointer = 1;
+			        ele.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
+			      }else if(_base.pointer === 0){
+			        _base.pointer = count - 2;
+			        ele.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
+			      }
+			    }
 				
 				clearInterval(id);
 				start = null; 
