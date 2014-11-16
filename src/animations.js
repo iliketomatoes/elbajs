@@ -50,9 +50,10 @@ function animate(_base, _options, direction) {
 	        ele.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
 	      }
 	    }
-	     _base.animated = false;
-	     start = null;
-	     cancelAnimationFrame(myReq);
+
+	    cancelAnimationFrame(myReq);
+	    start = null;
+	    _base.animated = false;
 	    
 	  }else{
 	    requestAnimationFrame(animationStep);
@@ -66,7 +67,6 @@ function animate(_base, _options, direction) {
 		myReq = requestAnimationFrame(animationStep);
 
 	}else{
-
       //TODO a bettert fallback if window.requestAnimationFrame is not supported
 	  	var id = setInterval(function() {
 
@@ -91,9 +91,11 @@ function animate(_base, _options, direction) {
 				    ele.style.left = (_base.container, _base.pointer) + 'px';
 				  }
 				}
-				 clearInterval(id);
-				 start = null;
-				 self.animated = false;
+				
+				clearInterval(id);
+				start = null; 
+				_base.animated = false;
+				  
 				}
 
 		},25);
