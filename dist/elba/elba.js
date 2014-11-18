@@ -1,4 +1,4 @@
-/*! elba - v0.3.0 - 2014-11-16
+/*! elba - v0.3.0 - 2014-11-18
 * https://github.com/iliketomatoes/elbajs
 * Copyright (c) 2014 ; Licensed  */
 ;(function(elba) {
@@ -615,60 +615,61 @@ this.init = function(){
 	//We move the first slide to the right because of the head clone
 	if(self.base.count > 1){
 		self.base.el.style.left = (- getContainerWidth(self.base.container)) + 'px';
-	}
+	
+		//Then we setup the navigation arrows
+	    if(self.options.navigation){
+	    	_setupNavigation(self.base,'left');
+			_setupNavigation(self.base,'right');
 
-	//Setting up the navigation arrows
-    if(self.options.navigation){
-    	_setupNavigation(self.base,'left');
-		_setupNavigation(self.base,'right');
-
-		//Attach events to the navigation arrows
-		self.base.navigation.left.addEventListener('click', function(ev) { 
-			ev.preventDefault();
-			self.goTo('left');
-			if(self.options.slideshow){
-				self.startSlideshow();
-			}
-			}, false);
-
-		self.base.navigation.right.addEventListener('click', function(ev) { 
-			ev.preventDefault();
-			self.goTo('right');
-			if(self.options.slideshow){
-				self.startSlideshow();
-			}
-			}, false);
-    }
-
-    //Setting up the dots
-    if(self.options.dots){
-    	_setupDots(self.base, self.options.dotsContainer);
-
-    	classie.add(self.base.navigation.dots[self.base.pointer], 'active-dot');
-
-    	var dotHandler = function(i){
-
-    		return function(){
-    			var index = self.base.navigation.dots[i].getAttribute('data-target');
-
-    			if(parseInt(index) === self.base.pointer){
-					return false;
-				}else{
-					self.goTo(index);
-					}
-	    		if(self.options.slideshow){
+			//Attach events to the navigation arrows
+			self.base.navigation.left.addEventListener('click', function(ev) { 
+				ev.preventDefault();
+				self.goTo('left');
+				if(self.options.slideshow){
 					self.startSlideshow();
 				}
+				}, false);
 
-				return false;
-    		};	
-    	};
+			self.base.navigation.right.addEventListener('click', function(ev) { 
+				ev.preventDefault();
+				self.goTo('right');
+				if(self.options.slideshow){
+					self.startSlideshow();
+				}
+				}, false);
+	    }
 
-    	//Binding the click event to the dots
-    	for(var i = 1; i < self.base.slides.length - 1; i++){
-				self.base.navigation.dots[i].setAttribute('data-target', i);
-				self.base.navigation.dots[i].addEventListener('click', dotHandler(i), false);
-			}
+	    //Setting up the dots
+	    if(self.options.dots){
+	    	_setupDots(self.base, self.options.dotsContainer);
+
+	    	classie.add(self.base.navigation.dots[self.base.pointer], 'active-dot');
+
+	    	var dotHandler = function(i){
+
+	    		return function(){
+	    			var index = self.base.navigation.dots[i].getAttribute('data-target');
+
+	    			if(parseInt(index) === self.base.pointer){
+						return false;
+					}else{
+						self.goTo(index);
+						}
+		    		if(self.options.slideshow){
+						self.startSlideshow();
+					}
+
+					return false;
+	    		};	
+	    	};
+
+	    	//Binding the click event to the dots
+	    	for(var i = 1; i < self.base.slides.length - 1; i++){
+					self.base.navigation.dots[i].setAttribute('data-target', i);
+					self.base.navigation.dots[i].addEventListener('click', dotHandler(i), false);
+				}
+	    }
+
     }
 
     //Set the width of each slide
