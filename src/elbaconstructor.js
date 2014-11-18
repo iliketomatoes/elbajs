@@ -46,6 +46,11 @@ var easingObj = {
 //Elba constructor
 function Elba( el, settings ) {
 
+	if(typeof el === 'undefined') {
+		console.error('missing target');
+		throw new Error();
+	}
+
 	//Declare an object holding the main parts of the gallery
 	this.base = {
 		el : el,

@@ -1,30 +1,17 @@
 var expect = chai.expect;
-var target = document.getElementById("fake-gallery");
+var gallery = document.getElementById("real-gallery");
+var emptyGallery = new Elba(document.getElementById("empty-gallery"));
 
 describe("Elba", function() {
   describe("constructor", function() {
-    it("should have a target", function() {
-      console.log(target);
-      var elba = new Elba(target);
-      expect(elba.base).to.be.a("object");
+ 
+  	it("should be ok if the gallery doesn't contain any slide", function() {
+    	expect(emptyGallery.base.slides).to.be.a("Array");
     });
 
-    /*it("should have a pointer", function() {
-      var pointer = new Elba(target).getCurrent();
-      expect(pointer).to.be.a("number");
-    });*/
+  	it("should throw an Error when you don't pass any argument to the constructor", function() {
+    	expect(function(){ new Elba(); }).to.throw(Error);
+    });
   });
 
- /*describe("#greets", function() {
-    it("should throw if no target is passed in", function() {
-      expect(function() {
-        (new Cow()).greets();
-      }).to.throw(Error);
-    });
-
-    it("should greet passed target", function() {
-      var greetings = (new Cow("Kate")).greets("Baby");
-      expect(greetings).to.equal("Kate greets Baby");
-    });
-  });*/
 });

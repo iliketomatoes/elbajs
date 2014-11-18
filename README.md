@@ -187,6 +187,9 @@ Not tested yet, but working on all modern browser, IE9+.
 
 ##CHANGELOG
 
+###v 0.3.1
+Starting tests
+
 ###v 0.3.0
 Initial release with touch events and drag events enabled
 
@@ -202,7 +205,7 @@ Initial release
 ##ROADMAP
 + Better API
 + Better touch events
-+ Tests
++ Better Tests
 
 ##LICENSE
 MIT

@@ -1,4 +1,4 @@
-/*! elba - v0.3.0 - 2014-11-18
+/*! elba - v0.3.1 - 2014-11-18
 * https://github.com/iliketomatoes/elbajs
 * Copyright (c) 2014 ; Licensed  */
 ;(function(elba) {
@@ -187,6 +187,11 @@ var easingObj = {
 //Elba constructor
 function Elba( el, settings ) {
 
+	if(typeof el === 'undefined') {
+		console.error('missing target');
+		throw new Error();
+	}
+
 	//Declare an object holding the main parts of the gallery
 	this.base = {
 		el : el,
@@ -224,12 +229,15 @@ function Elba( el, settings ) {
 * Store the slides into _base.slides array
 * @param {Object} _base
 */
-var _createSlideArray = function(_base,_options){
-	var parent = _base.el || document;
-	var nodelist = parent.querySelectorAll(_options.selector);
-	_base.count 	= nodelist.length;
+var _createSlideArray = function(_base,_options){	
+
+	var nodelist = _base.el.querySelectorAll(_options.selector);
+
+	_base.count = nodelist.length;
 	//converting nodelist to array
 	for(var i = _base.count; i--; _base.slides.unshift(nodelist[i])){}
+
+	return true;	
 };
 
 /**
@@ -391,6 +399,8 @@ var _lazyLoadImages = function(_base, _options, loadIndex){
 
 	var loaderPointer = loadIndex || _base.pointer;
 	var ele = _base.slides[loaderPointer];
+
+	if(!!!ele) return false;
 
 	if(isElementLoaded(ele, _options.successClass) || isElementLoaded(ele, _options.errorClass)){
 		_loadNext(_base, _options, loaderPointer);
@@ -1248,5 +1258,6 @@ function setListener(elm, events, callback) {
 		elm.addEventListener(eventsArray[i], callback, false);
 	}
 }
+
 return Elba;
 });
