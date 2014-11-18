@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Elba js tests</title>
+  <link rel="stylesheet" media="all" href="vendor/mocha.css">
+  <script src="../dist/elba/elba.js"></script>
+</head>
+<body>
+<div id="mocha"><p><a href=".">Index</a></p></div>
+<div id="messages"></div>
+<div id="fixtures"></div>
+<figure id="fake-gallery" class="elba-carousel">
+	<figure class="elba" data-src="http://www.placebear.com/768/400" data-src-medium="http://www.placebear.com/1080/650" data-src-large="http://www.placebear.com/1400/800">
+		<figcaption class="elba-content">
+  			<div class="elba-banner">
+      			<h1>elba js</h1>
+      			<p>Pure Javascript, responsive, retina ready.</p>
+     			<p>Hardware accelerated, multi-serving lazy load images.</p>
+  			</div>    
+		</figcaption>    
+	</figure>
+</figure>
+<script type="text/javascript">
+!(function(){
+	var gallery = document.getElementById("fake-gallery");
+
+	var elba = new Elba(gallery,{
+		breakpoints: [{
+	          width: 768 // min-width
+			, src: 'data-src-medium'
+	     }
+           , {
+	          width: 1080 // min-width
+	        , src: 'data-src-large'
+	}]
+	});
+})();
+</script>
+<!--<script src="vendor/mocha.js"></script>
+<script src="vendor/chai.js"></script>
+<script>mocha.setup('bdd')</script>
+<script src="elba_test.js"></script>
+<script>mocha.run();</script>-->
+</body>
+</html>
