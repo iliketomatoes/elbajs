@@ -32,8 +32,8 @@ this.init = function(){
 	
 		//Then we setup the navigation arrows
 	    if(self.options.navigation){
-	    	_setupNavigation(self.base,'left');
-			_setupNavigation(self.base,'right');
+	    	_setupNavigation(self.base, self.options,'left');
+			_setupNavigation(self.base, self.options,'right');
 
 			//Attach events to the navigation arrows
 			self.base.navigation.left.addEventListener('click', function(ev) { 

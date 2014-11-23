@@ -116,7 +116,6 @@ body,html{
 	top: 50%;
 	height: 2.5rem;
 	width: 2.5rem;
-	//width: 2rem;
 	margin-top: -1.75rem;
 	background-color: $nav-arrow-background-color;
 	text-align: center;
@@ -124,35 +123,20 @@ body,html{
 	border: none;
 	outline: none;
 	text-decoration: none;
+	font-size: 2rem;
+	line-height: 2.4rem;
+	color: #fff;
 	@include single-transition();
 }
 
-.common-nav-after{
-	display: block;
-	position: relative;
-	height: 2.5rem;
-	font-size: 2rem;
-	color: #fff;
-	margin: 0 auto;
-	line-height: 2.4rem;
-	@include single-transition();
-}
 
 .elba-left-nav{
 	@extend .nav-arrow;
 	left: 2.5rem;
 
-	&::after{
-		@extend .common-nav-after;
-		content: "\2190";
-	}
-
-
 	&:hover{
 		background-color: $elba;
-		&::after{
-			padding-right: 0.5rem;
-		}
+		padding-right: 0.5rem;
 	}
 }
 
@@ -160,16 +144,10 @@ body,html{
 	@extend .nav-arrow;
 	right: 2.5rem;
 
-	&::after{
-		@extend .common-nav-after;
-		content: "\2192";
-	}
 
 	&:hover{
 		background-color: $elba;
-		&::after{
-			padding-left: 0.5rem;
-		}
+		padding-left: 0.5rem;
 	}
 }
 

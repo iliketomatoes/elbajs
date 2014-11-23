@@ -60,12 +60,24 @@ var _cloneHeadAndTail = function(_base){
 /**
 * Set up arrows for the navigation
 * @param {Object} _base
+* @param {Object} _options
 * @param {String} direction
 */
-var _setupNavigation = function(_base, direction){
+var _setupNavigation = function(_base, _options, direction){
+
+	var t;
+
 	_base.navigation[direction] = document.createElement( 'a' );
 	_base.navigation[direction].className = 'elba-' + direction + '-nav';
-	_base.navigation[direction].innerHtml = direction;
+	
+	if(direction === 'left'){
+		t = document.createTextNode(_options.textLeft);
+		_base.navigation[direction].appendChild(t); 
+	}else{
+		t = document.createTextNode(_options.textRight);
+		_base.navigation[direction].appendChild(t); 
+	}
+
 	_base.wrapper.appendChild(_base.navigation[direction]);
 };
 

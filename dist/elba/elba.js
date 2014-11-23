@@ -282,12 +282,24 @@ var _cloneHeadAndTail = function(_base){
 /**
 * Set up arrows for the navigation
 * @param {Object} _base
+* @param {Object} _options
 * @param {String} direction
 */
-var _setupNavigation = function(_base, direction){
+var _setupNavigation = function(_base, _options, direction){
+
+	var t;
+
 	_base.navigation[direction] = document.createElement( 'a' );
 	_base.navigation[direction].className = 'elba-' + direction + '-nav';
-	_base.navigation[direction].innerHtml = direction;
+	
+	if(direction === 'left'){
+		t = document.createTextNode(_options.textLeft);
+		_base.navigation[direction].appendChild(t); 
+	}else{
+		t = document.createTextNode(_options.textRight);
+		_base.navigation[direction].appendChild(t); 
+	}
+
 	_base.wrapper.appendChild(_base.navigation[direction]);
 };
 
@@ -628,8 +640,8 @@ this.init = function(){
 	
 		//Then we setup the navigation arrows
 	    if(self.options.navigation){
-	    	_setupNavigation(self.base,'left');
-			_setupNavigation(self.base,'right');
+	    	_setupNavigation(self.base, self.options,'left');
+			_setupNavigation(self.base, self.options,'right');
 
 			//Attach events to the navigation arrows
 			self.base.navigation.left.addEventListener('click', function(ev) { 
@@ -941,7 +953,9 @@ Elba.prototype.defaults = {
 	dots: true,
 	dotsContainer: false, 
 	slideshow : 5000,
-	preload : 1
+	preload : 1,
+	textLeft : '\u2190',
+	textRight : '\u2192'
 };
 
 /**

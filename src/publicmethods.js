@@ -25,7 +25,9 @@ Elba.prototype.defaults = {
 	dots: true,
 	dotsContainer: false, 
 	slideshow : 5000,
-	preload : 1
+	preload : 1,
+	textLeft : '\u2190',
+	textRight : '\u2192'
 };
 
 /**
