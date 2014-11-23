@@ -1,7 +1,7 @@
 elbajs
 ======
 
-This is a pure javascript slider, responsive, serving lazy loading images according to the screen size, hardware accelerated.
+This is a pure javascript slide-show gallery, responsive, serving lazy loading images according to the screen size, hardware accelerated, retina ready, AMD ready, touch ready.
 
 Inspired by many sources such as:
 - [bLazy](https://github.com/dinbror/blazy) <br>

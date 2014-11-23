@@ -61,7 +61,8 @@ module.exports = function(grunt) {
           outputStyle: 'compressed'
         },
         files: {
-          'dist/assets/css/elba.css': 'src/scss/app.scss'
+          'dist/assets/css/elba.css': 'src/scss/app.scss',
+          'dist/assets/css/home.css': 'src/scss/home.scss'
         }        
       }
     },

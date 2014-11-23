@@ -17,36 +17,104 @@
         <![endif]-->
     </head>
     <body>
+
+        <div class="elba-banner">
+            elba js
+        </div>
         <figure id="carousel" class="elba-carousel">
-            <figure class="elba" data-src="http://www.placebear.com/768/400" data-src-medium="http://www.placebear.com/1080/650" data-src-large="http://www.placebear.com/1400/800">
+            <figure class="elba" data-src="dist/assets/img/small/elba-3.jpg" data-src-medium="dist/assets/img/medium/elba-3.jpg" data-src-large="dist/assets/img/large/elba-3.jpg">
                 <figcaption class="elba-content">
-                    <div class="elba-banner">
-                        <h1>elba js</h1>
-                        <p>Pure Javascript, responsive, retina ready.</p>
-                        <p>Hardware accelerated, multi-serving lazy load images.</p>
-                    </div>    
+                    <div class="elba-number">1</div>                   
                 </figcaption>    
             </figure>
-            <figure class="elba" data-src="http://www.fillmurray.com/768/400" data-src-medium="http://www.fillmurray.com/1080/650" data-src-large="http://www.fillmurray.com/1400/800">
+            <figure class="elba" data-src="dist/assets/img/small/elba-2.jpg" data-src-medium="dist/assets/img/medium/elba-2.jpg" data-src-large="dist/assets/img/large/elba-2.jpg">
                 <figcaption class="elba-content">
-                    <div class="elba-banner">
-                        <h1>2</h1>
-                    </div>
+                    <div class="elba-number">2</div>
                 </figcaption>
             </figure>
-             <figure class="elba" data-src="http://placekitten.com/768/400" data-src-medium="http://placekitten.com/1080/650" data-src-large="http://placekitten.com/1400/800">
+             <figure class="elba" data-src="dist/assets/img/small/elba-1.jpg" data-src-medium="dist/assets/img/medium/elba-1.jpg" data-src-large="dist/assets/img/large/elba-1.jpg">
                 <figcaption class="elba-content">
-                    <div class="elba-banner">
-                        <h1>3</h1>
-                    </div>
+                    <div class="elba-number">3</div>
                 </figcaption>
              </figure>
         </figure>
 
-        <!--<div>
-            <h1>Elba js</h1>
-            <p>Responsive design and content full screen gallery</p>
-        </div>-->
+        <div class="wrap">
+            <article>
+                <h1>- What is it?</h1>
+                <p>
+                    This is a pure javascript slide-show gallery, responsive, serving lazy loading images according to the screen size, hardware accelerated, retina ready, AMD ready, touch enabled.
+                    Inspired by many sources such as:
+                </p>
+                <ul>
+                    <li>
+                        <a href="https://github.com/dinbror/blazy" target="_blank">bLazy</a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/nicinabox/superslides" target="_blank">Superslides
+                        </a>    
+                    </li> 
+                    <li>
+                        <a href="https://github.com/GianlucaGuarini/Tocca.js" target="_blank">
+                        Tocca.js
+                        </a>
+                    </li>     
+                </ul>
+                <p>
+                    At the moment this plugin's size is ~12.5 KB minified.
+                    It supports all the modern browsers from IE9 on.
+                </p>    
+            </article>
+
+            <article>
+                <h2>- How to use it?</h2>
+                <p>
+                You can find this repository and its guide on the
+                <a href="https://github.com/iliketomatoes/elbajs" target="_blank">
+               	Github page</a>.
+               	<br>
+               	<br>
+               	You can have more than one instance per page, and it doesn't have to be a fullscreen gallery.
+                </p>
+                <div class="small-elba">
+                <figure id="small-carousel" class="elba-carousel">
+		            <figure class="elba" data-src="dist/assets/img/small/elba-4.jpg" data-src-medium="dist/assets/img/medium/elba-4.jpg">
+		                <figcaption class="elba-content">
+		                    <div class="elba-caption">This</div>                   
+		                </figcaption>    
+		            </figure>
+		            <figure class="elba" data-src="dist/assets/img/small/elba-5.jpg" data-src-medium="dist/assets/img/medium/elba-5.jpg">
+		                <figcaption class="elba-content">
+		                    <div class="elba-caption">is</div>
+		                </figcaption>
+		            </figure>
+		             <figure class="elba" data-src="dist/assets/img/small/elba-6.jpg" data-src-medium="dist/assets/img/medium/elba-6.jpg" >
+		                <figcaption class="elba-content">
+		                    <div class="elba-caption">some</div>
+		                </figcaption>
+		             </figure>
+		             <figure class="elba" data-src="dist/assets/img/small/cappello-elba.jpg" data-src-medium="dist/assets/img/medium/cappello-elba.jpg">
+		                <figcaption class="elba-content">
+		                    <div class="elba-caption">caption</div>
+		                </figcaption>
+		             </figure>
+		        </figure>
+		    	</div>
+            </article>
+
+            <article>
+                <h2>- What does Elba mean?</h2>
+                <p>Elba is an island in the Mediterranean Sea. It is situated a few miles off of the tuscan coast.<br>
+                Of course, it is a place that I love.<br>
+               	These pictures were taken either by me or by my girlfriend, Amy Tanzillo.</p>    
+            </article>
+
+            <article>
+                <h2>- About the author</h2>
+                <p>You can find me <a href="https://iliketomatoes.com" target="_blank">here</a>.
+                </p>    
+            </article>    
+        </div>
 
         <script src="dist/elba/elba.js"></script>
         <script src="dist/assets/js/main.js"></script>
