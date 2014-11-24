@@ -1,16 +1,14 @@
 elbajs
 ======
 
-This is a pure javascript slide-show gallery, responsive, serving lazy loading images according to the screen size, hardware accelerated, retina ready, AMD ready, touch ready.
+This is a pure javascript slide-show gallery, responsive, serving lazy loading images according to the screen size, hardware accelerated, retina ready, AMD ready, touch enabled.
 
 Inspired by many sources such as:
 - [bLazy](https://github.com/dinbror/blazy) <br>
 - [Superslides](https://github.com/nicinabox/superslides) <br>
 - [Tocca.js](https://github.com/GianlucaGuarini/Tocca.js) <br>
 
-You can load it as a module since it is AMD ready. 
-
-At the moment this plugin's size is 12.5 KB minified.
+At the moment this plugin's size is ~12.5 KB minified.
 
 ##INSTALL
 
