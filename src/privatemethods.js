@@ -190,7 +190,7 @@ var _lazyLoadImages = function(_base, _options, loadIndex){
 	var loaderPointer = loadIndex || _base.pointer;
 	var ele = _base.slides[loaderPointer];
 
-	if(!!!ele) return false;
+	if(!ele) return false;
 
 	if(isElementLoaded(ele, _options.successClass) || isElementLoaded(ele, _options.errorClass)){
 		_loadNext(_base, _options, loaderPointer);

@@ -1,4 +1,4 @@
-/*! elba - v0.3.2 - 2014-11-24
+/*! elba - v0.3.2 - 2014-11-25
 * https://github.com/iliketomatoes/elbajs
 * Copyright (c) 2014 ; Licensed  */
 ;(function(elba) {
@@ -412,7 +412,7 @@ var _lazyLoadImages = function(_base, _options, loadIndex){
 	var loaderPointer = loadIndex || _base.pointer;
 	var ele = _base.slides[loaderPointer];
 
-	if(!!!ele) return false;
+	if(!ele) return false;
 
 	if(isElementLoaded(ele, _options.successClass) || isElementLoaded(ele, _options.errorClass)){
 		_loadNext(_base, _options, loaderPointer);
