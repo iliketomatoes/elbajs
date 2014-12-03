@@ -48,6 +48,7 @@ this.init = function(){
 				ev.preventDefault();
 				self.goTo('right');
 				if(self.options.slideshow){
+					console.log('slideshow partuto');
 					self.startSlideshow();
 				}
 				}, false);

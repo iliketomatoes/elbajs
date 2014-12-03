@@ -37,7 +37,7 @@ function animate(_base, _options, direction) {
 	  if (progress > 1) progress = 1;
 
 	  var delta = easeing(progress).toFixed(6);
-	    step(ele, delta, startingOffset, deltaOffset);
+	  step(ele, delta, startingOffset, deltaOffset);
 
 	  if (progress === 1){
 	    progress = 1;
@@ -107,8 +107,15 @@ function animate(_base, _options, direction) {
 
 
 function step(ele, delta, startingOffset, deltaOffset){
-	var actualOffset = startingOffset + (deltaOffset * delta);
-	ele.style.left = Math.ceil(actualOffset) + 'px'; 
+	var actualOffset = Math.ceil(startingOffset + (deltaOffset * delta));
+
+	/*if(vendorTransform){
+		console.log(actualOffset);
+		ele.style[vendorTransform] = 'translateX(' + Math.ceil(actualOffset) + 'px)'; 
+	}else{*/
+		ele.style.left = Math.ceil(actualOffset) + 'px';
+	//}
+	
 }
 
 function getBezier(easingArr, epsilon){

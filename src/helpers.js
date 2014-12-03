@@ -94,3 +94,15 @@ function setListener(elm, events, callback) {
 		elm.addEventListener(eventsArray[i], callback, false);
 	}
 }
+
+
+//http://stackoverflow.com/questions/7212102/detect-with-javascript-or-jquery-if-css-transform-2d-is-available
+function getSupportedTransform() {
+    var prefixes = 'transform WebkitTransform MozTransform OTransform msTransform'.split(' ');
+    for(var i = 0; i < prefixes.length; i++) {
+        if(document.createElement('div').style[prefixes[i]] !== undefined) {
+            return prefixes[i];
+        }
+    }
+    return false;
+}

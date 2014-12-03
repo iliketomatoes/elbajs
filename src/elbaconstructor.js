@@ -1,6 +1,9 @@
 //var classie = window.classie;
 var isRetina = window.devicePixelRatio > 1;
 
+//Check the supported vendor prefix for transformations
+var vendorTransform  =  getSupportedTransform();				    
+
 var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
                       window.webkitRequestAnimationFrame || window.oRequestAnimationFrame;
 
@@ -72,9 +75,34 @@ function Elba( el, settings ) {
 		animated : false
 	};
 
+	/**
+	* The object holding the default options.
+	*/
+	this.defaults = {
+		selector : '.elba',
+		separator : '|',
+		breakpoints : false,
+		successClass : 'elba-loaded',
+		errorClass : 'elba-error',
+		container : 'elba-wrapper',
+		src : 'data-src',
+		error : false,
+		success : false,
+		duration : 1000,
+		easing: 'easeInOutCubic',
+		navigation : true,
+		dots: true,
+		dotsContainer: false, 
+		slideshow : 5000,
+		preload : 1,
+		textLeft : '\u2190',
+		textRight : '\u2192'
+	};
+
 	//Overwrite the default options
 	this.options = extend( this.defaults, settings );
 
+	console.log(this.options);
 
 	this.touchHandler = {
 		touchEvents : {

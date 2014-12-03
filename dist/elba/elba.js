@@ -1,4 +1,4 @@
-/*! elba - v0.3.2 - 2014-11-25
+/*! elba - v0.3.2 - 2014-12-03
 * https://github.com/iliketomatoes/elbajs
 * Copyright (c) 2014 ; Licensed  */
 ;(function(elba) {
@@ -142,6 +142,9 @@ NodeList.prototype.remove = window.HTMLCollection.prototype.remove = function() 
 //var classie = window.classie;
 var isRetina = window.devicePixelRatio > 1;
 
+//Check the supported vendor prefix for transformations
+var vendorTransform  =  getSupportedTransform();				    
+
 var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
                       window.webkitRequestAnimationFrame || window.oRequestAnimationFrame;
 
@@ -213,9 +216,34 @@ function Elba( el, settings ) {
 		animated : false
 	};
 
+	/**
+	* The object holding the default options.
+	*/
+	this.defaults = {
+		selector : '.elba',
+		separator : '|',
+		breakpoints : false,
+		successClass : 'elba-loaded',
+		errorClass : 'elba-error',
+		container : 'elba-wrapper',
+		src : 'data-src',
+		error : false,
+		success : false,
+		duration : 1000,
+		easing: 'easeInOutCubic',
+		navigation : true,
+		dots: true,
+		dotsContainer: false, 
+		slideshow : 5000,
+		preload : 1,
+		textLeft : '\u2190',
+		textRight : '\u2192'
+	};
+
 	//Overwrite the default options
 	this.options = extend( this.defaults, settings );
 
+	console.log(this.options);
 
 	this.touchHandler = {
 		touchEvents : {
@@ -656,6 +684,7 @@ this.init = function(){
 				ev.preventDefault();
 				self.goTo('right');
 				if(self.options.slideshow){
+					console.log('slideshow partuto');
 					self.startSlideshow();
 				}
 				}, false);
@@ -935,30 +964,6 @@ this.init();
 ************************************/
 
 /**
-* The object holding the default options.
-*/
-Elba.prototype.defaults = {
-	selector : '.elba',
-	separator : '|',
-	breakpoints : false,
-	successClass : 'elba-loaded',
-	errorClass : 'elba-error',
-	container : 'elba-wrapper',
-	src : 'data-src',
-	error : false,
-	success : false,
-	duration : 1000,
-	easing: 'easeInOutCubic',
-	navigation : true,
-	dots: true,
-	dotsContainer: false, 
-	slideshow : 5000,
-	preload : 1,
-	textLeft : '\u2190',
-	textRight : '\u2192'
-};
-
-/**
 * A pretty self-explainatory method.
 */
 Elba.prototype.startSlideshow = function(){
@@ -1049,7 +1054,7 @@ function animate(_base, _options, direction) {
 	  if (progress > 1) progress = 1;
 
 	  var delta = easeing(progress).toFixed(6);
-	    step(ele, delta, startingOffset, deltaOffset);
+	  step(ele, delta, startingOffset, deltaOffset);
 
 	  if (progress === 1){
 	    progress = 1;
@@ -1119,8 +1124,15 @@ function animate(_base, _options, direction) {
 
 
 function step(ele, delta, startingOffset, deltaOffset){
-	var actualOffset = startingOffset + (deltaOffset * delta);
-	ele.style.left = Math.ceil(actualOffset) + 'px'; 
+	var actualOffset = Math.ceil(startingOffset + (deltaOffset * delta));
+
+	/*if(vendorTransform){
+		console.log(actualOffset);
+		ele.style[vendorTransform] = 'translateX(' + Math.ceil(actualOffset) + 'px)'; 
+	}else{*/
+		ele.style.left = Math.ceil(actualOffset) + 'px';
+	//}
+	
 }
 
 function getBezier(easingArr, epsilon){
@@ -1271,6 +1283,18 @@ function setListener(elm, events, callback) {
 	while (i--) {
 		elm.addEventListener(eventsArray[i], callback, false);
 	}
+}
+
+
+//http://stackoverflow.com/questions/7212102/detect-with-javascript-or-jquery-if-css-transform-2d-is-available
+function getSupportedTransform() {
+    var prefixes = 'transform WebkitTransform MozTransform OTransform msTransform'.split(' ');
+    for(var i = 0; i < prefixes.length; i++) {
+        if(document.createElement('div').style[prefixes[i]] !== undefined) {
+            return prefixes[i];
+        }
+    }
+    return false;
 }
 
 return Elba;

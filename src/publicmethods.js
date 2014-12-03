@@ -7,30 +7,6 @@ PUBLIC METHODS
 ************************************/
 
 /**
-* The object holding the default options.
-*/
-Elba.prototype.defaults = {
-	selector : '.elba',
-	separator : '|',
-	breakpoints : false,
-	successClass : 'elba-loaded',
-	errorClass : 'elba-error',
-	container : 'elba-wrapper',
-	src : 'data-src',
-	error : false,
-	success : false,
-	duration : 1000,
-	easing: 'easeInOutCubic',
-	navigation : true,
-	dots: true,
-	dotsContainer: false, 
-	slideshow : 5000,
-	preload : 1,
-	textLeft : '\u2190',
-	textRight : '\u2192'
-};
-
-/**
 * A pretty self-explainatory method.
 */
 Elba.prototype.startSlideshow = function(){
