@@ -16,19 +16,20 @@ function animate(_base, _options, direction) {
 	var target = getLeftOffset(_base.container, _base.pointer);
 	var count = _base.slides.length;
 
-	var startingOffset = intVal(ele.style.left);
+	var startingOffset = intVal(left(ele));
 
 	var deltaOffset = Math.abs(startingOffset - target);
 	if(direction === 'right') deltaOffset = - deltaOffset;
 
 	var duration = _options.duration; // duration of animation in milliseconds.
-	var epsilon = (1000 / 60 / duration) / 4;
+	var epsilon = (1000 / 60 / duration) / 8;
 
 	var easeing = getBezier(easingObj[_options.easing],epsilon);
 
 	var start = null, myReq;
 
 	function animationStep(timestamp){
+	
 	  if (start === null) start = timestamp;
 
 	  var timePassed = (timestamp - start);
@@ -37,17 +38,17 @@ function animate(_base, _options, direction) {
 	  if (progress > 1) progress = 1;
 
 	  var delta = easeing(progress).toFixed(6);
+	  
 	  step(ele, delta, startingOffset, deltaOffset);
 
 	  if (progress === 1){
-	    progress = 1;
 	    if(count > 1){
 	      if(_base.pointer === (count - 1)){
 	        _base.pointer = 1;
-	        ele.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
+	        left(ele, getLeftOffset(_base.container, _base.pointer));
 	      }else if(_base.pointer === 0){
 	        _base.pointer = count - 2;
-	        ele.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
+	        left(ele, getLeftOffset(_base.container, _base.pointer));
 	      }
 	    }
 
@@ -82,14 +83,13 @@ function animate(_base, _options, direction) {
 			step(ele, delta, startingOffset, deltaOffset);
 		  
 			if (progress === 1){
-			    progress = 1;
 			    if(count > 1){
 			      if(_base.pointer === (count - 1)){
 			        _base.pointer = 1;
-			        ele.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
+			        left(ele, getLeftOffset(_base.container, _base.pointer));
 			      }else if(_base.pointer === 0){
 			        _base.pointer = count - 2;
-			        ele.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
+			        left(ele, getLeftOffset(_base.container, _base.pointer));
 			      }
 			    }
 				
@@ -107,15 +107,7 @@ function animate(_base, _options, direction) {
 
 
 function step(ele, delta, startingOffset, deltaOffset){
-	var actualOffset = Math.ceil(startingOffset + (deltaOffset * delta));
-
-	/*if(vendorTransform){
-		console.log(actualOffset);
-		ele.style[vendorTransform] = 'translateX(' + Math.ceil(actualOffset) + 'px)'; 
-	}else{*/
-		ele.style.left = Math.ceil(actualOffset) + 'px';
-	//}
-	
+	left(ele, Math.ceil(startingOffset + (deltaOffset * delta)));
 }
 
 function getBezier(easingArr, epsilon){
@@ -170,3 +162,32 @@ function bezier(x1, y1, x2, y2, epsilon){
 	    return curveY(t2);
     };
 }
+
+function left(elem, offset){
+
+	if(typeof offset === 'undefined'){
+
+		if(vendorTransform){
+			
+			/**
+			* @return {Number} the x offset of the translation
+			*/
+			var parsedXOffset = elem.style[vendorTransform].match(/-?\d+/g)[0];
+
+			return parsedXOffset;
+		}else{
+			return elem.style.left;
+		}		
+
+	}else{
+
+		if(vendorTransform){
+			elem.style[vendorTransform] = 'translate(' + offset + 'px, 0px)';
+		}else{
+			elem.style.left = offset + 'px';
+		}
+		
+	}
+}
+
+

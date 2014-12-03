@@ -28,7 +28,8 @@ this.init = function(){
 	
 	//We move the first slide to the right because of the head clone
 	if(self.base.count > 1){
-		self.base.el.style.left = (- getContainerWidth(self.base.container)) + 'px';
+
+		left(self.base.el,(- getContainerWidth(self.base.container)));
 	
 		//Then we setup the navigation arrows
 	    if(self.options.navigation){
@@ -48,7 +49,6 @@ this.init = function(){
 				ev.preventDefault();
 				self.goTo('right');
 				if(self.options.slideshow){
-					console.log('slideshow partuto');
 					self.startSlideshow();
 				}
 				}, false);

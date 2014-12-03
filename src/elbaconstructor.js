@@ -102,8 +102,6 @@ function Elba( el, settings ) {
 	//Overwrite the default options
 	this.options = extend( this.defaults, settings );
 
-	console.log(this.options);
-
 	this.touchHandler = {
 		touchEvents : {
 			touchStart: msEventType('PointerDown') + ' touchstart',
