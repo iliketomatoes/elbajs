@@ -185,26 +185,6 @@ Available options:
 
 Not tested yet, but working on all modern browser, IE9+.
 
-##CHANGELOG
-
-###v 0.3.2
-Adding options for text in navigation arrows
-
-###v 0.3.1
-Starting tests
-
-###v 0.3.0
-Initial release with touch events and drag events enabled
-
-###v 0.2.0
-Refactoring, conditional loading, active slideshow only if in viewport
-
-###v 0.1.1
-AMD ready
-
-###v 0.1
-Initial release
-
 ##ROADMAP
 + Better API
 + Better touch events
