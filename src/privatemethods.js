@@ -340,7 +340,8 @@ var _doResize = function(_base, _options){
 	_setSlidesWidth(_base);
 	
 	//Fix the gallery offset since it's been resized
-	_base.el.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
+	left(_base.el, getLeftOffset(_base.container, _base.pointer));
+	//_base.el.style.left = getLeftOffset(_base.container, _base.pointer) + 'px';
 
 	var oldSource = _base.source;
 	_setSource(_base,_options);
