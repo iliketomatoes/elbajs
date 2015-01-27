@@ -58,7 +58,7 @@ module.exports = function(grunt) {
     sass: {
       dist: {
         options: {
-          outputStyle: 'compressed'
+          outputStyle: 'expanded'
         },
         files: {
           'dist/assets/css/elba.css': 'src/scss/app.scss',
@@ -78,8 +78,12 @@ module.exports = function(grunt) {
       hinting: {
         files: ['Gruntfile.js', '<%= jshint.files %>'],
         tasks: ['jshint']
-          }
+      },
+      uglifying: {
+        files: ['<%= concat.dist.dest %>'],
+        tasks: ['uglify']
       }
+    }
   });
 
   // These plugins provide necessary tasks.
