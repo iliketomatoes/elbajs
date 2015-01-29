@@ -21,14 +21,15 @@ module.exports = function(grunt) {
       dist: {
         src: [
               'src/intro.js',
-              'src/dependencies.js',
-              'src/elbaconstructor.js',
-              'src/privatemethods.js',
-              'src/privilegedmethods.js',
-              'src/elbainit.js',
-              'src/publicmethods.js',
-              'src/animations.js',
               'src/helpers.js',
+              'src/animator.js',
+              'src/imagehandler.js',
+              'src/elbabuilder.js',
+              'src/elbaconstructor.js',
+             // 'src/privatemethods.js',
+              //'src/privilegedmethods.js',
+              //'src/elbainit.js',
+              'src/publicmethods.js',
               'src/outro.js'
              ],
         dest: 'dist/<%= pkg.name %>/<%= pkg.name %>.js'

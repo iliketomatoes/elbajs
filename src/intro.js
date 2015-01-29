@@ -9,4 +9,7 @@
         	// Register elba on window
         	window.Elba = elba();
 	}
-})
+	
+})(function () {
+
+	'use strict';

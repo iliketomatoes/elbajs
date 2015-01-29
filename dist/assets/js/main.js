@@ -18,6 +18,7 @@
 	          width: 561 // min-width
 			, src: 'data-src-medium'
 	     }],
+	     preload: 0,
 	     container: 'small-elba'
     });
 
