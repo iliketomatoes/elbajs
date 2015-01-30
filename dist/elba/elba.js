@@ -1,4 +1,4 @@
-/*! elba - v0.3.2 - 2015-01-29
+/*! elba - v0.3.2 - 2015-01-30
 * https://github.com/iliketomatoes/elbajs
 * Copyright (c) 2015 ; Licensed  */
 ;(function(elba) {
@@ -308,10 +308,12 @@ function getSupportedTransform() {
 			return getBezier(easeing, epsilon);
 			},
 
-		actualAnimation : function(el, offset, duration, animationCurve, startingOffset){
+		actualAnimation : function(base, offset, duration, animationCurve, startingOffset){
 
 			var self = this,
+				el = base.el,
 				targetOffset = startingOffset - offset,
+				count = base.slides.length,
 				start = null,
 				myReq;
 
@@ -329,8 +331,22 @@ function getSupportedTransform() {
 				self.step(el, delta, startingOffset, targetOffset);
 
 				if (progress === 1){
+
 					cancelAnimationFrame(myReq);
 					start = null;
+
+					if(count > 1){
+					    if(base.pointer === (count - 1)){
+					        base.pointer = 1;
+					        self.offset(el, getLeftOffset(base.container, base.pointer));
+					    }else if(base.pointer === 0){
+					        base.pointer = count - 2;
+					        self.offset(el, getLeftOffset(base.container, base.pointer));
+					    }
+					}
+
+					base.animated = false;
+
 					}else{
 					requestAnimationFrame(animationStep);
 				}
@@ -369,23 +385,20 @@ function getSupportedTransform() {
 				}
 			},
 
-		animate : function(target, offset, duration, easeing){
+		animate : function(base, offset, duration, easeing){
 
 			var self = this,
 				easeingVar = easeing || self.easeing;
 
 			var actualEaseing = getEaseing(easeingVar);	
 
-			if(self.animated) return false;
-			self.animated = true;
+			if(base.animated) return false;
+			base.animated = true;
 
 			var animationCurve = self.getAnimationCurve(duration, actualEaseing);
 
-			target.forEach(function(el){
-				self.actualAnimation(el, offset, duration, animationCurve, self.offset(el));
-			});
+			self.actualAnimation(base, offset, duration, animationCurve, self.offset(base.el));
 
-			self.animated = false;
 			},
 
 		drag : function(target, length){
@@ -650,131 +663,8 @@ var ImageHandler = {
 };
 
 
-/**
-* Update the dots after sliding 
-* @param {Object} base
-*/
-var _updateDots = function(base){
-
-    base.navigation.dots.forEach(function(el){
-    	if(!!el){
-    		classie.remove(el,'active-dot');
-    	}
-    });
-
-    var index;
-
-    if(base.pointer === base.slides.length - 1){
-      index = 1;
-      }else if(base.pointer === 0){
-        index = base.slides.length - 2;
-        }else{
-          index = base.pointer;
-    }
-
-    if(!!base.navigation.dots[index]){
-    	classie.add(base.navigation.dots[index],'active-dot');
-    }
-    
-};
 
 
-/**
-* Destroy some variables before reloading the right size images
-* @param {Object} base
-* @param {Object} options
-*/
-var _destroy = function(base, options){
-
-	var count = base.slides.length;
-	
-	for(var i = 0; i < count; i++){
-			var slide = base.slides[i];
- 			if(slide) {
-				classie.remove(slide,'no-bg-img');
-				classie.remove(slide,  options.successClass);
- 			} 
- 		}
-};
-
-
-/**
-* The function which actually takes care about resizing (and maybe loading new images)
-* @param {Object} base
-* @param {Object} options
-*/
-var _doResize = function(base, options){
-
-	_setSlidesWidth(base);
-	
-	//Fix the gallery offset since it's been resized
-	left(base.el, getLeftOffset(base.container, base.pointer));
-	//base.el.style.left = getLeftOffset(base.container, base.pointer) + 'px';
-
-	var oldSource = base.source;
-	_setSource(base,options);
-
-	//If the source changed, we re-init the gallery
-	if(oldSource !== base.source){
-		_destroy(base, options);
-		_lazyLoadImages(base, options);
-	}else{
-		//Otherwise we just resize the current images
-		for(var i = 0; i < base.slides.length; i++){
-			var slide = base.slides[i];
- 			if(slide) {
-				var elbaIsland = slide.querySelector('.elba-island');
-				_setImageSize(base, elbaIsland);
- 			} 
- 		}
-	}
-};
-
-// taken from https://github.com/desandro/vanilla-masonry/blob/master/masonry.js by David DeSandro
-// original debounce by John Hann
-// http://unscriptable.com/index.php/2009/03/20/debouncing-javascript-methods/
-
-/**
-* The function called in the callback after window resize event has been fired
-* @param {Object} base
-* @param {Object} options
-*/
-var _resizeHandler = function(base, options) {
-	
-	function delayed() {
-		_doResize(base, options);
-		base.resizeTimeout = null;
-	}
-
-	if ( base.resizeTimeout ) {
-		clearTimeout( base.resizeTimeout );
-	}
-
-	base.resizeTimeout = setTimeout( delayed, 200 );
-};
-
-
-/**
-* Pick the source among the possible sources declared in the <figure> elements
-* @param {Object} base
-* @param {Object} options
-*/
-var _setSource = function(base, options){
-	//IMPORTANT : Always re-init the base.source to 0
-	base.source = 0;
-
-	var mediaQueryMin = 0;
-	var screenWidth = getContainerWidth(base.container);
-
-	//handle multi-served image src
-	each(options.breakpoints, function(object){
-		if(object.width <= screenWidth && Math.abs(screenWidth - object.width) < Math.abs(screenWidth - mediaQueryMin)){
-			mediaQueryMin = object.width;
-			base.source = object.src;
-			return true;
-		}
-	});
-};
 
 
 
@@ -887,6 +777,220 @@ var ElbaBuilder = {
 
 };
 
+
+var EventHandler = {
+	/**
+	* Update the dots after sliding 
+	* @param {Object} base
+	*/
+	updateDots : function(base){
+
+	    base.navigation.dots.forEach(function(el){
+	    	if(!!el){
+	    		classie.remove(el,'active-dot');
+	    	}
+	    });
+
+	    var index;
+
+	    if(base.pointer === base.slides.length - 1){
+	      index = 1;
+	      }else if(base.pointer === 0){
+	        index = base.slides.length - 2;
+	        }else{
+	          index = base.pointer;
+	    }
+
+	    if(!!base.navigation.dots[index]){
+	    	classie.add(base.navigation.dots[index],'active-dot');
+	    }
+	    
+	},
+
+
+	/**
+	* Destroy some variables before reloading the right size images
+	* @param {Object} base
+	* @param {Object} options
+	*/
+	destroy : function(base, options){
+
+		var count = base.slides.length;
+		
+		for(var i = 0; i < count; i++){
+				var slide = base.slides[i];
+	 			if(slide) {
+					classie.remove(slide,'no-bg-img');
+					classie.remove(slide,  options.successClass);
+	 			} 
+	 		}
+	},
+
+
+	/**
+	* The function which actually takes care about resizing (and maybe loading new images)
+	* @param {Object} base
+	* @param {Object} options
+	*/
+	doResize : function(base, options){
+
+		var self = this;
+
+		ImageHandler.setSlidesWidth(base);
+		
+		//Fix the gallery offset since it's been resized
+		left(base.el, getLeftOffset(base.container, base.pointer));
+		//base.el.style.left = getLeftOffset(base.container, base.pointer) + 'px';
+
+		var oldSource = base.source;
+		ImageHandler.setSource(base,options);
+
+		//If the source changed, we re-init the gallery
+		if(oldSource !== base.source){
+			self.destroy(base, options);
+			ImageHandler.lazyLoadImages(base, options);
+		}else{
+			//Otherwise we just resize the current images
+			for(var i = 0; i < base.slides.length; i++){
+				var slide = base.slides[i];
+	 			if(slide) {
+					var elbaIsland = slide.querySelector('.elba-island');
+					ImageHandler.setImageSize(base, elbaIsland);
+	 			} 
+	 		}
+		}
+	},
+
+	// taken from https://github.com/desandro/vanilla-masonry/blob/master/masonry.js by David DeSandro
+	// original debounce by John Hann
+	// http://unscriptable.com/index.php/2009/03/20/debouncing-javascript-methods/
+
+	/**
+	* The function called in the callback after window resize event has been fired
+	* @param {Object} base
+	* @param {Object} options
+	*/
+	resizeHandler : function(base, options) {
+
+		var self = this;
+		
+		function delayed() {
+			self.doResize(base, options);
+			base.resizeTimeout = null;
+		}
+
+		if ( base.resizeTimeout ) {
+			clearTimeout( base.resizeTimeout );
+		}
+
+		base.resizeTimeout = setTimeout( delayed, 200 );
+	}
+
+};
+
+/*Tabella.prototype.attachEvents = function(){
+
+	var self = this;
+
+	Animator.easing = self.options.easing;
+
+	self.arrows.arrowLeft.addEventListener('click', function(){
+		self.move('left');
+	});
+	self.arrows.arrowRight.addEventListener('click', function(){
+		self.move('right');
+	});
+
+	var position,
+		cachedPosition,
+		startingOffset,
+		numberOfPeriods = self.options.periods.length,
+		slidingPeriodRow = self.periodRow.querySelector('.t-sliding-row'),
+		legalPosition = true,
+		delta,
+		currentCellWidth,
+		tick = 0,
+		startingPointer;
+
+	self.slidingRows.forEach(function(el){
+
+		//setting the events listeners
+		setListener(el, Toucher.touchEvents.start, function(e){
+			//e.preventDefault();
+			startingOffset = Animator.offset(slidingPeriodRow);
+			cachedPosition = Toucher.onTouchStart(e);
+			currentCellWidth = parseInt(self.currentCellWidth);
+			tick = 0;
+			startingPointer = self.pointer;
+		});
+
+		setListener(el, Toucher.touchEvents.move, function(e){
+			//e.preventDefault();
+			position = Toucher.onTouchMove(e);
+			
+			if(position && legalPosition){
+
+				delta = position.currX - cachedPosition.cachedX;
+
+				//Let's drag the sliding rows around
+				Animator.drag(self.slidingRows, (delta + parseInt(startingOffset)));
+
+				tick = Math.abs(Math.floor(delta / self.options.swipeTreshold));
+
+				if(self.options.swipeSingleTick && tick >= 1) tick = 1;
+
+				//Swipe right
+				if(delta >= 0){ 
+
+					if(self.pointer === 0){                  
+
+						if(Math.abs(parseInt(Animator.offset(slidingPeriodRow))) >= self.options.edgeTreshold) legalPosition = false;
+						
+					}else{
+						self.pointer = startingPointer - tick;
+					}
+
+					//Swipe left	
+					}else{
+						
+						if(self.pointer === numberOfPeriods - self.currentBreakpoint.cellBreakpoint[1]){
+		
+							var offset = Math.abs(parseInt(Animator.offset(slidingPeriodRow)));
+							var slidingRowWidth = slidingPeriodRow.clientWidth;
+
+							if(offset >= self.options.edgeTreshold + (currentCellWidth * self.pointer)){
+								legalPosition = false;
+							}
+						}else{
+							self.pointer = startingPointer + tick;
+						}
+					}
+				cachedPosition = position;
+			}
+		});
+
+		setListener(el, Toucher.touchEvents.end, function(){
+			//e.preventDefault();
+			Toucher.onTouchEnd();
+			startingOffset = 0;
+			var offset = parseInt(Animator.offset(slidingPeriodRow));
+			self.resetDragging(parseInt(offset + self.pointer * currentCellWidth));
+			legalPosition = true;
+			self.updateArrows();					
+		});
+
+	});	
+
+};
+
+
+Tabella.prototype.resetDragging = function(offset){
+	var self = this;
+	Animator.stopDragging();
+	Animator.animate(self.slidingRows, offset, getReboundTime(offset, self.options.reboundSpeed), 'easeOutBack');
+};*/
+
+
 //var classie = window.classie;
 var isRetina = window.devicePixelRatio > 1;
 
@@ -923,6 +1027,7 @@ function init(context, el, settings){
 	self.base = {
 		el : el,
 		container : null,
+		containerWidth : 0,
 		slides : [],
 		wrapper : null,
 		count : 0,
@@ -946,7 +1051,7 @@ function init(context, el, settings){
 	/**
 	 * Store the slides into self.base.slides array
 	 */
-	ElbaBuilder.createSlideArray(self.base,self.options);
+	ElbaBuilder.createSlideArray(self.base, self.options);
 
 	/**
 	 * Wrap the carousel into the elba-wrapper class div
@@ -961,10 +1066,12 @@ function init(context, el, settings){
 	//Find the gallery container to adapt the size to
 	self.base.container = getContainer(self.base.el, self.options.container);
 
+	self.base.containerWidth = getContainerWidth(self.base.container);
+
 	//We move the first slide to the right because of the head clone
 	if(self.base.count > 1){
 
-		Animator.offset(self.base.el,(- getContainerWidth(self.base.container)));
+		Animator.offset(self.base.el, - self.base.containerWidth);
 	
 		//Then we setup the navigation arrows
 	    if(self.options.navigation){
@@ -979,6 +1086,8 @@ function init(context, el, settings){
 	    }
 
     }
+
+    self.bindEvents();
 
     self.loadImages();
 			
@@ -1002,10 +1111,115 @@ Elba.prototype.loadImages = function(){
 
 };
 
+
+Elba.prototype.bindEvents = function(){
+
+	var self = this;
+
+	if(self.options.navigation){
+		//Attach events to the navigation arrows
+		self.base.navigation.left.addEventListener('click', function(ev) { 
+			ev.preventDefault();
+			self.goTo('left');
+			if(self.options.slideshow){
+				self.startSlideshow();
+			}
+			}, false);
+
+		self.base.navigation.right.addEventListener('click', function(ev) { 
+			ev.preventDefault();
+			self.goTo('right');
+			if(self.options.slideshow){
+				self.startSlideshow();
+			}
+			}, false);
+	}
+
+	//Setting up dots events
+    if(self.options.dots){
+
+    	var dotHandler = function(i){
+
+    		return function(){
+    			var index = self.base.navigation.dots[i].getAttribute('data-target');
+
+    			if(parseInt(index) === self.base.pointer){
+					return false;
+				}else{
+					self.goTo(index);
+					}
+	    		if(self.options.slideshow){
+					self.startSlideshow();
+				}
+
+				return false;
+    		};	
+    	};
+
+  
+    	for(var i = 1; i < self.base.slides.length - 1; i++){
+				self.base.navigation.dots[i].setAttribute('data-target', i);
+				self.base.navigation.dots[i].addEventListener('click', dotHandler(i), false);
+			}
+    }
+};
+
+
+/**
+* Manages which direction and which picture to slide to
+* @param {String} || {Number} accepts 'right','left'
+* or the numerical index of the slide
+*/
+Elba.prototype.goTo = function(direction){
+	var self = this;
+
+	if(!self.base.animated){
+
+		if(typeof direction === 'string' && isNaN(direction)){
+		var count = self.base.slides.length;
+		if(direction === 'right'){
+			if(self.base.pointer + 1 >= count){
+				return false;
+			}
+			self.base.directionHint = 'right';
+			self.base.pointer++;
+			ImageHandler.lazyLoadImages(self.base, self.options);
+			Animator.animate(self.base, self.base.containerWidth, self.options.duration, self.options.easing);
+		}else{
+			if(self.base.pointer - 1 < 0 ){
+				return false;
+			}
+			self.base.directionHint = 'left';
+			self.base.pointer--;
+			ImageHandler.lazyLoadImages(self.base, self.options);
+			Animator.animate(self.base, -self.base.containerWidth, self.options.duration, self.options.easing);
+			}
+		}else if(!isNaN(direction)){
+			var oldPointer = self.base.pointer;
+			self.base.pointer = parseInt(direction);
+			if(self.base.pointer > oldPointer){
+				self.base.directionHint = 'right';
+				ImageHandler.lazyLoadImages(self.base, self.options);
+				Animator.animate(self.base, self.base.containerWidth, self.options.duration, self.options.easing);
+			}else{
+				self.base.directionHint = 'left';
+				ImageHandler.lazyLoadImages(self.base, self.options);
+				Animator.animate(self.base, -self.base.containerWidth, self.options.duration, self.options.easing);
+			}	
+		}
+
+		if(self.options.dots){
+	        EventHandler.updateDots(self.base);
+	    }
+
+	}
+	
+};
+
 /**
 * A pretty self-explainatory method.
 */
-/*Elba.prototype.startSlideshow = function(){
+Elba.prototype.startSlideshow = function(){
 	var self = this;
 	if(self.base.slides.length > 1){
 		if(!!self.slideshow){
@@ -1025,37 +1239,37 @@ Elba.prototype.loadImages = function(){
 	},self.options.slideshow);
 
 	}
-};*/
+};
 
 /**
 * This method temporarly stops the slideshow,
 * which is restarted after a click on a navigation button.
 */
-/*Elba.prototype.clearSlideshow = function(){
+Elba.prototype.clearSlideshow = function(){
 	var self = this;	
 	if(self.slideshow){
 		clearInterval(self.slideshow);
 	}
-};*/
+};
 
 /**
 * This method permanently stops the slideshow.
 */
-/*Elba.prototype.stopSlideshow = function(){
+Elba.prototype.stopSlideshow = function(){
 	var self = this;	
 	if(self.slideshow){
 		clearInterval(self.slideshow);
 	}
 	self.options.slideshow = 0;
-};*/
+};
 
 /**
 * This function returns the current index of the slideshow
 * @return {Number}
 */
-/*Elba.prototype.getCurrent = function(){
+Elba.prototype.getCurrent = function(){
 	return this.base.pointer;
-};*/
+};
 
 
 

@@ -34,6 +34,7 @@ function init(context, el, settings){
 	self.base = {
 		el : el,
 		container : null,
+		containerWidth : 0,
 		slides : [],
 		wrapper : null,
 		count : 0,
@@ -57,7 +58,7 @@ function init(context, el, settings){
 	/**
 	 * Store the slides into self.base.slides array
 	 */
-	ElbaBuilder.createSlideArray(self.base,self.options);
+	ElbaBuilder.createSlideArray(self.base, self.options);
 
 	/**
 	 * Wrap the carousel into the elba-wrapper class div
@@ -72,10 +73,12 @@ function init(context, el, settings){
 	//Find the gallery container to adapt the size to
 	self.base.container = getContainer(self.base.el, self.options.container);
 
+	self.base.containerWidth = getContainerWidth(self.base.container);
+
 	//We move the first slide to the right because of the head clone
 	if(self.base.count > 1){
 
-		Animator.offset(self.base.el,(- getContainerWidth(self.base.container)));
+		Animator.offset(self.base.el, - self.base.containerWidth);
 	
 		//Then we setup the navigation arrows
 	    if(self.options.navigation){
@@ -90,6 +93,8 @@ function init(context, el, settings){
 	    }
 
     }
+
+    self.bindEvents();
 
     self.loadImages();
 			

@@ -25,6 +25,7 @@ module.exports = function(grunt) {
               'src/animator.js',
               'src/imagehandler.js',
               'src/elbabuilder.js',
+              'src/eventhandler.js',
               'src/elbaconstructor.js',
              // 'src/privatemethods.js',
               //'src/privilegedmethods.js',
