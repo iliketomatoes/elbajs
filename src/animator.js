@@ -53,7 +53,7 @@
 	var cancelAnimationFrame = window.mozCancelAnimationFrame || window.cancelAnimationFrame;	   
 
 	var Animator = {
-		easeing : 'easeInOutSine',
+		easeing : 'easeOutCubic',
 		
 		animated : false,
 		

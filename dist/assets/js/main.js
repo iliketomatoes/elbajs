@@ -1,7 +1,8 @@
 ;(function(){
 	var gallery = new Elba( document.getElementById('carousel'), {
 		slideshow: 5000,
-		duration : 1000,
+		duration : 700,
+		easing: 'easeOutCubic',
         breakpoints: [{
 	          width: 768 // min-width
 			, src: 'data-src-medium'

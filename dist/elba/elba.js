@@ -295,7 +295,7 @@ function getSupportedTransform() {
 	var cancelAnimationFrame = window.mozCancelAnimationFrame || window.cancelAnimationFrame;	   
 
 	var Animator = {
-		easeing : 'easeInOutSine',
+		easeing : 'easeOutCubic',
 		
 		animated : false,
 		
@@ -836,14 +836,19 @@ var EventHandler = {
 
 		var self = this;
 
+		base.containerWidth = getContainerWidth(base.container);
+
+		//Set the width of each slide
 		ImageHandler.setSlidesWidth(base);
+
+		console.log(getLeftOffset(base.container, base.pointer));
 		
 		//Fix the gallery offset since it's been resized
-		left(base.el, getLeftOffset(base.container, base.pointer));
-		//base.el.style.left = getLeftOffset(base.container, base.pointer) + 'px';
+		Animator.offset(base.el, getLeftOffset(base.container, base.pointer));
 
 		var oldSource = base.source;
 		ImageHandler.setSource(base,options);
+	
 
 		//If the source changed, we re-init the gallery
 		if(oldSource !== base.source){
@@ -888,111 +893,108 @@ var EventHandler = {
 
 };
 
-/*Tabella.prototype.attachEvents = function(){
 
-	var self = this;
+	var msPointerEnabled = !!navigator.pointerEnabled || navigator.msPointerEnabled,
+		msEventType = function(type) {
+			var lo = type.toLowerCase(),
+				ms = 'MS' + type;
+			return navigator.msPointerEnabled ? ms : lo;
+		},
+		touchEvents = {
+			start: msEventType('PointerDown') + ' touchstart mousedown',
+			end: msEventType('PointerUp') + ' touchend mouseup',
+			move: msEventType('PointerMove') + ' touchmove mousemove'
+		},
+		getPointerEvent = function(event) {
+			return event.targetTouches ? event.targetTouches[0] : event;
+		};
 
-	Animator.easing = self.options.easing;
+	var Toucher = {
 
-	self.arrows.arrowLeft.addEventListener('click', function(){
-		self.move('left');
-	});
-	self.arrows.arrowRight.addEventListener('click', function(){
-		self.move('right');
-	});
+		points : {
+			cachedX : null,
+			cachedY : null,
+			currX : null,
+			currY : null
+		},
 
-	var position,
-		cachedPosition,
-		startingOffset,
-		numberOfPeriods = self.options.periods.length,
-		slidingPeriodRow = self.periodRow.querySelector('.t-sliding-row'),
-		legalPosition = true,
-		delta,
-		currentCellWidth,
-		tick = 0,
-		startingPointer;
+	    touchStarted : false,
 
-	self.slidingRows.forEach(function(el){
+	    touchEvents : touchEvents,
 
-		//setting the events listeners
-		setListener(el, Toucher.touchEvents.start, function(e){
-			//e.preventDefault();
-			startingOffset = Animator.offset(slidingPeriodRow);
-			cachedPosition = Toucher.onTouchStart(e);
-			currentCellWidth = parseInt(self.currentCellWidth);
-			tick = 0;
-			startingPointer = self.pointer;
-		});
+	    getPointerEvent : getPointerEvent,
 
-		setListener(el, Toucher.touchEvents.move, function(e){
-			//e.preventDefault();
-			position = Toucher.onTouchMove(e);
-			
-			if(position && legalPosition){
+	    onTouchStart : function(e) {
 
-				delta = position.currX - cachedPosition.cachedX;
+			var self = this,
+				pointer = self.getPointerEvent(e);
 
-				//Let's drag the sliding rows around
-				Animator.drag(self.slidingRows, (delta + parseInt(startingOffset)));
+			// caching the current x
+			self.points.cachedX = self.points.currX = pointer.pageX;
+			// caching the current y
+			self.points.cachedY = self.points.currY = pointer.pageY;
+			// a touch event is detected
+			self.touchStarted = true;
 
-				tick = Math.abs(Math.floor(delta / self.options.swipeTreshold));
+			return self.points;
 
-				if(self.options.swipeSingleTick && tick >= 1) tick = 1;
+		},
 
-				//Swipe right
-				if(delta >= 0){ 
+		onTouchEnd : function() {
 
-					if(self.pointer === 0){                  
+			var self = this,
+				deltaY = self.points.cachedY - self.points.currY,
+				deltaX = self.points.cachedX - self.points.currX;
 
-						if(Math.abs(parseInt(Animator.offset(slidingPeriodRow))) >= self.options.edgeTreshold) legalPosition = false;
-						
-					}else{
-						self.pointer = startingPointer - tick;
-					}
+				self.touchStarted = false;
 
-					//Swipe left	
-					}else{
-						
-						if(self.pointer === numberOfPeriods - self.currentBreakpoint.cellBreakpoint[1]){
+			return {
+				deltaX : deltaX,
+				deltaY : deltaY
+			};
+
+		},
+
+		onTouchMove : function(e) {
+			var self = this;
+
+			if(self.touchStarted === false) return false;
+
+			var pointer = self.getPointerEvent(e);
+
+			self.points.currX = pointer.pageX;
+			self.points.currY = pointer.pageY;
+
+			//We just want horizontal movements
+			if(Math.abs(self.points.cachedY - self.points.currY) >= Math.abs(self.points.cachedX - self.points.currX)) return false;
 		
-							var offset = Math.abs(parseInt(Animator.offset(slidingPeriodRow)));
-							var slidingRowWidth = slidingPeriodRow.clientWidth;
-
-							if(offset >= self.options.edgeTreshold + (currentCellWidth * self.pointer)){
-								legalPosition = false;
-							}
-						}else{
-							self.pointer = startingPointer + tick;
-						}
-					}
-				cachedPosition = position;
-			}
-		});
-
-		setListener(el, Toucher.touchEvents.end, function(){
-			//e.preventDefault();
-			Toucher.onTouchEnd();
-			startingOffset = 0;
-			var offset = parseInt(Animator.offset(slidingPeriodRow));
-			self.resetDragging(parseInt(offset + self.pointer * currentCellWidth));
-			legalPosition = true;
-			self.updateArrows();					
-		});
-
-	});	
-
-};
+			return self.points;
+		}
+	};
 
 
-Tabella.prototype.resetDragging = function(offset){
-	var self = this;
-	Animator.stopDragging();
-	Animator.animate(self.slidingRows, offset, getReboundTime(offset, self.options.reboundSpeed), 'easeOutBack');
-};*/
 
 
-//var classie = window.classie;
+
+
+
 var isRetina = window.devicePixelRatio > 1;
+
+// Set the name of the hidden property and the change event for visibility
+var hidden, visibilityChange; 
+if (typeof document.hidden !== 'undefined') { // Opera 12.10 and Firefox 18 and later support 
+  hidden = 'hidden';
+  visibilityChange = 'visibilitychange';
+} else if (typeof document.mozHidden !== 'undefined') {
+  hidden = 'mozHidden';
+  visibilityChange = 'mozvisibilitychange';
+} else if (typeof document.msHidden !== 'undefined') {
+  hidden =' msHidden';
+  visibilityChange = 'msvisibilitychange';
+} else if (typeof document.webkitHidden !== 'undefined') {
+  hidden = 'webkitHidden';
+  visibilityChange = 'webkitvisibilitychange';
+}
 
 function init(context, el, settings){
 
@@ -1100,11 +1102,11 @@ Elba.prototype.loadImages = function(){
 
 	var self = this;
 
-	//Set the width of each slide
-    ImageHandler.setSlidesWidth(self.base);
-
 	//Set images' src
 	ImageHandler.setSource(self.base, self.options);
+
+	//Set the width of each slide
+    ImageHandler.setSlidesWidth(self.base);
 
 	//Starting lazy load 
 	ImageHandler.lazyLoadImages(self.base, self.options);
@@ -1162,6 +1164,32 @@ Elba.prototype.bindEvents = function(){
 				self.base.navigation.dots[i].addEventListener('click', dotHandler(i), false);
 			}
     }
+
+    if(self.options.slideshow){
+
+		if (typeof document[hidden] !== 'undefined') {
+			// If the page is hidden, pause the slideshow;
+			// if the page is shown, play the slideshow
+			var handleVisibilityChange = function() {
+			  if (document[hidden]) {
+			    self.clearSlideshow();
+			  } else {
+			    self.startSlideshow();
+			  }
+			};
+
+			// Handle page visibility change   
+  			document.addEventListener(visibilityChange, handleVisibilityChange, false);
+		}
+
+		//We start the slideshow
+		self.startSlideshow();
+	}
+
+	//Bind resize event
+	window.addEventListener('resize', function(){
+		EventHandler.resizeHandler(self.base, self.options);
+	}, false);
 };
 
 
@@ -1200,11 +1228,11 @@ Elba.prototype.goTo = function(direction){
 			if(self.base.pointer > oldPointer){
 				self.base.directionHint = 'right';
 				ImageHandler.lazyLoadImages(self.base, self.options);
-				Animator.animate(self.base, self.base.containerWidth, self.options.duration, self.options.easing);
+				Animator.animate(self.base, parseInt(self.base.containerWidth * (self.base.pointer - oldPointer)), self.options.duration, self.options.easing);
 			}else{
 				self.base.directionHint = 'left';
 				ImageHandler.lazyLoadImages(self.base, self.options);
-				Animator.animate(self.base, -self.base.containerWidth, self.options.duration, self.options.easing);
+				Animator.animate(self.base, -parseInt(self.base.containerWidth * (oldPointer - self.base.pointer)), self.options.duration, self.options.easing);
 			}	
 		}
 

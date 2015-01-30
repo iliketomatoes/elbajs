@@ -7,11 +7,11 @@ Elba.prototype.loadImages = function(){
 
 	var self = this;
 
-	//Set the width of each slide
-    ImageHandler.setSlidesWidth(self.base);
-
 	//Set images' src
 	ImageHandler.setSource(self.base, self.options);
+
+	//Set the width of each slide
+    ImageHandler.setSlidesWidth(self.base);
 
 	//Starting lazy load 
 	ImageHandler.lazyLoadImages(self.base, self.options);
@@ -69,6 +69,32 @@ Elba.prototype.bindEvents = function(){
 				self.base.navigation.dots[i].addEventListener('click', dotHandler(i), false);
 			}
     }
+
+    if(self.options.slideshow){
+
+		if (typeof document[hidden] !== 'undefined') {
+			// If the page is hidden, pause the slideshow;
+			// if the page is shown, play the slideshow
+			var handleVisibilityChange = function() {
+			  if (document[hidden]) {
+			    self.clearSlideshow();
+			  } else {
+			    self.startSlideshow();
+			  }
+			};
+
+			// Handle page visibility change   
+  			document.addEventListener(visibilityChange, handleVisibilityChange, false);
+		}
+
+		//We start the slideshow
+		self.startSlideshow();
+	}
+
+	//Bind resize event
+	window.addEventListener('resize', function(){
+		EventHandler.resizeHandler(self.base, self.options);
+	}, false);
 };
 
 
@@ -107,11 +133,11 @@ Elba.prototype.goTo = function(direction){
 			if(self.base.pointer > oldPointer){
 				self.base.directionHint = 'right';
 				ImageHandler.lazyLoadImages(self.base, self.options);
-				Animator.animate(self.base, self.base.containerWidth, self.options.duration, self.options.easing);
+				Animator.animate(self.base, parseInt(self.base.containerWidth * (self.base.pointer - oldPointer)), self.options.duration, self.options.easing);
 			}else{
 				self.base.directionHint = 'left';
 				ImageHandler.lazyLoadImages(self.base, self.options);
-				Animator.animate(self.base, -self.base.containerWidth, self.options.duration, self.options.easing);
+				Animator.animate(self.base, -parseInt(self.base.containerWidth * (oldPointer - self.base.pointer)), self.options.duration, self.options.easing);
 			}	
 		}
 
