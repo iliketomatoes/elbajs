@@ -245,7 +245,9 @@ function getReboundTime(space, speed){
 }
 
 
-function slideTo(base, options, direction, newPointer, offset){
+function slideTo(base, options, direction, newPointer, offset, duration){
+
+	var expectedDuration = duration || options.duration;
 
 	base.pointer = newPointer;
 	base.directionHint = direction;
@@ -748,17 +750,42 @@ var ElbaBuilder = {
 	*/
 	setupNavigation : function(base, options, direction){
 
-		var t;
-
+		// create svg
+		var svgURI = 'http://www.w3.org/2000/svg';
+			
 		base.navigation[direction] = document.createElement( 'a' );
 		base.navigation[direction].className = 'elba-' + direction + '-nav';
 		
 		if(direction === 'left'){
-			t = document.createTextNode(options.textLeft);
-			base.navigation[direction].appendChild(t); 
+
+			var svgLeft = document.createElementNS( svgURI, 'svg' );
+			// SVG attributes, like viewBox, are camelCased. That threw me for a loop
+			svgLeft.setAttribute( 'viewBox', '0 0 100 100' );
+			// create arrow
+			var pathLeft = document.createElementNS( svgURI, 'path' );
+			pathLeft.setAttribute( 'd', 'M 50,0 L 60,10 L 20,50 L 60,90 L 50,100 L 0,50 Z' );
+			pathLeft.setAttribute( 'transform', 'translate(15,0)' );
+			// add class so it can be styled with CSS
+			pathLeft.setAttribute( 'class', 'elba-svg-arrow' );
+			svgLeft.appendChild( pathLeft );
+
+			base.navigation[direction].appendChild(svgLeft);
+
 		}else{
-			t = document.createTextNode(options.textRight);
-			base.navigation[direction].appendChild(t); 
+
+			// add svg to page
+			var svgRight = document.createElementNS( svgURI, 'svg' );
+			// SVG attributes, like viewBox, are camelCased. That threw me for a loop
+			svgRight.setAttribute( 'viewBox', '0 0 100 100' );
+			// create arrow
+			var pathRight = document.createElementNS( svgURI, 'path' );
+			pathRight.setAttribute( 'd', 'M 50,0 L 60,10 L 20,50 L 60,90 L 50,100 L 0,50 Z' );
+			// add class so it can be styled with CSS
+			pathRight.setAttribute( 'class', 'elba-svg-arrow' );
+			pathRight.setAttribute( 'transform', 'translate(85,100) rotate(180)' );
+			svgRight.appendChild( pathRight );
+
+			base.navigation[direction].appendChild(svgRight);
 		}
 
 		base.wrapper.appendChild(base.navigation[direction]);
@@ -856,8 +883,6 @@ var EventHandler = {
 
 		//Set the width of each slide
 		ImageHandler.setSlidesWidth(base);
-
-		console.log(getLeftOffset(base.container, base.pointer));
 		
 		//Fix the gallery offset since it's been resized
 		Animator.offset(base.el, getLeftOffset(base.container, base.pointer));
@@ -1032,17 +1057,16 @@ function Elba(el, settings){
 		src : 'data-src',
 		error : false,
 		success : false,
-		duration : 1000,
-		easing: 'easeInOutCubic',
+		duration : 700,
+		easing: 'easeInOutSine',
 		navigation : true,
 		dots: true,
 		dotsContainer: false, 
 		slideshow : 5000,
 		preload : 1,
-		swipeTreshold : 60,
-		reboundSpeed : 600,
-		textLeft : '\u2190',
-		textRight : '\u2192'
+		swipeThreshold : 60,
+		htmlLeft : '\u2190',
+		htmlRight : '\u2192'
 	};	
 
 	if(typeof el === 'undefined') {
@@ -1173,16 +1197,26 @@ Elba.prototype.bindEvents = function(){
 		
 			Toucher.onTouchEnd();
 
+			var offset = Math.abs(Math.abs((currentSlideWidth * self.base.pointer)) - Math.abs(Animator.offset(self.base.el)));
+
+			var duration = Math.floor(((currentSlideWidth - offset) * self.options.duration) / currentSlideWidth );
+			console.log(duration);
+			console.log(self.options.duration);
+
 			Animator.stopDragging();
 
-			if(Math.abs(delta) > self.options.swipeTreshold){
+			if(Math.abs(delta) > self.options.swipeThreshold){
 
 				if(delta > 0){
-					slideTo(self.base, self.options, 'left', (self.base.pointer - 1), - (self.base.containerWidth - Math.abs(delta)));
+					slideTo(self.base, self.options, 'left', (self.base.pointer - 1), - (currentSlideWidth - offset), duration);
 				}else{
-					slideTo(self.base, self.options, 'right', (self.base.pointer + 1), self.base.containerWidth - Math.abs(delta));
+					slideTo(self.base, self.options, 'right', (self.base.pointer + 1), currentSlideWidth - offset, duration);
 				}
 				
+			}else{
+
+				//Fix the gallery offset because it didn't reach the threshold.
+				Animator.offset(self.base.el, getLeftOffset(self.base.container, self.base.pointer));
 			}
 
 			delta = 0;

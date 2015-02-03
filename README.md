@@ -8,7 +8,7 @@ Inspired by many sources such as:
 - [Superslides](https://github.com/nicinabox/superslides) <br>
 - [Tocca.js](https://github.com/GianlucaGuarini/Tocca.js) <br>
 
-At the moment this plugin's size is ~12.5 KB minified.
+At the moment this plugin's size is ~14.5 KB minified.
 
 ##INSTALL
 
@@ -103,8 +103,8 @@ Available options:
 | dotsContainer    | Append the dots to a custom HTML element by passing its ID      | Boolean/String |		false  |
 | slideshow        | Interval between any slide. Set 0 to disable slideshow. Expressed in milliseconds      |  Number | 10000		  |		
 |preload 		   | Number of pictures you want to load after the visible one has been loaded | Number | 1 |
-|textLeft 		   | Text in the left navigation arrow | String | '\u2190' | 
-|textRight 		   | Text in the right navigation arrow | String | '\u2192' |  	
+|htmlLeft 		   | HTML in the left navigation arrow | String | '\u2190' | 
+|htmlRight 		   | HTML in the right navigation arrow | String | '\u2192' |  	
 
 ###List of predefined easings
 1. easeInSine

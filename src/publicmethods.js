@@ -57,16 +57,26 @@ Elba.prototype.bindEvents = function(){
 		
 			Toucher.onTouchEnd();
 
+			var offset = Math.abs(Math.abs((currentSlideWidth * self.base.pointer)) - Math.abs(Animator.offset(self.base.el)));
+
+			var duration = Math.floor(((currentSlideWidth - offset) * self.options.duration) / currentSlideWidth );
+			console.log(duration);
+			console.log(self.options.duration);
+
 			Animator.stopDragging();
 
-			if(Math.abs(delta) > self.options.swipeTreshold){
+			if(Math.abs(delta) > self.options.swipeThreshold){
 
 				if(delta > 0){
-					slideTo(self.base, self.options, 'left', (self.base.pointer - 1), - (self.base.containerWidth - Math.abs(delta)));
+					slideTo(self.base, self.options, 'left', (self.base.pointer - 1), - (currentSlideWidth - offset), duration);
 				}else{
-					slideTo(self.base, self.options, 'right', (self.base.pointer + 1), self.base.containerWidth - Math.abs(delta));
+					slideTo(self.base, self.options, 'right', (self.base.pointer + 1), currentSlideWidth - offset, duration);
 				}
 				
+			}else{
+
+				//Fix the gallery offset because it didn't reach the threshold.
+				Animator.offset(self.base.el, getLeftOffset(self.base.container, self.base.pointer));
 			}
 
 			delta = 0;

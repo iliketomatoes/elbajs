@@ -61,8 +61,6 @@ var EventHandler = {
 
 		//Set the width of each slide
 		ImageHandler.setSlidesWidth(base);
-
-		console.log(getLeftOffset(base.container, base.pointer));
 		
 		//Fix the gallery offset since it's been resized
 		Animator.offset(base.el, getLeftOffset(base.container, base.pointer));

@@ -22,3 +22,29 @@
   border-radius: $radius;
   background-clip: padding-box;  /* stops bg color from leaking outside the border: */
 }
+
+@mixin no-select {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+
+@mixin material-element{
+
+  @include border-radius(2px);
+
+  -webkit-box-shadow: 1px 0px 2px 0px rgba(50, 50, 50, 0.75);
+  -moz-box-shadow:    1px 0px 2px 0px rgba(50, 50, 50, 0.75);
+  box-shadow:         1px 0px 2px 0px rgba(50, 50, 50, 0.75);
+
+  &:active{
+    -webkit-box-shadow: none;
+    -moz-box-shadow:    none;
+    box-shadow:         none;
+  }
+
+}

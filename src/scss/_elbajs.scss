@@ -1,20 +1,3 @@
-
-
-body,html{
-	width: 100%;
-	height: 100%;
-	margin: 0px;
-	padding: 0px;
-	border: 0px none;
-	font-size: 100%;
-}
-
- *, *:before, *:after {
-      -moz-box-sizing: border-box;
-      -webkit-box-sizing: border-box;
-      box-sizing: border-box;
-     }
-
 /******** WRAPPER *********/
 .elba-wrapper{
 	position: relative;
@@ -25,6 +8,15 @@ body,html{
 }
 
 /******** CAROUSEL *********/
+
+.elba-carousel{
+	*,*:before,*:after {
+      -moz-box-sizing: border-box;
+      -webkit-box-sizing: border-box;
+      box-sizing: border-box;
+     }
+}
+
 .elba-carousel, .elba, .elba-island,.elba-content{
 	//@include transform(translate3d(0, 0, 0));
 	-webkit-backface-visibility: hidden;
@@ -68,7 +60,8 @@ body,html{
 	position: absolute;
 	max-width: none;
 	//-webkit-transform: translate3d(0, 0, 0);
-	@include single-transition(all, 500ms, ease-in-out);
+	@include no-select;
+	@include single-transition(all, 300ms, ease-in-out);
 	opacity: 0;
 	
 }	
@@ -97,6 +90,7 @@ body,html{
 	text-indent: 0;
 	opacity: 0;
 	color: #000;
+	@include no-select;
 	
 	
 
@@ -113,6 +107,7 @@ body,html{
     color: #000;
     background-color: $half-transparent;
     line-height: 1;
+    @include no-select;
 }
 
 /******** NAVIGATION *********/
@@ -121,43 +116,56 @@ body,html{
 	position: absolute;
 	z-index: 100;
 	top: 50%;
-	height: 2.5rem;
-	width: 2.5rem;
 	margin-top: -1.75rem;
-	background-color: $nav-arrow-background-color;
+	background-color: $elba;
 	text-align: center;
 	cursor: pointer;
 	border: none;
 	outline: none;
 	text-decoration: none;
-	font-size: 2rem;
-	line-height: 2.4rem;
+	padding: 0.4rem 0.4rem;
+	//font-size: 2rem;
+	line-height: 0;
 	color: #fff;
 	@include single-transition();
+	@include no-select;
+	@include material-element();
+	
 }
 
 
 .elba-left-nav{
 	@extend .nav-arrow;
-	left: 2.5rem;
+	left: 1.5rem;
 
 	&:hover{
-		background-color: $elba;
-		padding-right: 0.5rem;
+	
+	}
+
+	svg{
+		width: 1.7rem;
+		height: 1.7rem;
 	}
 }
 
 .elba-right-nav{
 	@extend .nav-arrow;
-	right: 2.5rem;
+	right: 1.5rem;
 
 
 	&:hover{
-		background-color: $elba;
-		padding-left: 0.5rem;
+		
+	}
+
+	svg{
+		width: 1.7rem;
+		height: 1.7rem;
 	}
 }
 
+.elba-svg-arrow{
+	fill: #fff;
+}
 
 
 .elba-dots-ctr{
@@ -176,8 +184,13 @@ body,html{
 	margin: 5px;
 	border: 2px solid $nav-arrow-background-color;
 	background-color: $half-transparent;
-	@include single-transition(all, 500ms, ease-in-out);
+	@include single-transition(all, 300ms, ease-in-out);
+	@include material-element();
 	cursor: pointer;
+
+	-moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 .active-dot{

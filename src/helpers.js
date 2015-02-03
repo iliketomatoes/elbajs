@@ -227,7 +227,9 @@ function getReboundTime(space, speed){
 }
 
 
-function slideTo(base, options, direction, newPointer, offset){
+function slideTo(base, options, direction, newPointer, offset, duration){
+
+	var expectedDuration = duration || options.duration;
 
 	base.pointer = newPointer;
 	base.directionHint = direction;

@@ -1,16 +1,3 @@
-body, html {
-  width: 100%;
-  height: 100%;
-  margin: 0px;
-  padding: 0px;
-  border: 0px none;
-  font-size: 100%; }
-
-*, *:before, *:after {
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box; }
-
 /******** WRAPPER *********/
 .elba-wrapper {
   position: relative;
@@ -19,6 +6,11 @@ body, html {
   overflow: hidden; }
 
 /******** CAROUSEL *********/
+.elba-carousel *, .elba-carousel *:before, .elba-carousel *:after {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box; }
+
 .elba-carousel, .elba, .elba-island, .elba-content {
   -webkit-backface-visibility: hidden;
   -moz-backface-visibility: hidden;
@@ -57,7 +49,13 @@ body, html {
 .elba-island {
   position: absolute;
   max-width: none;
-  transition: all 500ms ease-in-out;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  transition: all 300ms ease-in-out;
   opacity: 0; }
 
 .elba-loaded .elba-island, .elba-loaded .elba-content {
@@ -76,7 +74,13 @@ body, html {
   z-index: 5;
   text-indent: 0;
   opacity: 0;
-  color: #000; }
+  color: #000;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none; }
 
 .elba-caption {
   position: relative;
@@ -86,38 +90,62 @@ body, html {
   padding: 0.5rem;
   color: #000;
   background-color: rgba(255, 255, 255, 0.9);
-  line-height: 1; }
+  line-height: 1;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none; }
 
 /******** NAVIGATION *********/
 .nav-arrow, .elba-left-nav, .elba-right-nav {
   position: absolute;
   z-index: 100;
   top: 50%;
-  height: 2.5rem;
-  width: 2.5rem;
   margin-top: -1.75rem;
-  background-color: rgba(80, 205, 184, 0.7);
+  background-color: #6BB9F0;
   text-align: center;
   cursor: pointer;
   border: none;
   outline: none;
   text-decoration: none;
-  font-size: 2rem;
-  line-height: 2.4rem;
+  padding: 0.4rem 0.4rem;
+  line-height: 0;
   color: #fff;
-  transition: all 300ms ease-out; }
+  transition: all 300ms ease-out;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-border-radius: 2px;
+  border-radius: 2px;
+  background-clip: padding-box;
+  /* stops bg color from leaking outside the border: */
+  -webkit-box-shadow: 1px 0px 2px 0px rgba(50, 50, 50, 0.75);
+  -moz-box-shadow: 1px 0px 2px 0px rgba(50, 50, 50, 0.75);
+  box-shadow: 1px 0px 2px 0px rgba(50, 50, 50, 0.75); }
+  .nav-arrow:active, .elba-left-nav:active, .elba-right-nav:active {
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none; }
 
 .elba-left-nav {
-  left: 2.5rem; }
-  .elba-left-nav:hover {
-    background-color: #50cdb8;
-    padding-right: 0.5rem; }
+  left: 1.5rem; }
+  .elba-left-nav svg {
+    width: 1.7rem;
+    height: 1.7rem; }
 
 .elba-right-nav {
-  right: 2.5rem; }
-  .elba-right-nav:hover {
-    background-color: #50cdb8;
-    padding-left: 0.5rem; }
+  right: 1.5rem; }
+  .elba-right-nav svg {
+    width: 1.7rem;
+    height: 1.7rem; }
+
+.elba-svg-arrow {
+  fill: #fff; }
 
 .elba-dots-ctr {
   position: absolute;
@@ -131,10 +159,24 @@ body, html {
   width: 12px;
   height: 12px;
   margin: 5px;
-  border: 2px solid rgba(80, 205, 184, 0.7);
+  border: 2px solid #6BB9F0;
   background-color: rgba(255, 255, 255, 0.9);
-  transition: all 500ms ease-in-out;
-  cursor: pointer; }
+  transition: all 300ms ease-in-out;
+  -webkit-border-radius: 2px;
+  border-radius: 2px;
+  background-clip: padding-box;
+  /* stops bg color from leaking outside the border: */
+  -webkit-box-shadow: 1px 0px 2px 0px rgba(50, 50, 50, 0.75);
+  -moz-box-shadow: 1px 0px 2px 0px rgba(50, 50, 50, 0.75);
+  box-shadow: 1px 0px 2px 0px rgba(50, 50, 50, 0.75);
+  cursor: pointer;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box; }
+  .elba-dot:active {
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none; }
 
 .active-dot {
-  background-color: rgba(80, 205, 184, 0.7); }
+  background-color: #6BB9F0; }

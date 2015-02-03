@@ -1,7 +1,8 @@
-$elba : rgb(80,205,184);
+//$elba : rgb(80,205,184);
+$elba : #6BB9F0;
 $brown : #965300;
 
-$nav-arrow-background-color : rgba($elba, 0.7);
+$nav-arrow-background-color : $elba;
 $nav-arrow-color : #f3f6f5;
 
 $half-transparent: rgba(255,255,255,0.9);

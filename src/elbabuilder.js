@@ -67,17 +67,42 @@ var ElbaBuilder = {
 	*/
 	setupNavigation : function(base, options, direction){
 
-		var t;
-
+		// create svg
+		var svgURI = 'http://www.w3.org/2000/svg';
+			
 		base.navigation[direction] = document.createElement( 'a' );
 		base.navigation[direction].className = 'elba-' + direction + '-nav';
 		
 		if(direction === 'left'){
-			t = document.createTextNode(options.textLeft);
-			base.navigation[direction].appendChild(t); 
+
+			var svgLeft = document.createElementNS( svgURI, 'svg' );
+			// SVG attributes, like viewBox, are camelCased. That threw me for a loop
+			svgLeft.setAttribute( 'viewBox', '0 0 100 100' );
+			// create arrow
+			var pathLeft = document.createElementNS( svgURI, 'path' );
+			pathLeft.setAttribute( 'd', 'M 50,0 L 60,10 L 20,50 L 60,90 L 50,100 L 0,50 Z' );
+			pathLeft.setAttribute( 'transform', 'translate(15,0)' );
+			// add class so it can be styled with CSS
+			pathLeft.setAttribute( 'class', 'elba-svg-arrow' );
+			svgLeft.appendChild( pathLeft );
+
+			base.navigation[direction].appendChild(svgLeft);
+
 		}else{
-			t = document.createTextNode(options.textRight);
-			base.navigation[direction].appendChild(t); 
+
+			// add svg to page
+			var svgRight = document.createElementNS( svgURI, 'svg' );
+			// SVG attributes, like viewBox, are camelCased. That threw me for a loop
+			svgRight.setAttribute( 'viewBox', '0 0 100 100' );
+			// create arrow
+			var pathRight = document.createElementNS( svgURI, 'path' );
+			pathRight.setAttribute( 'd', 'M 50,0 L 60,10 L 20,50 L 60,90 L 50,100 L 0,50 Z' );
+			// add class so it can be styled with CSS
+			pathRight.setAttribute( 'class', 'elba-svg-arrow' );
+			pathRight.setAttribute( 'transform', 'translate(85,100) rotate(180)' );
+			svgRight.appendChild( pathRight );
+
+			base.navigation[direction].appendChild(svgRight);
 		}
 
 		base.wrapper.appendChild(base.navigation[direction]);

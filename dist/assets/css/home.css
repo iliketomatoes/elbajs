@@ -1,5 +1,12 @@
 @import url(http://fonts.googleapis.com/css?family=Rufina:400,700);
 /*! HTML5 Boilerplate v4.3.0 | MIT License | http://h5bp.com/ */
+body, html {
+  width: 100%;
+  height: 100%;
+  margin: 0px;
+  padding: 0px;
+  border: 0px none; }
+
 html, button, input, select, textarea {
   color: #222; }
 
@@ -70,11 +77,14 @@ h1, h2, h3, h4, h5, h6 {
   height: 3.375rem;
   text-align: center;
   padding-top: 1rem;
-  color: #50cdb8;
+  color: #6BB9F0;
   background-color: rgba(255, 255, 255, 0.9);
   font-weight: bold;
   line-height: 1.4rem;
-  font-size: 1.4rem; }
+  font-size: 1.4rem;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box; }
 
 .elba-banner {
   position: absolute;
@@ -86,7 +96,10 @@ h1, h2, h3, h4, h5, h6 {
   background-color: rgba(255, 255, 255, 0.9);
   line-height: 1.4rem;
   font-size: 1.4rem;
-  z-index: 2000; }
+  z-index: 2000;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box; }
 
 /* ==========================================================================
    Media Queries

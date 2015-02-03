@@ -31,17 +31,16 @@ function Elba(el, settings){
 		src : 'data-src',
 		error : false,
 		success : false,
-		duration : 1000,
-		easing: 'easeInOutCubic',
+		duration : 700,
+		easing: 'easeInOutSine',
 		navigation : true,
 		dots: true,
 		dotsContainer: false, 
 		slideshow : 5000,
 		preload : 1,
-		swipeTreshold : 60,
-		reboundSpeed : 600,
-		textLeft : '\u2190',
-		textRight : '\u2192'
+		swipeThreshold : 60,
+		htmlLeft : '\u2190',
+		htmlRight : '\u2192'
 	};	
 
 	if(typeof el === 'undefined') {
