@@ -30,8 +30,11 @@
 
 	    onTouchStart : function(e) {
 
-			var self = this,
-				pointer = self.getPointerEvent(e);
+			var self = this;
+
+			if(self.touchStarted === true) return false;
+			
+			var	pointer = self.getPointerEvent(e);
 
 			// caching the current x
 			self.points.cachedX = self.points.currX = pointer.pageX;
@@ -46,11 +49,14 @@
 
 		onTouchEnd : function() {
 
-			var self = this,
-				deltaY = self.points.cachedY - self.points.currY,
+			var self = this;
+
+			if(self.touchStarted === false) return false;
+
+			var	deltaY = self.points.cachedY - self.points.currY,
 				deltaX = self.points.cachedX - self.points.currX;
 
-				self.touchStarted = false;
+			self.touchStarted = false;
 
 			return {
 				deltaX : deltaX,

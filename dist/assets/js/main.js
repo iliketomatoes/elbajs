@@ -1,6 +1,6 @@
 ;(function(){
 	var gallery = new Elba( document.getElementById('carousel'), {
-		slideshow: 5000,
+		slideshow: false,
 		duration : 700,
 		easing: 'easeOutCubic',
         breakpoints: [{

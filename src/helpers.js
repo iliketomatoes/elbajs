@@ -221,3 +221,16 @@ function getSupportedTransform() {
     }
     return false;
 }
+
+function getReboundTime(space, speed){
+	return Math.round((Math.abs(space) / speed) * 1000);
+}
+
+
+function slideTo(base, options, direction, newPointer, offset){
+	base.directionHint = direction;
+	base.pointer = newPointer;
+	ImageHandler.lazyLoadImages(base, options);
+	Animator.animate(base, offset, options.duration, options.easing);
+}
+

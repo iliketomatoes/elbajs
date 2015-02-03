@@ -164,12 +164,10 @@
 
 			if(self.animated) return false;
 
-			target.forEach(function(el){
-				self.dragged = requestAnimationFrame(function(){
-						self.offset(el, length);
-				});
+			self.dragged = requestAnimationFrame(function(){
+					self.offset(target, length);
 			});
-
+			
 			},
 
 		stopDragging : function(){

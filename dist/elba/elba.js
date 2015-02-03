@@ -1,4 +1,4 @@
-/*! elba - v0.3.2 - 2015-01-30
+/*! elba - v0.3.2 - 2015-02-03
 * https://github.com/iliketomatoes/elbajs
 * Copyright (c) 2015 ; Licensed  */
 ;(function(elba) {
@@ -240,6 +240,19 @@ function getSupportedTransform() {
     return false;
 }
 
+function getReboundTime(space, speed){
+	return Math.round((Math.abs(space) / speed) * 1000);
+}
+
+
+function slideTo(base, options, direction, newPointer, offset){
+	base.directionHint = direction;
+	base.pointer = newPointer;
+	ImageHandler.lazyLoadImages(base, options);
+	Animator.animate(base, offset, options.duration, options.easing);
+}
+
+
 	//Check the supported vendor prefix for transformations
 	var vendorTransform  =  getSupportedTransform();				    
 
@@ -406,12 +419,10 @@ function getSupportedTransform() {
 
 			if(self.animated) return false;
 
-			target.forEach(function(el){
-				self.dragged = requestAnimationFrame(function(){
-						self.offset(el, length);
-				});
+			self.dragged = requestAnimationFrame(function(){
+					self.offset(target, length);
 			});
-
+			
 			},
 
 		stopDragging : function(){
@@ -926,8 +937,11 @@ var EventHandler = {
 
 	    onTouchStart : function(e) {
 
-			var self = this,
-				pointer = self.getPointerEvent(e);
+			var self = this;
+
+			if(self.touchStarted === true) return false;
+			
+			var	pointer = self.getPointerEvent(e);
 
 			// caching the current x
 			self.points.cachedX = self.points.currX = pointer.pageX;
@@ -942,11 +956,14 @@ var EventHandler = {
 
 		onTouchEnd : function() {
 
-			var self = this,
-				deltaY = self.points.cachedY - self.points.currY,
+			var self = this;
+
+			if(self.touchStarted === false) return false;
+
+			var	deltaY = self.points.cachedY - self.points.currY,
 				deltaX = self.points.cachedX - self.points.currX;
 
-				self.touchStarted = false;
+			self.touchStarted = false;
 
 			return {
 				deltaX : deltaX,
@@ -1017,6 +1034,8 @@ function init(context, el, settings){
 		dotsContainer: false, 
 		slideshow : 5000,
 		preload : 1,
+		swipeTreshold : 60,
+		reboundSpeed : 600,
 		textLeft : '\u2190',
 		textRight : '\u2192'
 	};	
@@ -1116,7 +1135,65 @@ Elba.prototype.loadImages = function(){
 
 Elba.prototype.bindEvents = function(){
 
-	var self = this;
+	var self = this,
+		position,
+		startingOffset,
+		cachedPosition,
+		startingPointer,
+		currentSlideWidth,
+		tick = 0,
+		delta;
+
+	setListener(self.base.el, Toucher.touchEvents.start, function(e){
+	
+			startingOffset = parseInt(Animator.offset(self.base.el));
+			cachedPosition = Toucher.onTouchStart(e);
+			currentSlideWidth = parseInt(self.base.containerWidth);
+			startingPointer = self.base.pointer;
+		});
+
+	setListener(self.base.el, Toucher.touchEvents.move, function(e){
+
+			position = Toucher.onTouchMove(e);
+			
+			if(position){
+
+				delta = position.currX - cachedPosition.cachedX;
+
+				//Let's drag the slides around
+				Animator.drag(self.base.el, (delta + startingOffset));
+
+				cachedPosition = position;
+			}
+		});
+
+	setListener(self.base.el, Toucher.touchEvents.end, function(){
+		
+			console.log('touch end');
+			Toucher.onTouchEnd();
+			
+			var offset = parseInt(Animator.offset(self.base.el));
+
+			Animator.stopDragging();
+
+			if(Math.abs(delta) > self.options.swipeTreshold){
+
+				if(delta > 0){
+					self.goTo('left');
+				}else{
+					self.goTo('right');
+				}
+				
+			}
+
+			delta = 0;
+			startingOffset = 0;
+			/*Animator.animate(
+				self.base, 
+				parseInt(offset + self.base.pointer * currentSlideWidth), 
+				getReboundTime(offset, self.options.reboundSpeed), 
+				'easeOutBack');*/
+		});	
 
 	if(self.options.navigation){
 		//Attach events to the navigation arrows
@@ -1143,7 +1220,7 @@ Elba.prototype.bindEvents = function(){
     	var dotHandler = function(i){
 
     		return function(){
-    			var index = self.base.navigation.dots[i].getAttribute('data-target');
+    			var index = parseInt(self.base.navigation.dots[i].getAttribute('data-target'));
 
     			if(parseInt(index) === self.base.pointer){
 					return false;
@@ -1184,14 +1261,13 @@ Elba.prototype.bindEvents = function(){
 
 		//We start the slideshow
 		self.startSlideshow();
-	}
+	}				
 
 	//Bind resize event
 	window.addEventListener('resize', function(){
 		EventHandler.resizeHandler(self.base, self.options);
 	}, false);
 };
-
 
 /**
 * Manages which direction and which picture to slide to
@@ -1209,6 +1285,8 @@ Elba.prototype.goTo = function(direction){
 			if(self.base.pointer + 1 >= count){
 				return false;
 			}
+
+			//slideTo(self.base, self.options, 'right', self.base.pointer++, self.base.containerWidth);
 			self.base.directionHint = 'right';
 			self.base.pointer++;
 			ImageHandler.lazyLoadImages(self.base, self.options);
@@ -1217,19 +1295,23 @@ Elba.prototype.goTo = function(direction){
 			if(self.base.pointer - 1 < 0 ){
 				return false;
 			}
+
+			//slideTo(self.base, self.options, 'left', self.base.pointer--, self.base.containerWidth);
 			self.base.directionHint = 'left';
 			self.base.pointer--;
 			ImageHandler.lazyLoadImages(self.base, self.options);
 			Animator.animate(self.base, -self.base.containerWidth, self.options.duration, self.options.easing);
 			}
-		}else if(!isNaN(direction)){
+		}else if(typeof direction === 'number'){
 			var oldPointer = self.base.pointer;
-			self.base.pointer = parseInt(direction);
+			self.base.pointer = direction;
 			if(self.base.pointer > oldPointer){
+				//slideTo(self.base, self.options, 'right', direction, parseInt(self.base.containerWidth * (self.base.pointer - oldPointer)));
 				self.base.directionHint = 'right';
 				ImageHandler.lazyLoadImages(self.base, self.options);
 				Animator.animate(self.base, parseInt(self.base.containerWidth * (self.base.pointer - oldPointer)), self.options.duration, self.options.easing);
 			}else{
+				//slideTo(self.base, self.options, 'left', direction, -parseInt(self.base.containerWidth * (self.base.pointer - oldPointer)));
 				self.base.directionHint = 'left';
 				ImageHandler.lazyLoadImages(self.base, self.options);
 				Animator.animate(self.base, -parseInt(self.base.containerWidth * (oldPointer - self.base.pointer)), self.options.duration, self.options.easing);

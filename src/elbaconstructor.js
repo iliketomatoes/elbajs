@@ -38,6 +38,8 @@ function init(context, el, settings){
 		dotsContainer: false, 
 		slideshow : 5000,
 		preload : 1,
+		swipeTreshold : 60,
+		reboundSpeed : 600,
 		textLeft : '\u2190',
 		textRight : '\u2192'
 	};	

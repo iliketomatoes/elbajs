@@ -21,7 +21,65 @@ Elba.prototype.loadImages = function(){
 
 Elba.prototype.bindEvents = function(){
 
-	var self = this;
+	var self = this,
+		position,
+		startingOffset,
+		cachedPosition,
+		startingPointer,
+		currentSlideWidth,
+		tick = 0,
+		delta;
+
+	setListener(self.base.el, Toucher.touchEvents.start, function(e){
+	
+			startingOffset = parseInt(Animator.offset(self.base.el));
+			cachedPosition = Toucher.onTouchStart(e);
+			currentSlideWidth = parseInt(self.base.containerWidth);
+			startingPointer = self.base.pointer;
+		});
+
+	setListener(self.base.el, Toucher.touchEvents.move, function(e){
+
+			position = Toucher.onTouchMove(e);
+			
+			if(position){
+
+				delta = position.currX - cachedPosition.cachedX;
+
+				//Let's drag the slides around
+				Animator.drag(self.base.el, (delta + startingOffset));
+
+				cachedPosition = position;
+			}
+		});
+
+	setListener(self.base.el, Toucher.touchEvents.end, function(){
+		
+			console.log('touch end');
+			Toucher.onTouchEnd();
+			
+			var offset = parseInt(Animator.offset(self.base.el));
+
+			Animator.stopDragging();
+
+			if(Math.abs(delta) > self.options.swipeTreshold){
+
+				if(delta > 0){
+					self.goTo('left');
+				}else{
+					self.goTo('right');
+				}
+				
+			}
+
+			delta = 0;
+			startingOffset = 0;
+			/*Animator.animate(
+				self.base, 
+				parseInt(offset + self.base.pointer * currentSlideWidth), 
+				getReboundTime(offset, self.options.reboundSpeed), 
+				'easeOutBack');*/
+		});	
 
 	if(self.options.navigation){
 		//Attach events to the navigation arrows
@@ -48,7 +106,7 @@ Elba.prototype.bindEvents = function(){
     	var dotHandler = function(i){
 
     		return function(){
-    			var index = self.base.navigation.dots[i].getAttribute('data-target');
+    			var index = parseInt(self.base.navigation.dots[i].getAttribute('data-target'));
 
     			if(parseInt(index) === self.base.pointer){
 					return false;
@@ -89,14 +147,13 @@ Elba.prototype.bindEvents = function(){
 
 		//We start the slideshow
 		self.startSlideshow();
-	}
+	}				
 
 	//Bind resize event
 	window.addEventListener('resize', function(){
 		EventHandler.resizeHandler(self.base, self.options);
 	}, false);
 };
-
 
 /**
 * Manages which direction and which picture to slide to
@@ -114,6 +171,8 @@ Elba.prototype.goTo = function(direction){
 			if(self.base.pointer + 1 >= count){
 				return false;
 			}
+
+			//slideTo(self.base, self.options, 'right', self.base.pointer++, self.base.containerWidth);
 			self.base.directionHint = 'right';
 			self.base.pointer++;
 			ImageHandler.lazyLoadImages(self.base, self.options);
@@ -122,19 +181,23 @@ Elba.prototype.goTo = function(direction){
 			if(self.base.pointer - 1 < 0 ){
 				return false;
 			}
+
+			//slideTo(self.base, self.options, 'left', self.base.pointer--, self.base.containerWidth);
 			self.base.directionHint = 'left';
 			self.base.pointer--;
 			ImageHandler.lazyLoadImages(self.base, self.options);
 			Animator.animate(self.base, -self.base.containerWidth, self.options.duration, self.options.easing);
 			}
-		}else if(!isNaN(direction)){
+		}else if(typeof direction === 'number'){
 			var oldPointer = self.base.pointer;
-			self.base.pointer = parseInt(direction);
+			self.base.pointer = direction;
 			if(self.base.pointer > oldPointer){
+				//slideTo(self.base, self.options, 'right', direction, parseInt(self.base.containerWidth * (self.base.pointer - oldPointer)));
 				self.base.directionHint = 'right';
 				ImageHandler.lazyLoadImages(self.base, self.options);
 				Animator.animate(self.base, parseInt(self.base.containerWidth * (self.base.pointer - oldPointer)), self.options.duration, self.options.easing);
 			}else{
+				//slideTo(self.base, self.options, 'left', direction, -parseInt(self.base.containerWidth * (self.base.pointer - oldPointer)));
 				self.base.directionHint = 'left';
 				ImageHandler.lazyLoadImages(self.base, self.options);
 				Animator.animate(self.base, -parseInt(self.base.containerWidth * (oldPointer - self.base.pointer)), self.options.duration, self.options.easing);
