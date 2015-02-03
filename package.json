@@ -1,6 +1,6 @@
 {
   "name": "elba",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "RWD, multi-serving, pure javascript gallery",
   "scripts": {
     "start": "node_modules/.bin/supervisor app",

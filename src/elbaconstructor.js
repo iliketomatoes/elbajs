@@ -38,9 +38,7 @@ function Elba(el, settings){
 		dotsContainer: false, 
 		slideshow : 5000,
 		preload : 1,
-		swipeThreshold : 60,
-		htmlLeft : '\u2190',
-		htmlRight : '\u2192'
+		swipeThreshold : 60
 	};	
 
 	if(typeof el === 'undefined') {

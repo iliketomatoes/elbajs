@@ -1,14 +1,14 @@
 elbajs
 ======
 
-This is a pure javascript slide-show gallery, responsive, serving lazy loading images according to the screen size, hardware accelerated, retina ready, AMD ready, touch enabled.
+This is a pure javascript slide-show gallery, dependendy-free, responsive, serving lazy loading images according to the screen size, hardware accelerated, retina ready, AMD ready, swipe/drag/touch enabled.
 
 Inspired by many sources such as:
 - [bLazy](https://github.com/dinbror/blazy) <br>
 - [Superslides](https://github.com/nicinabox/superslides) <br>
 - [Tocca.js](https://github.com/GianlucaGuarini/Tocca.js) <br>
 
-At the moment this plugin's size is ~14.5 KB minified.
+At the moment this plugin's size is ~15.0 KB minified.
 
 ##INSTALL
 
@@ -103,8 +103,8 @@ Available options:
 | dotsContainer    | Append the dots to a custom HTML element by passing its ID      | Boolean/String |		false  |
 | slideshow        | Interval between any slide. Set 0 to disable slideshow. Expressed in milliseconds      |  Number | 10000		  |		
 |preload 		   | Number of pictures you want to load after the visible one has been loaded | Number | 1 |
-|htmlLeft 		   | HTML in the left navigation arrow | String | '\u2190' | 
-|htmlRight 		   | HTML in the right navigation arrow | String | '\u2192' |  	
+|swipeThreshold		   | The swiping threshold expressed in pixels. | Number | 60 | 
+	
 
 ###List of predefined easings
 1. easeInSine

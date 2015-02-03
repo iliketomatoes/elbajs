@@ -1,4 +1,4 @@
-/*! elba - v0.3.2 - 2015-02-03
+/*! elba - v0.4.0 - 2015-02-03
 * https://github.com/iliketomatoes/elbajs
 * Copyright (c) 2015 ; Licensed  */
 ;(function(elba) {
@@ -1064,9 +1064,7 @@ function Elba(el, settings){
 		dotsContainer: false, 
 		slideshow : 5000,
 		preload : 1,
-		swipeThreshold : 60,
-		htmlLeft : '\u2190',
-		htmlRight : '\u2192'
+		swipeThreshold : 60
 	};	
 
 	if(typeof el === 'undefined') {
