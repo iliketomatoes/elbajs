@@ -55,30 +55,22 @@ Elba.prototype.bindEvents = function(){
 
 	setListener(self.base.el, Toucher.touchEvents.end, function(){
 		
-			console.log('touch end');
 			Toucher.onTouchEnd();
-			
-			var offset = parseInt(Animator.offset(self.base.el));
 
 			Animator.stopDragging();
 
 			if(Math.abs(delta) > self.options.swipeTreshold){
 
 				if(delta > 0){
-					self.goTo('left');
+					slideTo(self.base, self.options, 'left', (self.base.pointer - 1), - (self.base.containerWidth - Math.abs(delta)));
 				}else{
-					self.goTo('right');
+					slideTo(self.base, self.options, 'right', (self.base.pointer + 1), self.base.containerWidth - Math.abs(delta));
 				}
 				
 			}
 
 			delta = 0;
 			startingOffset = 0;
-			/*Animator.animate(
-				self.base, 
-				parseInt(offset + self.base.pointer * currentSlideWidth), 
-				getReboundTime(offset, self.options.reboundSpeed), 
-				'easeOutBack');*/
 		});	
 
 	if(self.options.navigation){
@@ -171,42 +163,21 @@ Elba.prototype.goTo = function(direction){
 			if(self.base.pointer + 1 >= count){
 				return false;
 			}
-
-			//slideTo(self.base, self.options, 'right', self.base.pointer++, self.base.containerWidth);
-			self.base.directionHint = 'right';
-			self.base.pointer++;
-			ImageHandler.lazyLoadImages(self.base, self.options);
-			Animator.animate(self.base, self.base.containerWidth, self.options.duration, self.options.easing);
+			slideTo(self.base, self.options, 'right', (self.base.pointer + 1), self.base.containerWidth);
 		}else{
 			if(self.base.pointer - 1 < 0 ){
 				return false;
 			}
-
-			//slideTo(self.base, self.options, 'left', self.base.pointer--, self.base.containerWidth);
-			self.base.directionHint = 'left';
-			self.base.pointer--;
-			ImageHandler.lazyLoadImages(self.base, self.options);
-			Animator.animate(self.base, -self.base.containerWidth, self.options.duration, self.options.easing);
+			slideTo(self.base, self.options, 'left', (self.base.pointer - 1), -self.base.containerWidth);
 			}
 		}else if(typeof direction === 'number'){
 			var oldPointer = self.base.pointer;
-			self.base.pointer = direction;
 			if(self.base.pointer > oldPointer){
-				//slideTo(self.base, self.options, 'right', direction, parseInt(self.base.containerWidth * (self.base.pointer - oldPointer)));
-				self.base.directionHint = 'right';
-				ImageHandler.lazyLoadImages(self.base, self.options);
-				Animator.animate(self.base, parseInt(self.base.containerWidth * (self.base.pointer - oldPointer)), self.options.duration, self.options.easing);
+				slideTo(self.base, self.options, 'right', direction, parseInt(self.base.containerWidth * (direction - oldPointer)));
 			}else{
-				//slideTo(self.base, self.options, 'left', direction, -parseInt(self.base.containerWidth * (self.base.pointer - oldPointer)));
-				self.base.directionHint = 'left';
-				ImageHandler.lazyLoadImages(self.base, self.options);
-				Animator.animate(self.base, -parseInt(self.base.containerWidth * (oldPointer - self.base.pointer)), self.options.duration, self.options.easing);
+				slideTo(self.base, self.options, 'left', direction, -parseInt(self.base.containerWidth * (oldPointer - direction)));
 			}	
 		}
-
-		if(self.options.dots){
-	        EventHandler.updateDots(self.base);
-	    }
 
 	}
 	

@@ -228,9 +228,14 @@ function getReboundTime(space, speed){
 
 
 function slideTo(base, options, direction, newPointer, offset){
-	base.directionHint = direction;
+
 	base.pointer = newPointer;
+	base.directionHint = direction;
 	ImageHandler.lazyLoadImages(base, options);
 	Animator.animate(base, offset, options.duration, options.easing);
+
+	if(options.dots){
+	        EventHandler.updateDots(base);
+	    }
 }
 

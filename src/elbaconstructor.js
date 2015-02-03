@@ -17,9 +17,9 @@ if (typeof document.hidden !== 'undefined') { // Opera 12.10 and Firefox 18 and 
   visibilityChange = 'webkitvisibilitychange';
 }
 
-function init(context, el, settings){
+function Elba(el, settings){
 
-	var self = context;
+	var self = this;
 
 	var defaults = {
 		selector : '.elba',
@@ -117,7 +117,3 @@ function init(context, el, settings){
     self.loadImages();
 			
 }
-
-function Elba(el, settings){
-		init(this, el, settings);
-	}	
