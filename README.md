@@ -1,7 +1,7 @@
 elbajs
 ======
 
-This is a pure javascript slide-show gallery, dependendy-free, responsive, serving lazy loading images according to the screen size, hardware accelerated, retina ready, AMD ready, swipe/drag/touch enabled.
+This is a pure javascript slide-show gallery, dependency-free, responsive, serving lazy loading images according to the screen size, hardware accelerated, retina ready, AMD ready, swipe/drag/touch enabled.
 
 Inspired by many sources such as:
 - [bLazy](https://github.com/dinbror/blazy) <br>
