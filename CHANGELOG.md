@@ -1,5 +1,8 @@
 # Changelog
 
+##v 0.4.0 - January 2015
+- Adding swipeable/draggable capabilities
+
 ##v 0.3.2 - November 2014
 - Adding options for text in navigation arrows
 

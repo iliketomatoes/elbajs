@@ -1,4 +1,4 @@
-/*! elba - v0.4.0 - 2015-02-03
+/*! elba - v0.4.0 - 2015-02-05
 * https://github.com/iliketomatoes/elbajs
 * Copyright (c) 2015 ; Licensed  */
 ;(function(elba) {
@@ -1165,11 +1165,16 @@ Elba.prototype.bindEvents = function(){
 		cachedPosition,
 		startingPointer,
 		currentSlideWidth,
+		dragged = false,
 		tick = 0,
 		delta;
 
 	setListener(self.base.el, Toucher.touchEvents.start, function(e){
-	
+
+			if(self.base.animated) return false;
+
+			dragged = true;
+			self.clearSlideshow();
 			startingOffset = parseInt(Animator.offset(self.base.el));
 			cachedPosition = Toucher.onTouchStart(e);
 			currentSlideWidth = parseInt(self.base.containerWidth);
@@ -1180,7 +1185,7 @@ Elba.prototype.bindEvents = function(){
 
 			position = Toucher.onTouchMove(e);
 			
-			if(position){
+			if(position && dragged){
 
 				delta = position.currX - cachedPosition.cachedX;
 
@@ -1192,14 +1197,14 @@ Elba.prototype.bindEvents = function(){
 		});
 
 	setListener(self.base.el, Toucher.touchEvents.end, function(){
+
+			if(!dragged) return false;
 		
 			Toucher.onTouchEnd();
 
 			var offset = Math.abs(Math.abs((currentSlideWidth * self.base.pointer)) - Math.abs(Animator.offset(self.base.el)));
 
 			var duration = Math.floor(((currentSlideWidth - offset) * self.options.duration) / currentSlideWidth );
-			console.log(duration);
-			console.log(self.options.duration);
 
 			Animator.stopDragging();
 
@@ -1219,6 +1224,8 @@ Elba.prototype.bindEvents = function(){
 
 			delta = 0;
 			startingOffset = 0;
+			dragged = false;
+			self.startSlideshow();
 		});	
 
 	if(self.options.navigation){
@@ -1226,17 +1233,14 @@ Elba.prototype.bindEvents = function(){
 		self.base.navigation.left.addEventListener('click', function(ev) { 
 			ev.preventDefault();
 			self.goTo('left');
-			if(self.options.slideshow){
-				self.startSlideshow();
-			}
+			self.startSlideshow();
+		
 			}, false);
 
 		self.base.navigation.right.addEventListener('click', function(ev) { 
 			ev.preventDefault();
 			self.goTo('right');
-			if(self.options.slideshow){
-				self.startSlideshow();
-			}
+			self.startSlideshow();
 			}, false);
 	}
 
@@ -1253,9 +1257,8 @@ Elba.prototype.bindEvents = function(){
 				}else{
 					self.goTo(index);
 					}
-	    		if(self.options.slideshow){
-					self.startSlideshow();
-				}
+
+				self.startSlideshow();
 
 				return false;
     		};	
@@ -1336,24 +1339,27 @@ Elba.prototype.goTo = function(direction){
 */
 Elba.prototype.startSlideshow = function(){
 	var self = this;
-	if(self.base.slides.length > 1){
-		if(!!self.slideshow){
-		clearInterval(self.slideshow);
-	}	
-	self.slideshow = setInterval(function(){
-	
-		if(!isElementInViewport(self.base.container)){
-			return false;	
+
+	if(self.options.slideshow){
+		if(self.base.slides.length > 1){
+			if(!!self.slideshow){
+			clearInterval(self.slideshow);
+		}	
+		self.slideshow = setInterval(function(){
+			if(!isElementInViewport(self.base.container)){
+				return false;	
+			}
+
+			var nextSlide = self.base.slides[self.base.pointer + 1];
+
+			if(!!nextSlide){
+				self.goTo('right');
+			}
+		},self.options.slideshow);
+
 		}
-
-		var nextSlide = self.base.slides[self.base.pointer + 1];
-
-		if(!!nextSlide && (classie.has(nextSlide, self.options.successClass) || classie.has(nextSlide, self.options.errorClass))){
-			self.goTo('right');
-		}
-	},self.options.slideshow);
-
 	}
+	
 };
 
 /**

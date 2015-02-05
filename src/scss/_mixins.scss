@@ -35,11 +35,9 @@
 
 @mixin material-element{
 
-  @include border-radius(2px);
-
-  -webkit-box-shadow: 1px 0px 2px 0px rgba(50, 50, 50, 0.75);
-  -moz-box-shadow:    1px 0px 2px 0px rgba(50, 50, 50, 0.75);
-  box-shadow:         1px 0px 2px 0px rgba(50, 50, 50, 0.75);
+  -webkit-box-shadow: 1px 0px 2px 0px $shadow;
+  -moz-box-shadow:    1px 0px 2px 0px $shadow;
+  box-shadow:         1px 0px 2px 0px $shadow;
 
   &:active{
     -webkit-box-shadow: none;

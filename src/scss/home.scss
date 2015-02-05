@@ -93,6 +93,7 @@ h1,h2,h3,h4,h5,h6{
     }
 }
 
+/****** CUSTOM CAROUSEL ********/    
 
 .small-elba{
     position: relative;
@@ -100,7 +101,10 @@ h1,h2,h3,h4,h5,h6{
     height: 15em; 
 }
 
-/****** CUSTOM CAROUSEL ********/    
+#small-carousel-dot-ctr{
+    text-align: center;
+    margin-top: 1rem;
+}
 
 $number-width: 3.375rem;
 

@@ -14,16 +14,13 @@
     });
 
     var smallGallery = new Elba( document.getElementById('small-carousel'), {
-		slideshow: 0,
+		navigation: false,
         breakpoints: [{
 	          width: 561 // min-width
 			, src: 'data-src-medium'
 	     }],
 	     preload: 0,
-	     container: 'small-elba'
+	     container: 'small-elba',
+	     dotsContainer: 'small-carousel-dot-ctr'
     });
-
-    /*var test = setTimeout(function() {
-    	console.log(gallery.stopSlideshow());
-    }, 15000);*/
 })();

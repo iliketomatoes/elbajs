@@ -17,7 +17,7 @@
      }
 }
 
-.elba-carousel, .elba, .elba-island,.elba-content{
+.elba-carousel, .elba, .elba-island, .elba-content{
 	//@include transform(translate3d(0, 0, 0));
 	-webkit-backface-visibility: hidden;
 	-moz-backface-visibility: hidden;
@@ -29,6 +29,7 @@
 	-ms-perspective: 1000;
 	-o-perspective: 1000;
 	perspective: 1000;
+	@include no-select;
 }
 
 .elba-carousel{
@@ -59,8 +60,6 @@
 .elba-island{
 	position: absolute;
 	max-width: none;
-	//-webkit-transform: translate3d(0, 0, 0);
-	@include no-select;
 	@include single-transition(all, 300ms, ease-in-out);
 	opacity: 0;
 	
@@ -130,7 +129,7 @@
 	@include single-transition();
 	@include no-select;
 	@include material-element();
-	
+	@include border-radius(2px);
 }
 
 
@@ -186,6 +185,7 @@
 	background-color: $half-transparent;
 	@include single-transition(all, 300ms, ease-in-out);
 	@include material-element();
+	@include border-radius(12px);
 	cursor: pointer;
 
 	-moz-box-sizing: border-box;
