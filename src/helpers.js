@@ -210,18 +210,6 @@ function setListener(elm, events, callback) {
 	}
 }
 
-
-//http://stackoverflow.com/questions/7212102/detect-with-javascript-or-jquery-if-css-transform-2d-is-available
-function getSupportedTransform() {
-    var prefixes = 'transform WebkitTransform MozTransform OTransform msTransform'.split(' ');
-    for(var i = 0; i < prefixes.length; i++) {
-        if(document.createElement('div').style[prefixes[i]] !== undefined) {
-            return prefixes[i];
-        }
-    }
-    return false;
-}
-
 function getReboundTime(space, speed){
 	return Math.round((Math.abs(space) / speed) * 1000);
 }
@@ -240,4 +228,47 @@ function slideTo(base, options, direction, newPointer, offset, duration){
 	        EventHandler.updateDots(base);
 	    }
 }
+
+/* ==========================================================================
+   Checking CSS transform and animation capabilities
+   ========================================================================== */
+
+var testElement = document.createElement('div');
+
+//http://stackoverflow.com/questions/7212102/detect-with-javascript-or-jquery-if-css-transform-2d-is-available
+var getSupportedTransform = function() {
+    var prefixes = 'transform WebkitTransform MozTransform OTransform msTransform'.split(' ');
+    for(var i = 0; i < prefixes.length; i++) {
+        if(testElement.style[prefixes[i]] !== undefined) {
+            return prefixes[i];
+        }
+    }
+    return false;
+};
+
+var getAnimationCapability = function(){
+	var animation = false,
+    animationstring = 'animation',
+    keyframeprefix = '',
+    domPrefixes = 'Webkit Moz O ms Khtml'.split(' '),
+    pfx  = '';
+
+	if( testElement.style.animationName !== undefined ) { animation = true; }    
+
+	if( animation === false ) {
+	  for( var i = 0; i < domPrefixes.length; i++ ) {
+	    if( testElement.style[ domPrefixes[i] + 'AnimationName' ] !== undefined ) {
+	      pfx = domPrefixes[ i ];
+	      animationstring = pfx + 'Animation';
+	      keyframeprefix = '-' + pfx.toLowerCase() + '-';
+	      animation = true;
+	      break;
+	    }
+	  }
+	}
+
+	return animation;
+};
+
+
 

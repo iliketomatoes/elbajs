@@ -1,3 +1,12 @@
+ 	/*==========*/
+ 	//TODO
+ 	/*==========*/
+ 	if(getAnimationCapability()){
+ 		classie.add(document.documentElement, 'elba-animatable');
+ 	}else{
+ 		classie.add(document.documentElement, 'elba-not-animatable');
+ 	}
+
 	//Check the supported vendor prefix for transformations
 	var vendorTransform  =  getSupportedTransform();				    
 
