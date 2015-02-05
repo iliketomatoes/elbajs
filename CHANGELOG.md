@@ -1,6 +1,10 @@
 # Changelog
 
-##v 0.4.0 - January 2015
+##v 0.4.1 - January 2015, 5th
+- Fixing double-click right after dragging event conflict. 
+- Update CSS
+
+##v 0.4.0 - January 2015, 4th
 - Adding swipeable/draggable capabilities
 
 ##v 0.3.2 - November 2014
