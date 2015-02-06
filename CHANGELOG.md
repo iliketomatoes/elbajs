@@ -1,5 +1,8 @@
 # Changelog
 
+##v 0.4.2 - January 2015, 6th
+- Add zero element loader for modern browsers
+
 ##v 0.4.1 - January 2015, 5th
 - Fixing double-click right after dragging event conflict. 
 - Update CSS

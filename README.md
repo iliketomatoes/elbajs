@@ -3,6 +3,8 @@ elbajs
 
 This is a pure javascript slide-show gallery, dependency-free, responsive, serving lazy loading images according to the screen size, hardware accelerated, retina ready, AMD ready, swipe/drag/touch enabled.
 
+[Zero element loading](http://madebymike.com.au/writing/zero-element-loading-animations/) has been introduced since version 0.4.2. A fallback gif loader has been implemented for browsers which not support animations. 
+
 Inspired by many sources such as:
 - [bLazy](https://github.com/dinbror/blazy) <br>
 - [Superslides](https://github.com/nicinabox/superslides) <br>
@@ -184,11 +186,6 @@ Available options:
 ##BROWSER SUPPORT
 
 Not tested yet, but working on all modern browser, IE9+.
-
-##ROADMAP
-+ Better API
-+ Better touch events
-+ Better Tests
 
 ##LICENSE
 MIT

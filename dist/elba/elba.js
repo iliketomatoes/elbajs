@@ -1,4 +1,4 @@
-/*! elba - v0.4.1 - 2015-02-06
+/*! elba - v0.4.2 - 2015-02-06
 * https://github.com/iliketomatoes/elbajs
 * Copyright (c) 2015 ; Licensed  */
 ;(function(elba) {
