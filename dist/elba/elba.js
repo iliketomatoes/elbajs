@@ -1,4 +1,4 @@
-/*! elba - v0.4.1 - 2015-02-05
+/*! elba - v0.4.1 - 2015-02-06
 * https://github.com/iliketomatoes/elbajs
 * Copyright (c) 2015 ; Licensed  */
 ;(function(elba) {
@@ -651,7 +651,7 @@ var ImageHandler = {
 
 				self.setImageSize(base, elbaIsland);
 
-				classie.add(ele, 'no-bg-img');
+				classie.remove(ele, 'elba-loading');
 				classie.add(ele, options.successClass);
 
 				if(options.success) options.success(ele);
@@ -672,12 +672,13 @@ var ImageHandler = {
 							}
 					
 					if(!isElementLoaded(parentClone, options.successClass)){
+
 						elbaClone = parentClone.querySelector('.elba-island');
 
 						elbaClone.src = src;
 						self.setImageSize(base, elbaClone);
 						
-						classie.add(parentClone,'no-bg-img');
+						classie.remove(parentClone, 'elba-loading');
 						classie.add(parentClone,  options.successClass);
 					}
 					
@@ -902,8 +903,9 @@ var EventHandler = {
 		for(var i = 0; i < count; i++){
 				var slide = base.slides[i];
 	 			if(slide) {
-					classie.remove(slide,'no-bg-img');
-					classie.remove(slide,  options.successClass);
+				
+					classie.add(slide, 'elba-loading');
+					classie.remove(slide, options.successClass);
 	 			} 
 	 		}
 	},
@@ -1174,6 +1176,9 @@ function Elba(el, settings){
 
     }
 
+    //By calling destroy we are capable to add the .elba-loading class to each slide
+    EventHandler.destroy(self.base, self.options);
+
     self.bindEvents();
 
     self.loadImages();
@@ -1191,7 +1196,7 @@ Elba.prototype.loadImages = function(){
     ImageHandler.setSlidesWidth(self.base);
 
 	//Starting lazy load 
-	//ImageHandler.lazyLoadImages(self.base, self.options);
+	ImageHandler.lazyLoadImages(self.base, self.options);
 
 };
 

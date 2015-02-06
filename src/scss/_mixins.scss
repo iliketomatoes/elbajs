@@ -32,6 +32,19 @@
   user-select: none;
 }
 
+.standard-backface{
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  -ms-backface-visibility: hidden;
+  -o-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-perspective: 1000;
+  -moz-perspective: 1000;
+  -ms-perspective: 1000;
+  -o-perspective: 1000;
+  perspective: 1000;
+}
+
 
 @mixin material-element{
 
@@ -46,3 +59,85 @@
   }
 
 }
+
+@mixin transform($transforms) {
+     -moz-transform: $transforms;
+       -o-transform: $transforms;
+      -ms-transform: $transforms;
+  -webkit-transform: $transforms;
+          transform: $transforms;
+}
+
+@mixin loading($name){
+
+  &:before{
+    content:'';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 1;
+    width: 5.4rem;
+    height: 1.1rem;
+    margin-top: 0.5rem;
+    border-radius: 10px;
+    border: solid 0.1rem #DDDDDD;
+    //transform: translate(-50%, -50%);
+    @include transform(translate(-50%, -50%));
+    @extend .standard-backface;
+  }
+
+  &:after{
+    content:'';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0.8rem;
+    height: 0.8rem;
+    margin-top: 0.5rem;
+    z-index: 2;
+    border-radius: 50%;
+    background: rgba($elba, 0.6);
+    @include animation('load-animation 1s ease-in-out 0s infinite alternate');
+    @extend .standard-backface;
+  }
+
+ 
+}
+
+
+
+@mixin keyframes($animation-name) {
+  @-webkit-keyframes $animation-name {
+    @content;
+  }
+  @-moz-keyframes $animation-name {
+    @content;
+  }  
+  @-ms-keyframes $animation-name {
+    @content;
+  }
+  @-o-keyframes $animation-name {
+    @content;
+  }  
+  @keyframes $animation-name {
+    @content;
+  }
+}
+
+@mixin animation($str) {
+  -webkit-animation: #{$str};
+  -moz-animation: #{$str};
+  -ms-animation: #{$str};
+  -o-animation: #{$str};
+  animation: #{$str};      
+}
+
+ 
+@include keyframes(load-animation) {
+  //0% { transform: translate(-2.5rem, -0.4rem); }
+  //100% { transform: translate(1.7rem, -0.4rem); }
+  0% {  @include transform(translate(-2.5rem, -0.4rem)); }
+  100% {  @include transform(translate(1.7rem, -0.4rem));}
+}
+ 
+ 

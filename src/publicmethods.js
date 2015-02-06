@@ -14,7 +14,7 @@ Elba.prototype.loadImages = function(){
     ImageHandler.setSlidesWidth(self.base);
 
 	//Starting lazy load 
-	//ImageHandler.lazyLoadImages(self.base, self.options);
+	ImageHandler.lazyLoadImages(self.base, self.options);
 
 };
 

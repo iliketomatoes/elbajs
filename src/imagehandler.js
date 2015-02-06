@@ -110,7 +110,7 @@ var ImageHandler = {
 
 				self.setImageSize(base, elbaIsland);
 
-				classie.add(ele, 'no-bg-img');
+				classie.remove(ele, 'elba-loading');
 				classie.add(ele, options.successClass);
 
 				if(options.success) options.success(ele);
@@ -131,12 +131,13 @@ var ImageHandler = {
 							}
 					
 					if(!isElementLoaded(parentClone, options.successClass)){
+
 						elbaClone = parentClone.querySelector('.elba-island');
 
 						elbaClone.src = src;
 						self.setImageSize(base, elbaClone);
 						
-						classie.add(parentClone,'no-bg-img');
+						classie.remove(parentClone, 'elba-loading');
 						classie.add(parentClone,  options.successClass);
 					}
 					

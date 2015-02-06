@@ -1,5 +1,92 @@
 @import url(http://fonts.googleapis.com/css?family=Rufina:400,700);
 /*! HTML5 Boilerplate v4.3.0 | MIT License | http://h5bp.com/ */
+.standard-backface {
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  -ms-backface-visibility: hidden;
+  -o-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-perspective: 1000;
+  -moz-perspective: 1000;
+  -ms-perspective: 1000;
+  -o-perspective: 1000;
+  perspective: 1000; }
+
+@-webkit-keyframes load-animation {
+  0% {
+    -moz-transform: translate(-2.5rem, -0.4rem);
+    -o-transform: translate(-2.5rem, -0.4rem);
+    -ms-transform: translate(-2.5rem, -0.4rem);
+    -webkit-transform: translate(-2.5rem, -0.4rem);
+    transform: translate(-2.5rem, -0.4rem); }
+
+  100% {
+    -moz-transform: translate(1.7rem, -0.4rem);
+    -o-transform: translate(1.7rem, -0.4rem);
+    -ms-transform: translate(1.7rem, -0.4rem);
+    -webkit-transform: translate(1.7rem, -0.4rem);
+    transform: translate(1.7rem, -0.4rem); } }
+
+@-moz-keyframes load-animation {
+  0% {
+    -moz-transform: translate(-2.5rem, -0.4rem);
+    -o-transform: translate(-2.5rem, -0.4rem);
+    -ms-transform: translate(-2.5rem, -0.4rem);
+    -webkit-transform: translate(-2.5rem, -0.4rem);
+    transform: translate(-2.5rem, -0.4rem); }
+
+  100% {
+    -moz-transform: translate(1.7rem, -0.4rem);
+    -o-transform: translate(1.7rem, -0.4rem);
+    -ms-transform: translate(1.7rem, -0.4rem);
+    -webkit-transform: translate(1.7rem, -0.4rem);
+    transform: translate(1.7rem, -0.4rem); } }
+
+@-ms-keyframes load-animation {
+  0% {
+    -moz-transform: translate(-2.5rem, -0.4rem);
+    -o-transform: translate(-2.5rem, -0.4rem);
+    -ms-transform: translate(-2.5rem, -0.4rem);
+    -webkit-transform: translate(-2.5rem, -0.4rem);
+    transform: translate(-2.5rem, -0.4rem); }
+
+  100% {
+    -moz-transform: translate(1.7rem, -0.4rem);
+    -o-transform: translate(1.7rem, -0.4rem);
+    -ms-transform: translate(1.7rem, -0.4rem);
+    -webkit-transform: translate(1.7rem, -0.4rem);
+    transform: translate(1.7rem, -0.4rem); } }
+
+@-o-keyframes load-animation {
+  0% {
+    -moz-transform: translate(-2.5rem, -0.4rem);
+    -o-transform: translate(-2.5rem, -0.4rem);
+    -ms-transform: translate(-2.5rem, -0.4rem);
+    -webkit-transform: translate(-2.5rem, -0.4rem);
+    transform: translate(-2.5rem, -0.4rem); }
+
+  100% {
+    -moz-transform: translate(1.7rem, -0.4rem);
+    -o-transform: translate(1.7rem, -0.4rem);
+    -ms-transform: translate(1.7rem, -0.4rem);
+    -webkit-transform: translate(1.7rem, -0.4rem);
+    transform: translate(1.7rem, -0.4rem); } }
+
+@keyframes load-animation {
+  0% {
+    -moz-transform: translate(-2.5rem, -0.4rem);
+    -o-transform: translate(-2.5rem, -0.4rem);
+    -ms-transform: translate(-2.5rem, -0.4rem);
+    -webkit-transform: translate(-2.5rem, -0.4rem);
+    transform: translate(-2.5rem, -0.4rem); }
+
+  100% {
+    -moz-transform: translate(1.7rem, -0.4rem);
+    -o-transform: translate(1.7rem, -0.4rem);
+    -ms-transform: translate(1.7rem, -0.4rem);
+    -webkit-transform: translate(1.7rem, -0.4rem);
+    transform: translate(1.7rem, -0.4rem); } }
+
 body, html {
   width: 100%;
   height: 100%;

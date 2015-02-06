@@ -41,8 +41,9 @@ var EventHandler = {
 		for(var i = 0; i < count; i++){
 				var slide = base.slides[i];
 	 			if(slide) {
-					classie.remove(slide,'no-bg-img');
-					classie.remove(slide,  options.successClass);
+				
+					classie.add(slide, 'elba-loading');
+					classie.remove(slide, options.successClass);
 	 			} 
 	 		}
 	},

@@ -109,6 +109,9 @@ function Elba(el, settings){
 
     }
 
+    //By calling destroy we are capable to add the .elba-loading class to each slide
+    EventHandler.destroy(self.base, self.options);
+
     self.bindEvents();
 
     self.loadImages();
