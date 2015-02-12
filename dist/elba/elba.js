@@ -1,4 +1,4 @@
-/*! elba - v0.4.3 - 2015-02-12
+/*! elba - v0.4.4 - 2015-02-12
 * https://github.com/iliketomatoes/elbajs
 * Copyright (c) 2015 ; Licensed  */
 ;(function(elba) {
@@ -1056,6 +1056,8 @@ var EventHandler = {
 			//We just want horizontal movements
 			if(Math.abs(self.points.cachedY - self.points.currY) >= Math.abs(self.points.cachedX - self.points.currX)) return false;
 		
+			e.preventDefault();	
+
 			return self.points;
 		}
 	};
