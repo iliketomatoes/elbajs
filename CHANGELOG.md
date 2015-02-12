@@ -1,5 +1,8 @@
 # Changelog
 
+##v 0.4.3 - January 2015, 12th
+- Fix single-picture gallery bugs
+
 ##v 0.4.2 - January 2015, 6th
 - Add zero element loader for modern browsers
 

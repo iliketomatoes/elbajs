@@ -31,7 +31,9 @@ Elba.prototype.bindEvents = function(){
 		tick = 0,
 		delta;
 
-	setListener(self.base.el, Toucher.touchEvents.start, function(e){
+	if(self.base.count > 1){
+		//Bind touch events
+		setListener(self.base.el, Toucher.touchEvents.start, function(e){
 
 			if(self.base.animated) return false;
 
@@ -89,8 +91,9 @@ Elba.prototype.bindEvents = function(){
 			dragged = false;
 			self.startSlideshow();
 		});	
+	}	
 
-	if(self.options.navigation){
+	if(self.options.navigation && self.base.navigation.left && self.base.navigation.right){
 		//Attach events to the navigation arrows
 		self.base.navigation.left.addEventListener('click', function(ev) { 
 			ev.preventDefault();
@@ -107,7 +110,7 @@ Elba.prototype.bindEvents = function(){
 	}
 
 	//Setting up dots events
-    if(self.options.dots){
+    if(self.options.dots && self.base.navigation.dots){
 
     	var dotHandler = function(i){
 

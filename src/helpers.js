@@ -124,7 +124,7 @@ function extend( a, b ) {
 
 function getContainerWidth(container){
     if(typeof container !== 'undefined' && container){
-        return container.offsetWidth;
+        return container.clientWidth;
     }else{
         return window.innerWidth || document.documentElement.clientWidth;
     }
@@ -132,7 +132,7 @@ function getContainerWidth(container){
 
 function getContainerHeight(container){
     if(typeof container !== 'undefined' && container){
-        return container.offsetHeight;
+        return container.clientHeight;
     }else{
         return window.innerHeight || document.documentElement.clientHeight;
     }

@@ -169,7 +169,7 @@
 .elba-island {
   position: absolute;
   max-width: none;
-  transition: all 300ms ease-in-out;
+  transition: opacity 300ms ease-in-out;
   opacity: 0; }
 
 .elba-loaded .elba-island, .elba-loaded .elba-content {

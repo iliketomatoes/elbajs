@@ -1,4 +1,4 @@
-/*! elba - v0.4.2 - 2015-02-06
+/*! elba - v0.4.3 - 2015-02-12
 * https://github.com/iliketomatoes/elbajs
 * Copyright (c) 2015 ; Licensed  */
 ;(function(elba) {
@@ -142,7 +142,7 @@ function extend( a, b ) {
 
 function getContainerWidth(container){
     if(typeof container !== 'undefined' && container){
-        return container.offsetWidth;
+        return container.clientWidth;
     }else{
         return window.innerWidth || document.documentElement.clientWidth;
     }
@@ -150,7 +150,7 @@ function getContainerWidth(container){
 
 function getContainerHeight(container){
     if(typeof container !== 'undefined' && container){
-        return container.offsetHeight;
+        return container.clientHeight;
     }else{
         return window.innerHeight || document.documentElement.clientHeight;
     }
@@ -1213,7 +1213,9 @@ Elba.prototype.bindEvents = function(){
 		tick = 0,
 		delta;
 
-	setListener(self.base.el, Toucher.touchEvents.start, function(e){
+	if(self.base.count > 1){
+		//Bind touch events
+		setListener(self.base.el, Toucher.touchEvents.start, function(e){
 
 			if(self.base.animated) return false;
 
@@ -1271,8 +1273,9 @@ Elba.prototype.bindEvents = function(){
 			dragged = false;
 			self.startSlideshow();
 		});	
+	}	
 
-	if(self.options.navigation){
+	if(self.options.navigation && self.base.navigation.left && self.base.navigation.right){
 		//Attach events to the navigation arrows
 		self.base.navigation.left.addEventListener('click', function(ev) { 
 			ev.preventDefault();
@@ -1289,7 +1292,7 @@ Elba.prototype.bindEvents = function(){
 	}
 
 	//Setting up dots events
-    if(self.options.dots){
+    if(self.options.dots && self.base.navigation.dots){
 
     	var dotHandler = function(i){
 
