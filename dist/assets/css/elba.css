@@ -99,6 +99,7 @@
   box-sizing: border-box; }
 
 .elba-carousel, .elba, .elba-island, .elba-content {
+  -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -124,7 +125,14 @@
   margin: 0;
   padding: 0;
   border: none;
-  overflow: hidden; }
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none; }
   .elba *, .elba :before, .elba :after {
     box-sizing: border-box; }
 
@@ -169,7 +177,7 @@
 .elba-island {
   position: absolute;
   max-width: none;
-  transition: opacity 300ms ease-in-out;
+  transition: opacity 500ms ease-out;
   opacity: 0; }
 
 .elba-loaded .elba-island, .elba-loaded .elba-content {
@@ -189,6 +197,7 @@
   text-indent: 0;
   opacity: 0;
   color: #000;
+  -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -205,6 +214,7 @@
   color: #000;
   background-color: rgba(255, 255, 255, 0.9);
   line-height: 1;
+  -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -228,6 +238,7 @@
   line-height: 0;
   color: #fff;
   transition: all 300ms ease-out;
+  -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;

@@ -1056,6 +1056,8 @@ var EventHandler = {
 			//We just want horizontal movements
 			if(Math.abs(self.points.cachedY - self.points.currY) >= Math.abs(self.points.cachedX - self.points.currX)) return false;
 		
+			e.preventDefault();	
+
 			return self.points;
 		}
 	};

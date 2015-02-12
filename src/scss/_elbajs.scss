@@ -43,6 +43,7 @@
 		padding: 0;
 		border: none;
 		overflow: hidden;
+		@include no-select;
 		*,:before,:after{
   			box-sizing: border-box;
 		}
@@ -61,9 +62,8 @@
 .elba-island{
 	position: absolute;
 	max-width: none;
-	@include single-transition(opacity, 300ms, ease-in-out);
+	@include single-transition(opacity, 500ms, ease-out);
 	opacity: 0;
-	
 }
 
 .elba-loaded{
