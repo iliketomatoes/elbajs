@@ -1,5 +1,8 @@
 # Changelog
 
+##v 0.4.4 - January 2015, 12th
+- Fix touch events for images without captions
+
 ##v 0.4.3 - January 2015, 12th
 - Fix single-picture gallery bugs
 
