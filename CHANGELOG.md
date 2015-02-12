@@ -1,5 +1,8 @@
 # Changelog
 
+##v 0.4.5 - January 2015, 12th
+- Fix touch behavior on Mozilla FF
+
 ##v 0.4.4 - January 2015, 12th
 - Fix touch events for images without captions
 

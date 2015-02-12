@@ -23,9 +23,9 @@
         </div>
         <figure id="carousel" class="elba-carousel">
             <figure class="elba" data-src="dist/assets/img/small/elba-3.jpg" data-src-medium="dist/assets/img/medium/elba-3.jpg" data-src-large="dist/assets/img/large/elba-3.jpg">
-               <figcaption class="elba-content">
+                <figcaption class="elba-content">
                     <div class="elba-number">1</div>                   
-                </figcaption>   
+                </figcaption>    
             </figure>
             <figure class="elba" data-src="dist/assets/img/small/elba-2.jpg" data-src-medium="dist/assets/img/medium/elba-2.jpg" data-src-large="dist/assets/img/large/elba-2.jpg">
                 <figcaption class="elba-content">

@@ -1,4 +1,4 @@
-/*! elba - v0.4.4 - 2015-02-12
+/*! elba - v0.4.5 - 2015-02-12
 * https://github.com/iliketomatoes/elbajs
 * Copyright (c) 2015 ; Licensed  */
 ;(function(elba) {
@@ -1011,9 +1011,12 @@ var EventHandler = {
 			var self = this;
 
 			if(self.touchStarted === true) return false;
+
+			//e.preventDefault();
 			
 			var	pointer = self.getPointerEvent(e);
 
+			console.log(pointer);
 			// caching the current x
 			self.points.cachedX = self.points.currX = pointer.pageX;
 			// caching the current y

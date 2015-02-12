@@ -64,6 +64,7 @@
 	max-width: none;
 	@include single-transition(opacity, 500ms, ease-out);
 	opacity: 0;
+	z-index: -1;
 }
 
 .elba-loaded{

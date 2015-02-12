@@ -178,7 +178,8 @@
   position: absolute;
   max-width: none;
   transition: opacity 500ms ease-out;
-  opacity: 0; }
+  opacity: 0;
+  z-index: -1; }
 
 .elba-loaded .elba-island, .elba-loaded .elba-content {
   opacity: 1; }
