@@ -68,11 +68,11 @@
 		
 		dragged : null,
 
-		getAnimationCurve : function(duration, easeing){
+		getAnimationCurve : function(duration, easeing, epsilon){
 			var self = this,
-				epsilon = (1000 / 60 / duration) / 4;
+				_e = epsilon || 0.2;
 
-			return getBezier(easeing, epsilon);
+			return getBezier(easeing, _e);
 			},
 
 		actualAnimation : function(base, offset, duration, animationCurve, startingOffset){
@@ -152,7 +152,7 @@
 				}
 			},
 
-		animate : function(base, offset, duration, easeing){
+		animate : function(base, offset, duration, easeing, epsilon){
 
 			var self = this,
 				easeingVar = easeing || self.easeing;
@@ -162,7 +162,7 @@
 			if(base.animated) return false;
 			base.animated = true;
 
-			var animationCurve = self.getAnimationCurve(duration, actualEaseing);
+			var animationCurve = self.getAnimationCurve(duration, actualEaseing, epsilon);
 
 			self.actualAnimation(base, offset, duration, animationCurve, self.offset(base.el));
 
@@ -218,6 +218,7 @@
 	    };
 
 	  	return function(t){
+
 	    	var x = t, t0, t1, t2, x2, d2, i;
 
 		    // First try a few iterations of Newton's method -- normally very fast.

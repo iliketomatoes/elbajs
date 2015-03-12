@@ -1,4 +1,4 @@
-/*! elba - v0.4.5 - 2015-02-12
+/*! elba - v0.4.6 - 2015-03-12
 * https://github.com/iliketomatoes/elbajs
 * Copyright (c) 2015 ; Licensed  */
 ;(function(elba) {
@@ -240,7 +240,7 @@ function slideTo(base, options, direction, newPointer, offset, duration){
 	base.pointer = newPointer;
 	base.directionHint = direction;
 	ImageHandler.lazyLoadImages(base, options);
-	Animator.animate(base, offset, options.duration, options.easing);
+	Animator.animate(base, offset, options.duration, options.easing, options.epsilon);
 
 	if(options.dots){
 	        EventHandler.updateDots(base);
@@ -360,11 +360,11 @@ var getAnimationCapability = function(){
 		
 		dragged : null,
 
-		getAnimationCurve : function(duration, easeing){
+		getAnimationCurve : function(duration, easeing, epsilon){
 			var self = this,
-				epsilon = (1000 / 60 / duration) / 4;
+				_e = epsilon || 0.2;
 
-			return getBezier(easeing, epsilon);
+			return getBezier(easeing, _e);
 			},
 
 		actualAnimation : function(base, offset, duration, animationCurve, startingOffset){
@@ -444,7 +444,7 @@ var getAnimationCapability = function(){
 				}
 			},
 
-		animate : function(base, offset, duration, easeing){
+		animate : function(base, offset, duration, easeing, epsilon){
 
 			var self = this,
 				easeingVar = easeing || self.easeing;
@@ -454,7 +454,7 @@ var getAnimationCapability = function(){
 			if(base.animated) return false;
 			base.animated = true;
 
-			var animationCurve = self.getAnimationCurve(duration, actualEaseing);
+			var animationCurve = self.getAnimationCurve(duration, actualEaseing, epsilon);
 
 			self.actualAnimation(base, offset, duration, animationCurve, self.offset(base.el));
 
@@ -510,6 +510,7 @@ var getAnimationCapability = function(){
 	    };
 
 	  	return function(t){
+
 	    	var x = t, t0, t1, t2, x2, d2, i;
 
 		    // First try a few iterations of Newton's method -- normally very fast.
@@ -1011,12 +1012,9 @@ var EventHandler = {
 			var self = this;
 
 			if(self.touchStarted === true) return false;
-
-			//e.preventDefault();
 			
 			var	pointer = self.getPointerEvent(e);
 
-			console.log(pointer);
 			// caching the current x
 			self.points.cachedX = self.points.currX = pointer.pageX;
 			// caching the current y
@@ -1110,7 +1108,8 @@ function Elba(el, settings){
 		dotsContainer: false, 
 		slideshow : 5000,
 		preload : 1,
-		swipeThreshold : 60
+		swipeThreshold : 60,
+		epsilon : 0.2
 	};	
 
 	if(typeof el === 'undefined') {

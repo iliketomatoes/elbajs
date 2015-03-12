@@ -105,7 +105,8 @@ Available options:
 | dotsContainer    | Append the dots to a custom HTML element by passing its ID      | Boolean/String |		false  |
 | slideshow        | Interval between any slide. Set 0 to disable slideshow. Expressed in milliseconds      |  Number | 10000		  |		
 |preload 		   | Number of pictures you want to load after the visible one has been loaded | Number | 1 |
-|swipeThreshold		   | The swiping threshold expressed in pixels. | Number | 60 | 
+|swipeThreshold		   | The swiping threshold expressed in pixels. | Number | 60 |
+|epsilon		   | The epsilon factor for the Bezier curve ( 0.01 <= epsilon <= 1 ). A smaller epsilon gives you an emphasized easing, a higher epsilon gives you a smoother easing.  | Number | 0.2 |  
 	
 
 ###List of predefined easings

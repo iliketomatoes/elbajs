@@ -2,7 +2,7 @@
 	var gallery = new Elba( document.getElementById('carousel'), {
 		slideshow: false,
 		duration : 700,
-		easing: 'easeOutCubic',
+		//easing: 'easeOutCubic',
         breakpoints: [{
 	          width: 768 // min-width
 			, src: 'data-src-medium'

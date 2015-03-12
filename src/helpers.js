@@ -222,7 +222,7 @@ function slideTo(base, options, direction, newPointer, offset, duration){
 	base.pointer = newPointer;
 	base.directionHint = direction;
 	ImageHandler.lazyLoadImages(base, options);
-	Animator.animate(base, offset, options.duration, options.easing);
+	Animator.animate(base, offset, options.duration, options.easing, options.epsilon);
 
 	if(options.dots){
 	        EventHandler.updateDots(base);

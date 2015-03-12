@@ -38,7 +38,8 @@ function Elba(el, settings){
 		dotsContainer: false, 
 		slideshow : 5000,
 		preload : 1,
-		swipeThreshold : 60
+		swipeThreshold : 60,
+		epsilon : 0.2
 	};	
 
 	if(typeof el === 'undefined') {
