@@ -1,5 +1,11 @@
 # Changelog
 
+##v 0.4.7 - March 2015, 18th
+- Fix isElementInViewport bug 
+
+##v 0.4.6 - March 2015, 12th
+- Update epsilon for Bezier curves
+
 ##v 0.4.5 - January 2015, 12th
 - Fix touch behavior on Mozilla FF
 
