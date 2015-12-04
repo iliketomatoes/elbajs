@@ -21,8 +21,8 @@ module.exports = function(grunt) {
       dist: {
         src: [
               'src/intro.js',
-              'src/helpers.js',
-              'src/animator.js',
+              'src/utils.js',
+              'src/player.js',
               'src/imagehandler.js',
               'src/elbabuilder.js',
               'src/eventhandler.js',
