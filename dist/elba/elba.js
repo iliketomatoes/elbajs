@@ -52,18 +52,6 @@ var Utils = {
         return a;
     },
 
-    //http://stackoverflow.com/questions/7212102/detect-with-javascript-or-jquery-if-css-transform-2d-is-available
-    getSupportedTransform: (function() {
-        var testElement = document.createElement('div');
-        var prefixes = 'transform WebkitTransform MozTransform OTransform msTransform'.split(' ');
-        for (var i = 0; i < prefixes.length; i++) {
-            if (testElement.style[prefixes[i]] !== undefined) {
-                return prefixes[i];
-            }
-        }
-        return false;
-    })(),
-
     /**
      * Determine if an element is in the viewport
      * @param {HTMLElement} el
@@ -100,15 +88,73 @@ var Utils = {
         while (el.firstChild) {
             el.removeChild(el.firstChild);
         }
+    },
+
+    intVal: function(x){
+        if(x){
+            return parseInt(x, 10);
+        }else{
+            return 0;
+        }
     }
 };
 
+var testElement = document.createElement('div');
+//http://stackoverflow.com/questions/7212102/detect-with-javascript-or-jquery-if-css-transform-2d-is-available
+var vendorTransform = (function() {   
+    var prefixes = 'transform WebkitTransform webkitTransform MozTransform OTransform msTransform'.split(' ');
+    for (var i = 0; i < prefixes.length; i++) {
+        if (testElement.style[prefixes[i]] !== undefined) {
+            return prefixes[i];
+        }
+    }
+    return false;
+})();
+
+var vendorTransition = (function() {
+    var prefixes = 'transition WebkitTransition webkitTransition MozTransition OTransition'.split(' ');
+    for (var i = 0; i < prefixes.length; i++) {
+        if (testElement.style[prefixes[i]] !== undefined) {
+            return prefixes[i];
+        }
+    }
+    return false;
+})();
+
+// http://stackoverflow.com/questions/15622466/how-do-i-get-the-absolute-value-of-translate3d
+function getTransform(el) {
+    var transform = window.getComputedStyle(el, null).getPropertyValue(vendorTransform);
+    var results = transform.match(/matrix(?:(3d)\(-{0,1}\d+(?:, -{0,1}\d+)*(?:, (-{0,1}\d+))(?:, (-{0,1}\d+))(?:, (-{0,1}\d+)), -{0,1}\d+\)|\(-{0,1}\d+(?:, -{0,1}\d+)*(?:, (-{0,1}.+))(?:, (-{0,1}.+))\))/);
+
+    if(!results) return [0, 0, 0];
+    if(results[1] == '3d') return results.slice(2,5);
+
+    results.push(0);
+    return results.slice(5, 8); // returns the [X,Y,Z,1] values
+}
+
+var rAF = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+    window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+
+var cAF = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
+
 var Player = {
     goToNext: function(carousel) {
-        console.log('go to next');
+        this.animate(carousel, 100);
     },
     goToPrevious: function(carousel) {
-        console.log('go to previous');
+        this.animate(carousel, -100);
+    },
+    animate: function(carousel, offset){
+    	var slider = this.getSlider(carousel);
+    	this.move(slider, offset);
+    },
+    move: function(slider, offset) {
+    	console.log(Utils.intVal(getTransform(slider)));
+    	rAF(function(){
+    		slider.style[vendorTransition] = vendorTransform + ' 1s';
+    		slider.style[vendorTransform] = 'translate3d('+ offset +'%,0,0)';
+    	});
     }
 };
 
@@ -271,6 +317,10 @@ Elba.getInstance = function(id) {
     return Instances[id];
 };
 
+Elba.getSlider = function(carousel) {
+    return carousel.el.querySelector('.elba-slider');
+};
+
 Elba.init = function(elements, settings) {
 
     if (typeof elements === 'undefined') {
@@ -288,7 +338,7 @@ Elba.init = function(elements, settings) {
         // Call method inherited from ElbaBuilder
         this.build(carousel);
     }
-    
+
     // Call method inherited from EventHandler
     this.bindEvents();
     return this;
@@ -297,15 +347,15 @@ Elba.init = function(elements, settings) {
 Elba.next = function(carouselId) {
     // If an ID is defined we get the single carousel.
     // Otherwise we move all the instances
-    var carousel = this.getInstance(carouselId) || Instances;
+    var target = this.getInstance(carouselId) || Instances;
 
-    if (carousel instanceof Carousel) {
+    if (target instanceof Carousel) {
         //TODO, animate single carousel
-        this.goToNext(carousel);
+        this.goToNext(target);
     } else {
-        for (var instance in carousel) {
+        for (var i in target) {
             //TODO, animate single carousel
-            this.goToNext(carousel);
+            this.goToNext(target[i]);
         }
     }
 };
@@ -313,15 +363,15 @@ Elba.next = function(carouselId) {
 Elba.previous = function(carouselId) {
     // If an ID is defined we get the single carousel.
     // Otherwise we move all the instances
-    var carousel = this.getInstance(carouselId) || Instances;
+    var target = this.getInstance(carouselId) || Instances;
 
-    if (carousel instanceof Carousel) {
+    if (target instanceof Carousel) {
         //TODO, animate single carousel
-        this.goToPrevious(carousel);
+        this.goToPrevious(target);
     } else {
-        for (var instance in carousel) {
+        for (var i in target) {
             //TODO, animate single carousel
-            this.goToPrevious(carousel);
+            this.goToPrevious(target[i]);
         }
     }
 };
@@ -360,6 +410,7 @@ function Carousel(el, settings) {
         right: null,
         dots: null
     };
+    this.elWidth = 0;
     //Init the pointer to the visible slide
     this.pointer = 0;
     //Hint for the direction to load

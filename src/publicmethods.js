@@ -1,15 +1,15 @@
 Elba.next = function(carouselId) {
     // If an ID is defined we get the single carousel.
     // Otherwise we move all the instances
-    var carousel = this.getInstance(carouselId) || Instances;
+    var target = this.getInstance(carouselId) || Instances;
 
-    if (carousel instanceof Carousel) {
+    if (target instanceof Carousel) {
         //TODO, animate single carousel
-        this.goToNext(carousel);
+        this.goToNext(target);
     } else {
-        for (var instance in carousel) {
+        for (var i in target) {
             //TODO, animate single carousel
-            this.goToNext(carousel);
+            this.goToNext(target[i]);
         }
     }
 };
@@ -17,15 +17,15 @@ Elba.next = function(carouselId) {
 Elba.previous = function(carouselId) {
     // If an ID is defined we get the single carousel.
     // Otherwise we move all the instances
-    var carousel = this.getInstance(carouselId) || Instances;
+    var target = this.getInstance(carouselId) || Instances;
 
-    if (carousel instanceof Carousel) {
+    if (target instanceof Carousel) {
         //TODO, animate single carousel
-        this.goToPrevious(carousel);
+        this.goToPrevious(target);
     } else {
-        for (var instance in carousel) {
+        for (var i in target) {
             //TODO, animate single carousel
-            this.goToPrevious(carousel);
+            this.goToPrevious(target[i]);
         }
     }
 };

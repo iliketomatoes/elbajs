@@ -4,6 +4,10 @@ Elba.getInstance = function(id) {
     return Instances[id];
 };
 
+Elba.getSlider = function(carousel) {
+    return carousel.el.querySelector('.elba-slider');
+};
+
 Elba.init = function(elements, settings) {
 
     if (typeof elements === 'undefined') {
@@ -21,7 +25,7 @@ Elba.init = function(elements, settings) {
         // Call method inherited from ElbaBuilder
         this.build(carousel);
     }
-    
+
     // Call method inherited from EventHandler
     this.bindEvents();
     return this;

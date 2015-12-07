@@ -27,18 +27,6 @@ var Utils = {
         return a;
     },
 
-    //http://stackoverflow.com/questions/7212102/detect-with-javascript-or-jquery-if-css-transform-2d-is-available
-    getSupportedTransform: (function() {
-        var testElement = document.createElement('div');
-        var prefixes = 'transform WebkitTransform MozTransform OTransform msTransform'.split(' ');
-        for (var i = 0; i < prefixes.length; i++) {
-            if (testElement.style[prefixes[i]] !== undefined) {
-                return prefixes[i];
-            }
-        }
-        return false;
-    })(),
-
     /**
      * Determine if an element is in the viewport
      * @param {HTMLElement} el
@@ -74,6 +62,14 @@ var Utils = {
     removeChildren: function(el) {
         while (el.firstChild) {
             el.removeChild(el.firstChild);
+        }
+    },
+
+    intVal: function(x){
+        if(x){
+            return parseInt(x, 10);
+        }else{
+            return 0;
         }
     }
 };

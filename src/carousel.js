@@ -32,6 +32,7 @@ function Carousel(el, settings) {
         right: null,
         dots: null
     };
+    this.elWidth = 0;
     //Init the pointer to the visible slide
     this.pointer = 0;
     //Hint for the direction to load
