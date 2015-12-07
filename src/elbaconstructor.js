@@ -1,14 +1,27 @@
 var Elba = Object.create(Toucher);
 
-Elba.setup = function() {
-    console.log(Utils.getSupportedTransform);
-    // Call method from ElbaBuilder
-    this.build();
+Elba.setup = function(elements) {
+
+    var htmlArray = Utils.makeArray(elements);
+
+    for (var i = 0; i < htmlArray.length; i++) {
+        GUID++;
+        var carousel = new Carousel();
+        htmlArray[i].setAttribute('data-elba-id', GUID);
+        Instances[GUID] = carousel;
+
+        carousel.el = htmlArray[i];
+        // Call method inherited from ElbaBuilder
+        this.build(carousel);
+    }
+    // Call method inherited from EventHandler
+    this.bindEvents();
+    return this;
 };
 
-Elba.init = function(el, settings) {
+Elba.init = function(elements, settings) {
 
-    if (typeof el === 'undefined') {
+    if (typeof elements === 'undefined') {
         throw new Error();
     }
 
@@ -35,29 +48,5 @@ Elba.init = function(el, settings) {
     //Overwrite the default options
     this.settings = Utils.extend(defaults, settings);
 
-    this.el = el;
-    this.container = null;
-    this.containerWidth = 0;
-    this.slides = [];
-    this.wrapper = null;
-    this.count = 0;
-    this.source = 0;
-    this.navigation = {
-        left: null,
-        right: null,
-        dots: null
-    };
-    //Init the pointer to the visible slide
-    this.pointer = 0;
-    //Hint for the direction to load
-    this.directionHint = 'right';
-    this.resizeTimeout = null;
-    this.animated = false;
-
-    this.setup();
-    return this;
-};
-
-Elba.identify = function() {
-    return "I am " + this.el;
+    return this.setup(elements);
 };

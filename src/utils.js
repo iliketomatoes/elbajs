@@ -53,5 +53,27 @@ var Utils = {
             rect.bottom >= 0 &&
             rect.bottom <= (window.innerHeight || document.documentElement.clientHeight)
         );
+    },
+
+    makeArray: function(arrayLikeObject) {
+        return Array.prototype.slice.call(arrayLikeObject);
+    },
+
+    getCloneNodes: function(nodes) {
+        var tmp = [];
+
+        if (!nodes) return tmp;
+
+        for (var i = 0; i < nodes.length; i++) {
+            var clone = nodes[i].cloneNode(true);
+            tmp.push(clone);
+        }
+        return tmp;
+    },
+
+    removeChildren: function(el) {
+        while (el.firstChild) {
+            el.removeChild(el.firstChild);
+        }
     }
 };

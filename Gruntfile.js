@@ -29,6 +29,7 @@ module.exports = function(grunt) {
               'src/toucher.js',
               'src/elbaconstructor.js',
               'src/publicmethods.js',
+              'src/carousel.js',
               'src/outro.js'
              ],
         dest: 'dist/<%= pkg.name %>/<%= pkg.name %>.js'

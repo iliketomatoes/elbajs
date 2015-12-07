@@ -1,0 +1,3 @@
+Elba.goTo = function(direction){
+	
+};

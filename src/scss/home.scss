@@ -115,7 +115,7 @@ $number-width: 3.375rem;
     height: $number-width;
     text-align: center;
     padding-top: 1rem;
-    color: $elba;
+    color: #FFF;
     background-color: $half-transparent;
     
     font-weight: bold;
@@ -126,10 +126,6 @@ $number-width: 3.375rem;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
 }
-
-
-
-
 
 .elba-banner{
     position: absolute;

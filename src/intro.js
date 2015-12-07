@@ -13,3 +13,9 @@
 })(window, function() {
 
         'use strict';
+
+        // Global unique id
+        var GUID = 0;
+
+        // Object storing carousel instances
+        var Instances = {};
