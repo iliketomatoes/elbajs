@@ -76,9 +76,10 @@ ElbaBuilder.setupNavigation = function(carousel, direction) {
 
     var arrow = document.createElement('a');
     arrow.className = 'elba-' + direction + '-nav';
+    arrow.setAttribute('data-elba-id', carousel.GUID);
 
     if (direction === 'left') {
-
+    	
         var svgLeft = document.createElementNS(svgURI, 'svg');
         // SVG attributes, like viewBox, are camelCased. That threw me for a loop
         svgLeft.setAttribute('viewBox', '0 0 100 100');

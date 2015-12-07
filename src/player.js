@@ -1,6 +1,8 @@
 var Player = {
-	getElement: function(){
-		return this.el;
-	}
+    goToNext: function(carousel) {
+        console.log('go to next');
+    },
+    goToPrevious: function(carousel) {
+        console.log('go to previous');
+    }
 };
-

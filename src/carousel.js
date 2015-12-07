@@ -1,4 +1,28 @@
-function Carousel(el) {
+function Carousel(el, settings) {
+
+	var defaults = {
+        selector: '.elba',
+        separator: '|',
+        breakpoints: false,
+        successClass: 'elba-loaded',
+        errorClass: 'elba-error',
+        container: 'elba-wrapper',
+        src: 'data-src',
+        error: false,
+        success: false,
+        duration: 700,
+        easing: 'easeInOutSine',
+        navigation: true,
+        dots: true,
+        dotsContainer: false,
+        slideshow: 8000,
+        preload: 1,
+        swipeThreshold: 60,
+    };
+
+    //Overwrite the default options
+    this.settings = Utils.extend(defaults, settings);
+
 	this.el = el;
     this.slides = [];
     this.count = 0;

@@ -104,11 +104,13 @@ var Utils = {
 };
 
 var Player = {
-	getElement: function(){
-		return this.el;
-	}
+    goToNext: function(carousel) {
+        console.log('go to next');
+    },
+    goToPrevious: function(carousel) {
+        console.log('go to previous');
+    }
 };
-
 
 var ImageHandler = Object.create(Player);
 
@@ -194,9 +196,10 @@ ElbaBuilder.setupNavigation = function(carousel, direction) {
 
     var arrow = document.createElement('a');
     arrow.className = 'elba-' + direction + '-nav';
+    arrow.setAttribute('data-elba-id', carousel.GUID);
 
     if (direction === 'left') {
-
+    	
         var svgLeft = document.createElementNS(svgURI, 'svg');
         // SVG attributes, like viewBox, are camelCased. That threw me for a loop
         svgLeft.setAttribute('viewBox', '0 0 100 100');
@@ -233,30 +236,39 @@ ElbaBuilder.setupNavigation = function(carousel, direction) {
 
 var EventHandler = Object.create(ElbaBuilder);
 
-EventHandler.bindEvents = function(){
-	console.log('events binding');
+EventHandler.bindEvents = function() {
+
+    for (var i in Instances) {
+        if (Instances.hasOwnProperty(i)) {
+
+            var carousel = Instances[i];
+
+            if (carousel.settings.navigation) {
+
+                this.addNavigationEvents(carousel);
+
+            }
+
+        }
+    }
+
+};
+
+EventHandler.addNavigationEvents = function(carousel) {
+    carousel.navigation.left.addEventListener('click', function(e) {
+        Elba.previous(carousel.GUID);
+    }, false);
+
+    carousel.navigation.right.addEventListener('click', function(e) {
+        Elba.next(carousel.GUID);
+    }, false);
 };
 
 var Toucher = Object.create(EventHandler);
 var Elba = Object.create(Toucher);
 
-Elba.setup = function(elements) {
-
-    var htmlArray = Utils.makeArray(elements);
-
-    for (var i = 0; i < htmlArray.length; i++) {
-        GUID++;
-        var carousel = new Carousel();
-        htmlArray[i].setAttribute('data-elba-id', GUID);
-        Instances[GUID] = carousel;
-
-        carousel.el = htmlArray[i];
-        // Call method inherited from ElbaBuilder
-        this.build(carousel);
-    }
-    // Call method inherited from EventHandler
-    this.bindEvents();
-    return this;
+Elba.getInstance = function(id) {
+    return Instances[id];
 };
 
 Elba.init = function(elements, settings) {
@@ -265,7 +277,58 @@ Elba.init = function(elements, settings) {
         throw new Error();
     }
 
-    var defaults = {
+    var htmlArray = Utils.makeArray(elements);
+
+    for (var i = 0; i < htmlArray.length; i++) {
+        GUID++;
+        var carousel = new Carousel(htmlArray[i], settings);
+        htmlArray[i].setAttribute('data-elba-id', GUID);
+        Instances[GUID] = carousel;
+        carousel.GUID = GUID;
+        // Call method inherited from ElbaBuilder
+        this.build(carousel);
+    }
+    
+    // Call method inherited from EventHandler
+    this.bindEvents();
+    return this;
+};
+
+Elba.next = function(carouselId) {
+    // If an ID is defined we get the single carousel.
+    // Otherwise we move all the instances
+    var carousel = this.getInstance(carouselId) || Instances;
+
+    if (carousel instanceof Carousel) {
+        //TODO, animate single carousel
+        this.goToNext(carousel);
+    } else {
+        for (var instance in carousel) {
+            //TODO, animate single carousel
+            this.goToNext(carousel);
+        }
+    }
+};
+
+Elba.previous = function(carouselId) {
+    // If an ID is defined we get the single carousel.
+    // Otherwise we move all the instances
+    var carousel = this.getInstance(carouselId) || Instances;
+
+    if (carousel instanceof Carousel) {
+        //TODO, animate single carousel
+        this.goToPrevious(carousel);
+    } else {
+        for (var instance in carousel) {
+            //TODO, animate single carousel
+            this.goToPrevious(carousel);
+        }
+    }
+};
+
+function Carousel(el, settings) {
+
+	var defaults = {
         selector: '.elba',
         separator: '|',
         breakpoints: false,
@@ -288,13 +351,6 @@ Elba.init = function(elements, settings) {
     //Overwrite the default options
     this.settings = Utils.extend(defaults, settings);
 
-    return this.setup(elements);
-};
-
-Elba.goTo = function(direction){
-	
-};
-function Carousel(el) {
 	this.el = el;
     this.slides = [];
     this.count = 0;
