@@ -7,7 +7,7 @@ ElbaBuilder.build = function(carousel) {
     this.setSlidesOffset(slides);
 
     carousel.count = slides.length;
-    carousel.pointer = 1;
+    //carousel.pointer = 1;
 
     this.setupNavigation(carousel, 'right');
     this.setupNavigation(carousel, 'left');

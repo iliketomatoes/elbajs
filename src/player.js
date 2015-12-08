@@ -1,6 +1,6 @@
 var testElement = document.createElement('div');
 //http://stackoverflow.com/questions/7212102/detect-with-javascript-or-jquery-if-css-transform-2d-is-available
-var vendorTransform = (function() {   
+var vendorTransform = (function() {
     var prefixes = 'transform WebkitTransform webkitTransform MozTransform OTransform msTransform'.split(' ');
     for (var i = 0; i < prefixes.length; i++) {
         if (testElement.style[prefixes[i]] !== undefined) {
@@ -25,8 +25,8 @@ function getTransform(el) {
     var transform = window.getComputedStyle(el, null).getPropertyValue(vendorTransform);
     var results = transform.match(/matrix(?:(3d)\(-{0,1}\d+(?:, -{0,1}\d+)*(?:, (-{0,1}\d+))(?:, (-{0,1}\d+))(?:, (-{0,1}\d+)), -{0,1}\d+\)|\(-{0,1}\d+(?:, -{0,1}\d+)*(?:, (-{0,1}.+))(?:, (-{0,1}.+))\))/);
 
-    if(!results) return [0, 0, 0];
-    if(results[1] == '3d') return results.slice(2,5);
+    if (!results) return [0, 0, 0];
+    if (results[1] == '3d') return results.slice(2, 5);
 
     results.push(0);
     return results.slice(5, 8); // returns the [X,Y,Z,1] values
@@ -39,20 +39,25 @@ var cAF = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 
 var Player = {
     goToNext: function(carousel) {
-        this.animate(carousel, 100);
+        var offset = (-carousel.pointer - 1) * 100;
+        carousel.pointer += 1;
+        this.animate(carousel, offset);
     },
     goToPrevious: function(carousel) {
-        this.animate(carousel, -100);
+        var offset = (-(carousel.pointer - 1)) * 100;
+        carousel.pointer -= 1;
+        this.animate(carousel, offset);
     },
-    animate: function(carousel, offset){
-    	var slider = this.getSlider(carousel);
-    	this.move(slider, offset);
+    animate: function(carousel, offset) {
+        // Call method inherited from Elba
+        var slider = this.getSlider(carousel);
+        this.move(slider, offset);
     },
     move: function(slider, offset) {
-    	console.log(Utils.intVal(getTransform(slider)));
-    	rAF(function(){
-    		slider.style[vendorTransition] = vendorTransform + ' 1s';
-    		slider.style[vendorTransform] = 'translate3d('+ offset +'%,0,0)';
-    	});
+        //console.log(Utils.intVal(getTransform(slider)));
+        rAF(function() {
+            slider.style[vendorTransition] = vendorTransform + ' 0.8s';
+            slider.style[vendorTransform] = 'translate3d(' + offset + '%,0,0)';
+        });
     }
 };
