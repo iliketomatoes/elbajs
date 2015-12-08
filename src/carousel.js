@@ -1,4 +1,4 @@
-function Carousel(el, settings) {
+function Carousel(settings) {
 
 	var defaults = {
         selector: '.elba',
@@ -23,7 +23,8 @@ function Carousel(el, settings) {
     //Overwrite the default options
     this.settings = Utils.extend(defaults, settings);
 
-	this.el = el;
+	//this.el = el;
+    this.slider = null;
     this.slides = [];
     this.count = 0;
     this.source = 0;

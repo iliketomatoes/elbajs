@@ -41,21 +41,17 @@ var Player = {
     goToNext: function(carousel) {
         var offset = (-carousel.pointer - 1) * 100;
         carousel.pointer += 1;
-        this.animate(carousel, offset);
+        this.slide(carousel.slider, offset);
     },
     goToPrevious: function(carousel) {
         var offset = (-(carousel.pointer - 1)) * 100;
         carousel.pointer -= 1;
-        this.animate(carousel, offset);
+        this.slide(carousel.slider, offset);
     },
-    animate: function(carousel, offset) {
-        // Call method inherited from Elba
-        var slider = this.getSlider(carousel);
-        this.move(slider, offset);
-    },
-    move: function(slider, offset) {
+    slide: function(slider, offset) {
         //console.log(Utils.intVal(getTransform(slider)));
         rAF(function() {
+            console.log('animation frame requested');
             slider.style[vendorTransition] = vendorTransform + ' 0.8s';
             slider.style[vendorTransform] = 'translate3d(' + offset + '%,0,0)';
         });

@@ -142,21 +142,17 @@ var Player = {
     goToNext: function(carousel) {
         var offset = (-carousel.pointer - 1) * 100;
         carousel.pointer += 1;
-        this.animate(carousel, offset);
+        this.slide(carousel.slider, offset);
     },
     goToPrevious: function(carousel) {
         var offset = (-(carousel.pointer - 1)) * 100;
         carousel.pointer -= 1;
-        this.animate(carousel, offset);
+        this.slide(carousel.slider, offset);
     },
-    animate: function(carousel, offset) {
-        // Call method inherited from Elba
-        var slider = this.getSlider(carousel);
-        this.move(slider, offset);
-    },
-    move: function(slider, offset) {
+    slide: function(slider, offset) {
         //console.log(Utils.intVal(getTransform(slider)));
         rAF(function() {
+            console.log('animation frame requested');
             slider.style[vendorTransition] = vendorTransform + ' 0.8s';
             slider.style[vendorTransform] = 'translate3d(' + offset + '%,0,0)';
         });
@@ -171,18 +167,19 @@ ImageHandler.loadImages = function() {
 
 var ElbaBuilder = Object.create(ImageHandler);
 
-ElbaBuilder.build = function(carousel) {
+ElbaBuilder.build = function(el, carousel) {
     // Set viewport and slider
-    var slides = this.setLayout(carousel.el);
+    var slides = this.setLayout(el);
 
     this.setSlidesOffset(slides);
 
     carousel.count = slides.length;
-    //carousel.pointer = 1;
 
-    this.setupNavigation(carousel, 'right');
-    this.setupNavigation(carousel, 'left');
+    this.setupNavigation(el, carousel, 'right');
+    this.setupNavigation(el, carousel, 'left');
 
+    carousel.slider = this.getSlider(el);
+    carousel.slider.setAttribute('data-elba-id', carousel.GUID);
 };
 
 ElbaBuilder.setLayout = function(el) {
@@ -240,7 +237,7 @@ ElbaBuilder.setSlidesOffset = function(slides) {
  * @param {Carousel} carousel
  * @param {String} direction
  */
-ElbaBuilder.setupNavigation = function(carousel, direction) {
+ElbaBuilder.setupNavigation = function(el, carousel, direction) {
 
     // create svg
     var svgURI = 'http://www.w3.org/2000/svg';
@@ -250,7 +247,7 @@ ElbaBuilder.setupNavigation = function(carousel, direction) {
     arrow.setAttribute('data-elba-id', carousel.GUID);
 
     if (direction === 'left') {
-    	
+
         var svgLeft = document.createElementNS(svgURI, 'svg');
         // SVG attributes, like viewBox, are camelCased. That threw me for a loop
         svgLeft.setAttribute('viewBox', '0 0 100 100');
@@ -282,7 +279,11 @@ ElbaBuilder.setupNavigation = function(carousel, direction) {
     }
 
     carousel.navigation[direction] = arrow;
-    carousel.el.appendChild(carousel.navigation[direction]);
+    el.appendChild(carousel.navigation[direction]);
+};
+
+ElbaBuilder.getSlider = function(el) {
+    return el.querySelector('.elba-slider');
 };
 
 var EventHandler = Object.create(ElbaBuilder);
@@ -322,10 +323,6 @@ Elba.getInstance = function(id) {
     return Instances[id];
 };
 
-Elba.getSlider = function(carousel) {
-    return carousel.el.querySelector('.elba-slider');
-};
-
 Elba.init = function(elements, settings) {
 
     if (typeof elements === 'undefined') {
@@ -336,12 +333,12 @@ Elba.init = function(elements, settings) {
 
     for (var i = 0; i < htmlArray.length; i++) {
         GUID++;
-        var carousel = new Carousel(htmlArray[i], settings);
+        var carousel = new Carousel(settings);
         htmlArray[i].setAttribute('data-elba-id', GUID);
         Instances[GUID] = carousel;
         carousel.GUID = GUID;
         // Call method inherited from ElbaBuilder
-        this.build(carousel);
+        this.build(htmlArray[i], carousel);
     }
 
     // Call method inherited from EventHandler
@@ -377,7 +374,7 @@ Elba.previous = function(carouselId) {
     }
 };
 
-function Carousel(el, settings) {
+function Carousel(settings) {
 
 	var defaults = {
         selector: '.elba',
@@ -402,7 +399,8 @@ function Carousel(el, settings) {
     //Overwrite the default options
     this.settings = Utils.extend(defaults, settings);
 
-	this.el = el;
+	//this.el = el;
+    this.slider = null;
     this.slides = [];
     this.count = 0;
     this.source = 0;

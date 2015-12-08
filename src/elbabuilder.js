@@ -1,17 +1,18 @@
 var ElbaBuilder = Object.create(ImageHandler);
 
-ElbaBuilder.build = function(carousel) {
+ElbaBuilder.build = function(el, carousel) {
     // Set viewport and slider
-    var slides = this.setLayout(carousel.el);
+    var slides = this.setLayout(el);
 
     this.setSlidesOffset(slides);
 
     carousel.count = slides.length;
-    //carousel.pointer = 1;
 
-    this.setupNavigation(carousel, 'right');
-    this.setupNavigation(carousel, 'left');
+    this.setupNavigation(el, carousel, 'right');
+    this.setupNavigation(el, carousel, 'left');
 
+    carousel.slider = this.getSlider(el);
+    carousel.slider.setAttribute('data-elba-id', carousel.GUID);
 };
 
 ElbaBuilder.setLayout = function(el) {
@@ -69,7 +70,7 @@ ElbaBuilder.setSlidesOffset = function(slides) {
  * @param {Carousel} carousel
  * @param {String} direction
  */
-ElbaBuilder.setupNavigation = function(carousel, direction) {
+ElbaBuilder.setupNavigation = function(el, carousel, direction) {
 
     // create svg
     var svgURI = 'http://www.w3.org/2000/svg';
@@ -79,7 +80,7 @@ ElbaBuilder.setupNavigation = function(carousel, direction) {
     arrow.setAttribute('data-elba-id', carousel.GUID);
 
     if (direction === 'left') {
-    	
+
         var svgLeft = document.createElementNS(svgURI, 'svg');
         // SVG attributes, like viewBox, are camelCased. That threw me for a loop
         svgLeft.setAttribute('viewBox', '0 0 100 100');
@@ -111,5 +112,9 @@ ElbaBuilder.setupNavigation = function(carousel, direction) {
     }
 
     carousel.navigation[direction] = arrow;
-    carousel.el.appendChild(carousel.navigation[direction]);
+    el.appendChild(carousel.navigation[direction]);
+};
+
+ElbaBuilder.getSlider = function(el) {
+    return el.querySelector('.elba-slider');
 };
