@@ -1,5 +1,6 @@
-var ImageHandler = Object.create(Player);
+var ImageHandler = Object.create(ComponentInterface);
 
 ImageHandler.loadImages = function() {
-    return 'ciao';
+	// TODO
+    return this;
 };

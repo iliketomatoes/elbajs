@@ -19,3 +19,9 @@
 
         // Object storing carousel instances
         var Instances = {};
+
+        var ComponentInterface = {
+            logEl: function(){
+                console.log(this);
+            }
+        };

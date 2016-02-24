@@ -1,6 +1,7 @@
-var ElbaBuilder = Object.create(ImageHandler);
+var ElbaBuilder = Object.create(ComponentInterface);
 
 ElbaBuilder.build = function(el, carousel) {
+    
     // Set viewport and slider
     var slides = this.setLayout(el);
 
@@ -118,3 +119,9 @@ ElbaBuilder.setupNavigation = function(el, carousel, direction) {
 ElbaBuilder.getSlider = function(el) {
     return el.querySelector('.elba-slider');
 };
+
+ElbaBuilder.testMethod = function() {
+    return this;
+};
+
+ElbaBuilder.testProperty = 'Test Property it me';

@@ -1,6 +1,6 @@
-/*! elba - v0.5.0 - 2015-12-08
+/*! elba - v0.5.0 - 2016-02-24
 * https://github.com/iliketomatoes/elbajs
-* Copyright (c) 2015 ; Licensed  */
+* Copyright (c) 2016 ; Licensed  */
 (function(window, elba) {
 
     'use strict';
@@ -22,6 +22,12 @@
 
         // Object storing carousel instances
         var Instances = {};
+
+        var ComponentInterface = {
+            logEl: function(){
+                console.log(this);
+            }
+        };
 
 var isRetina = window.devicePixelRatio > 1;
 
@@ -159,15 +165,17 @@ var Player = {
     }
 };
 
-var ImageHandler = Object.create(Player);
+var ImageHandler = Object.create(ComponentInterface);
 
 ImageHandler.loadImages = function() {
-    return 'ciao';
+	// TODO
+    return this;
 };
 
-var ElbaBuilder = Object.create(ImageHandler);
+var ElbaBuilder = Object.create(ComponentInterface);
 
 ElbaBuilder.build = function(el, carousel) {
+    
     // Set viewport and slider
     var slides = this.setLayout(el);
 
@@ -286,6 +294,12 @@ ElbaBuilder.getSlider = function(el) {
     return el.querySelector('.elba-slider');
 };
 
+ElbaBuilder.testMethod = function() {
+    return this;
+};
+
+ElbaBuilder.testProperty = 'Test Property it me';
+
 var EventHandler = Object.create(ElbaBuilder);
 
 EventHandler.bindEvents = function() {
@@ -317,34 +331,95 @@ EventHandler.addNavigationEvents = function(carousel) {
 };
 
 var Toucher = Object.create(EventHandler);
-var Elba = Object.create(Toucher);
+function componentFactory(selector, settings, GUID) {
 
-Elba.getInstance = function(id) {
-    return Instances[id];
-};
+    return function(component) {
+        var obj = Object.create(component, {
+            selector: { writable: false, configurable: false, value: selector },
+            settings: { writable: false, configurable: false, value: settings },
+            GUID: { writable: false, configurable: false, value: GUID },
+            el: {
+                get: function() {
+                    var selector = '';
+                    if (this.selector.indexOf('#') > -1) {
+                        selector = this.selector.slice(1);
+                    }
+                    if (!Instances[selector]) {
+                        Instances[selector] = {};
+                        Instances[selector].el = document.getElementById(selector);
+                    }
+                    return Instances[selector];
+                },
+                set: function(selector) {}
+            }
+        });
+        return obj;
+    };
+}
 
-Elba.init = function(elements, settings) {
+function Elba(selector, settings) {
 
-    if (typeof elements === 'undefined') {
-        throw new Error();
+    var _defaults = {
+        selector: '.elba',
+        separator: '|',
+        breakpoints: false,
+        successClass: 'elba-loaded',
+        errorClass: 'elba-error',
+        src: 'data-src',
+        error: false,
+        success: false,
+        duration: 700,
+        easing: 'easeInOutSine',
+        navigation: true,
+        dots: true,
+        dotsContainer: false,
+        slideshow: 8000,
+        preload: 1,
+        swipeThreshold: 60,
+    };
+
+    //Overwrite the default options
+    this.settings = Utils.extend(_defaults, settings);
+
+    //this.el = el;
+    this.slider = null;
+    this.slides = [];
+    this.count = 0;
+    this.source = 0;
+    this.navigation = {
+        left: null,
+        right: null,
+        dots: null
+    };
+
+    //Init the pointer to the visible slide
+    this.pointer = 0;
+
+    //Hint for the direction to load
+    this.directionHint = 'right';
+    this.resizeTimeout = null;
+    this.animated = false;
+
+
+    try {
+
+        if (typeof selector === 'undefined') {
+            throw new Error('The first argument passed to the constructor is undefined');
+        }
+
+        var createComponent = componentFactory(selector, this.settings, ++GUID);
+
+        var _elbaBuilder = createComponent(ElbaBuilder);
+        var _imageHandler = createComponent(ImageHandler);
+        var _eventHandler = createComponent(EventHandler);
+
+        //_elbaBuilder.$(selector).testMethod();
+        _imageHandler.loadImages().logEl();
+
+    } catch (err) {
+        console.error(err.message);
     }
-
-    var htmlArray = Utils.makeArray(elements);
-
-    for (var i = 0; i < htmlArray.length; i++) {
-        GUID++;
-        var carousel = new Carousel(settings);
-        htmlArray[i].setAttribute('data-elba-id', GUID);
-        Instances[GUID] = carousel;
-        carousel.GUID = GUID;
-        // Call method inherited from ElbaBuilder
-        this.build(htmlArray[i], carousel);
-    }
-
-    // Call method inherited from EventHandler
-    this.bindEvents();
-    return this;
-};
+}
 
 Elba.next = function(carouselId) {
     // If an ID is defined we get the single carousel.
@@ -373,50 +448,6 @@ Elba.previous = function(carouselId) {
         }
     }
 };
-
-function Carousel(settings) {
-
-	var defaults = {
-        selector: '.elba',
-        separator: '|',
-        breakpoints: false,
-        successClass: 'elba-loaded',
-        errorClass: 'elba-error',
-        container: 'elba-wrapper',
-        src: 'data-src',
-        error: false,
-        success: false,
-        duration: 700,
-        easing: 'easeInOutSine',
-        navigation: true,
-        dots: true,
-        dotsContainer: false,
-        slideshow: 8000,
-        preload: 1,
-        swipeThreshold: 60,
-    };
-
-    //Overwrite the default options
-    this.settings = Utils.extend(defaults, settings);
-
-	//this.el = el;
-    this.slider = null;
-    this.slides = [];
-    this.count = 0;
-    this.source = 0;
-    this.navigation = {
-        left: null,
-        right: null,
-        dots: null
-    };
-    this.elWidth = 0;
-    //Init the pointer to the visible slide
-    this.pointer = 0;
-    //Hint for the direction to load
-    this.directionHint = 'right';
-    this.resizeTimeout = null;
-    this.animated = false;
-}
 
 return Elba;
 });
