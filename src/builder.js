@@ -1,22 +1,15 @@
-var ElbaBuilder = Object.create(ComponentInterface);
+Slider.prototype.build = function() {
 
-ElbaBuilder.build = function(el, carousel) {
-    
     // Set viewport and slider
-    var slides = this.setLayout(el);
+    this.setLayout();
 
-    this.setSlidesOffset(slides);
+    this.count = this.getSlidesLength();
 
-    carousel.count = slides.length;
+    this.setNavigation();
 
-    this.setupNavigation(el, carousel, 'right');
-    this.setupNavigation(el, carousel, 'left');
-
-    carousel.slider = this.getSlider(el);
-    carousel.slider.setAttribute('data-elba-id', carousel.GUID);
 };
 
-ElbaBuilder.setLayout = function(el) {
+Slider.prototype.setLayout = function() {
 
     var d = document.createDocumentFragment();
 
@@ -33,15 +26,9 @@ ElbaBuilder.setLayout = function(el) {
     viewport.appendChild(slider);
 
     // Get slides elements
-    var cloneNodes = Utils.getCloneNodes(el.children);
+    var cloneNodes = Utils.getCloneNodes(this.el.children);
 
     if (cloneNodes) {
-
-        // Clone last element in first position, due to the infinite carousel
-        cloneNodes.unshift(cloneNodes[cloneNodes.length - 1].cloneNode(true));
-
-        // Clone head in last position, due to the infinite carousel 
-        cloneNodes.push(cloneNodes[1].cloneNode(true));
 
         for (var i = 0; i < cloneNodes.length; i++) {
             slider.appendChild(cloneNodes[i]);
@@ -49,16 +36,17 @@ ElbaBuilder.setLayout = function(el) {
     }
 
     // Remove the original, unwrapped, slides
-    Utils.removeChildren(el);
+    Utils.removeChildren(this.el);
 
-    el.appendChild(d);
+    this.setSlidesOffset(cloneNodes);
 
-    return cloneNodes;
+    this.el.appendChild(d);
+
 };
 
-ElbaBuilder.setSlidesOffset = function(slides) {
+Slider.prototype.setSlidesOffset = function(slides) {
 
-    var start = -100;
+    var start = 0;
 
     for (var i = 0; i < slides.length; i++) {
         slides[i].style.left = start + '%';
@@ -66,19 +54,24 @@ ElbaBuilder.setSlidesOffset = function(slides) {
     }
 };
 
+Slider.prototype.setNavigation = function() {
+    if (this.settings.navigation && this.count > 1) {
+        this.setArrow('right');
+        this.setArrow('left');
+    }
+};
+
 /**
- * Set up arrows for the navigation
- * @param {Carousel} carousel
+ * Set arrows for the navigation
  * @param {String} direction
  */
-ElbaBuilder.setupNavigation = function(el, carousel, direction) {
+Slider.prototype.setArrow = function(direction) {
 
     // create svg
     var svgURI = 'http://www.w3.org/2000/svg';
 
     var arrow = document.createElement('a');
     arrow.className = 'elba-' + direction + '-nav';
-    arrow.setAttribute('data-elba-id', carousel.GUID);
 
     if (direction === 'left') {
 
@@ -112,16 +105,5 @@ ElbaBuilder.setupNavigation = function(el, carousel, direction) {
         arrow.appendChild(svgRight);
     }
 
-    carousel.navigation[direction] = arrow;
-    el.appendChild(carousel.navigation[direction]);
+    this.el.appendChild(arrow);
 };
-
-ElbaBuilder.getSlider = function(el) {
-    return el.querySelector('.elba-slider');
-};
-
-ElbaBuilder.testMethod = function() {
-    return this;
-};
-
-ElbaBuilder.testProperty = 'Test Property it me';

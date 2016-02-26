@@ -22,13 +22,13 @@ module.exports = function(grunt) {
         src: [
               'src/intro.js',
               'src/utils.js',
-              'src/player.js',
-              'src/imagehandler.js',
-              'src/elbabuilder.js',
-              'src/eventhandler.js',
+              'src/slider.js',
+              'src/builder.js',
+              'src/images.js',
               'src/toucher.js',
+              'src/player.js',
+              'src/proxy.js',
               'src/elba.js',
-              'src/publicmethods.js',
               'src/outro.js'
              ],
         dest: 'dist/<%= pkg.name %>/<%= pkg.name %>.js'

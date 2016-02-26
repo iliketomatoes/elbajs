@@ -1,1 +1,0 @@
-var Toucher = Object.create(EventHandler);

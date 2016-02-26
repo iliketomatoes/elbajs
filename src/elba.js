@@ -1,30 +1,4 @@
-function componentFactory(selector, settings, GUID) {
-
-    return function(component) {
-        var obj = Object.create(component, {
-            selector: { writable: false, configurable: false, value: selector },
-            settings: { writable: false, configurable: false, value: settings },
-            GUID: { writable: false, configurable: false, value: GUID },
-            el: {
-                get: function() {
-                    var selector = '';
-                    if (this.selector.indexOf('#') > -1) {
-                        selector = this.selector.slice(1);
-                    }
-                    if (!Instances[selector]) {
-                        Instances[selector] = {};
-                        Instances[selector].el = document.getElementById(selector);
-                    }
-                    return Instances[selector];
-                },
-                set: function(selector) {}
-            }
-        });
-        return obj;
-    };
-}
-
-function Elba(selector, settings) {
+var Elba = (function() {
 
     var _defaults = {
         selector: '.elba',
@@ -45,45 +19,33 @@ function Elba(selector, settings) {
         swipeThreshold: 60,
     };
 
-    //Overwrite the default options
-    this.settings = Utils.extend(_defaults, settings);
-
-    //this.el = el;
-    this.slider = null;
-    this.slides = [];
-    this.count = 0;
-    this.source = 0;
-    this.navigation = {
-        left: null,
-        right: null,
-        dots: null
+    var _createInstance = function(el, GUID, options) {
+        return new Slider(el, GUID, options);
     };
 
-    //Init the pointer to the visible slide
-    this.pointer = 0;
+    return {
+        init: function(selector, options) {
 
-    //Hint for the direction to load
-    this.directionHint = 'right';
-    this.resizeTimeout = null;
-    this.animated = false;
+            // Extend default options
+            var settings = Utils.extend(_defaults, options);
 
+            var publicProxy = Object.create(ElbaProxy, {
+                instances: {
+                    enumerable: true,
+                    configurable: false,
+                    writable: true,
+                    value: []
+                }
+            });
 
-    try {
+            if (selector.indexOf('#') > -1) {
+                var target = selector.slice(1);
+                var GUID = Utils.generateGUID();
+                Instances[GUID] = _createInstance(document.getElementById(target), GUID, settings);
+                publicProxy.instances.push(GUID);
+            }
 
-        if (typeof selector === 'undefined') {
-            throw new Error('The first argument passed to the constructor is undefined');
+            return publicProxy;
         }
-
-        var createComponent = componentFactory(selector, this.settings, ++GUID);
-
-        var _elbaBuilder = createComponent(ElbaBuilder);
-        var _imageHandler = createComponent(ImageHandler);
-        var _eventHandler = createComponent(EventHandler);
-
-        //_elbaBuilder.$(selector).testMethod();
-        _imageHandler.loadImages().logEl();
-
-    } catch (err) {
-        console.error(err.message);
-    }
-}
+    };
+})();

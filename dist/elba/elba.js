@@ -1,4 +1,4 @@
-/*! elba - v0.5.0 - 2016-02-24
+/*! elba - v0.5.0 - 2016-02-26
 * https://github.com/iliketomatoes/elbajs
 * Copyright (c) 2016 ; Licensed  */
 (function(window, elba) {
@@ -17,17 +17,8 @@
 
         'use strict';
 
-        // Global unique id
-        var GUID = 0;
-
-        // Object storing carousel instances
+        // Object storing slider instances
         var Instances = {};
-
-        var ComponentInterface = {
-            logEl: function(){
-                console.log(this);
-            }
-        };
 
 var isRetina = window.devicePixelRatio > 1;
 
@@ -102,8 +93,182 @@ var Utils = {
         }else{
             return 0;
         }
+    },
+
+    generateGUID: function(){
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+            return v.toString(16);
+        });
     }
 };
+
+function Slider(el, GUID, settings) {
+
+    this.el = el;
+    this.settings = settings;
+    this.GUID = GUID;
+
+    this.count = 0;
+    this.source = 0;
+
+    //Init the pointer to the visible slide
+    this.pointer = 0;
+
+    //Hint for the direction to load
+    this.directionHint = 'right';
+    this.resizeTimeout = null;
+    this.animated = false;
+
+    try {
+
+        if (typeof el === 'undefined') {
+            throw new Error('The first argument passed to the constructor is undefined');
+        }
+
+        this.build();
+
+    } catch (err) {
+        console.error(err.message);
+    }
+}
+
+Slider.prototype.getSlider = function() {
+    return this.el.querySelector('.elba-slider');
+};
+
+Slider.prototype.getSlides = function() {
+    return this.el.querySelectorAll('.elba');
+};
+
+Slider.prototype.getSlidesLength = function() {
+    return this.getSlides().length;
+};
+
+Slider.prototype.next = function() {
+    // TODO
+};
+
+Slider.prototype.previous = function() {
+    // TODO
+};
+
+Slider.prototype.build = function() {
+
+    // Set viewport and slider
+    this.setLayout();
+
+    this.count = this.getSlidesLength();
+
+    this.setNavigation();
+
+};
+
+Slider.prototype.setLayout = function() {
+
+    var d = document.createDocumentFragment();
+
+    // Create viewport
+    var viewport = document.createElement('div');
+    viewport.className = 'elba-viewport';
+
+    d.appendChild(viewport);
+
+    // Create sliding div
+    var slider = document.createElement('div');
+    slider.className = 'elba-slider';
+
+    viewport.appendChild(slider);
+
+    // Get slides elements
+    var cloneNodes = Utils.getCloneNodes(this.el.children);
+
+    if (cloneNodes) {
+
+        for (var i = 0; i < cloneNodes.length; i++) {
+            slider.appendChild(cloneNodes[i]);
+        }
+    }
+
+    // Remove the original, unwrapped, slides
+    Utils.removeChildren(this.el);
+
+    this.setSlidesOffset(cloneNodes);
+
+    this.el.appendChild(d);
+
+};
+
+Slider.prototype.setSlidesOffset = function(slides) {
+
+    var start = 0;
+
+    for (var i = 0; i < slides.length; i++) {
+        slides[i].style.left = start + '%';
+        start += 100;
+    }
+};
+
+Slider.prototype.setNavigation = function() {
+    if (this.settings.navigation && this.count > 1) {
+        this.setArrow('right');
+        this.setArrow('left');
+    }
+};
+
+/**
+ * Set arrows for the navigation
+ * @param {String} direction
+ */
+Slider.prototype.setArrow = function(direction) {
+
+    // create svg
+    var svgURI = 'http://www.w3.org/2000/svg';
+
+    var arrow = document.createElement('a');
+    arrow.className = 'elba-' + direction + '-nav';
+
+    if (direction === 'left') {
+
+        var svgLeft = document.createElementNS(svgURI, 'svg');
+        // SVG attributes, like viewBox, are camelCased. That threw me for a loop
+        svgLeft.setAttribute('viewBox', '0 0 100 100');
+        // create arrow
+        var pathLeft = document.createElementNS(svgURI, 'path');
+        pathLeft.setAttribute('d', 'M 50,0 L 60,10 L 20,50 L 60,90 L 50,100 L 0,50 Z');
+        pathLeft.setAttribute('transform', 'translate(15,0)');
+        // add class so it can be styled with CSS
+        pathLeft.setAttribute('class', 'elba-svg-arrow');
+        svgLeft.appendChild(pathLeft);
+
+        arrow.appendChild(svgLeft);
+
+    } else {
+
+        // add svg to page
+        var svgRight = document.createElementNS(svgURI, 'svg');
+        // SVG attributes, like viewBox, are camelCased. That threw me for a loop
+        svgRight.setAttribute('viewBox', '0 0 100 100');
+        // create arrow
+        var pathRight = document.createElementNS(svgURI, 'path');
+        pathRight.setAttribute('d', 'M 50,0 L 60,10 L 20,50 L 60,90 L 50,100 L 0,50 Z');
+        // add class so it can be styled with CSS
+        pathRight.setAttribute('class', 'elba-svg-arrow');
+        pathRight.setAttribute('transform', 'translate(85,100) rotate(180)');
+        svgRight.appendChild(pathRight);
+
+        arrow.appendChild(svgRight);
+    }
+
+    this.el.appendChild(arrow);
+};
+
+Slider.prototype.loadImages = function() {
+	// TODO
+	console.log(this.el);
+    return this;
+};
+
 
 var testElement = document.createElement('div');
 //http://stackoverflow.com/questions/7212102/detect-with-javascript-or-jquery-if-css-transform-2d-is-available
@@ -165,199 +330,9 @@ var Player = {
     }
 };
 
-var ImageHandler = Object.create(ComponentInterface);
+var ElbaProxy = {};
 
-ImageHandler.loadImages = function() {
-	// TODO
-    return this;
-};
-
-var ElbaBuilder = Object.create(ComponentInterface);
-
-ElbaBuilder.build = function(el, carousel) {
-    
-    // Set viewport and slider
-    var slides = this.setLayout(el);
-
-    this.setSlidesOffset(slides);
-
-    carousel.count = slides.length;
-
-    this.setupNavigation(el, carousel, 'right');
-    this.setupNavigation(el, carousel, 'left');
-
-    carousel.slider = this.getSlider(el);
-    carousel.slider.setAttribute('data-elba-id', carousel.GUID);
-};
-
-ElbaBuilder.setLayout = function(el) {
-
-    var d = document.createDocumentFragment();
-
-    // Create viewport
-    var viewport = document.createElement('div');
-    viewport.className = 'elba-viewport';
-
-    d.appendChild(viewport);
-
-    // Create sliding div
-    var slider = document.createElement('div');
-    slider.className = 'elba-slider';
-
-    viewport.appendChild(slider);
-
-    // Get slides elements
-    var cloneNodes = Utils.getCloneNodes(el.children);
-
-    if (cloneNodes) {
-
-        // Clone last element in first position, due to the infinite carousel
-        cloneNodes.unshift(cloneNodes[cloneNodes.length - 1].cloneNode(true));
-
-        // Clone head in last position, due to the infinite carousel 
-        cloneNodes.push(cloneNodes[1].cloneNode(true));
-
-        for (var i = 0; i < cloneNodes.length; i++) {
-            slider.appendChild(cloneNodes[i]);
-        }
-    }
-
-    // Remove the original, unwrapped, slides
-    Utils.removeChildren(el);
-
-    el.appendChild(d);
-
-    return cloneNodes;
-};
-
-ElbaBuilder.setSlidesOffset = function(slides) {
-
-    var start = -100;
-
-    for (var i = 0; i < slides.length; i++) {
-        slides[i].style.left = start + '%';
-        start += 100;
-    }
-};
-
-/**
- * Set up arrows for the navigation
- * @param {Carousel} carousel
- * @param {String} direction
- */
-ElbaBuilder.setupNavigation = function(el, carousel, direction) {
-
-    // create svg
-    var svgURI = 'http://www.w3.org/2000/svg';
-
-    var arrow = document.createElement('a');
-    arrow.className = 'elba-' + direction + '-nav';
-    arrow.setAttribute('data-elba-id', carousel.GUID);
-
-    if (direction === 'left') {
-
-        var svgLeft = document.createElementNS(svgURI, 'svg');
-        // SVG attributes, like viewBox, are camelCased. That threw me for a loop
-        svgLeft.setAttribute('viewBox', '0 0 100 100');
-        // create arrow
-        var pathLeft = document.createElementNS(svgURI, 'path');
-        pathLeft.setAttribute('d', 'M 50,0 L 60,10 L 20,50 L 60,90 L 50,100 L 0,50 Z');
-        pathLeft.setAttribute('transform', 'translate(15,0)');
-        // add class so it can be styled with CSS
-        pathLeft.setAttribute('class', 'elba-svg-arrow');
-        svgLeft.appendChild(pathLeft);
-
-        arrow.appendChild(svgLeft);
-
-    } else {
-
-        // add svg to page
-        var svgRight = document.createElementNS(svgURI, 'svg');
-        // SVG attributes, like viewBox, are camelCased. That threw me for a loop
-        svgRight.setAttribute('viewBox', '0 0 100 100');
-        // create arrow
-        var pathRight = document.createElementNS(svgURI, 'path');
-        pathRight.setAttribute('d', 'M 50,0 L 60,10 L 20,50 L 60,90 L 50,100 L 0,50 Z');
-        // add class so it can be styled with CSS
-        pathRight.setAttribute('class', 'elba-svg-arrow');
-        pathRight.setAttribute('transform', 'translate(85,100) rotate(180)');
-        svgRight.appendChild(pathRight);
-
-        arrow.appendChild(svgRight);
-    }
-
-    carousel.navigation[direction] = arrow;
-    el.appendChild(carousel.navigation[direction]);
-};
-
-ElbaBuilder.getSlider = function(el) {
-    return el.querySelector('.elba-slider');
-};
-
-ElbaBuilder.testMethod = function() {
-    return this;
-};
-
-ElbaBuilder.testProperty = 'Test Property it me';
-
-var EventHandler = Object.create(ElbaBuilder);
-
-EventHandler.bindEvents = function() {
-
-    for (var i in Instances) {
-        if (Instances.hasOwnProperty(i)) {
-
-            var carousel = Instances[i];
-
-            if (carousel.settings.navigation) {
-
-                this.addNavigationEvents(carousel);
-
-            }
-
-        }
-    }
-
-};
-
-EventHandler.addNavigationEvents = function(carousel) {
-    carousel.navigation.left.addEventListener('click', function(e) {
-        Elba.previous(carousel.GUID);
-    }, false);
-
-    carousel.navigation.right.addEventListener('click', function(e) {
-        Elba.next(carousel.GUID);
-    }, false);
-};
-
-var Toucher = Object.create(EventHandler);
-function componentFactory(selector, settings, GUID) {
-
-    return function(component) {
-        var obj = Object.create(component, {
-            selector: { writable: false, configurable: false, value: selector },
-            settings: { writable: false, configurable: false, value: settings },
-            GUID: { writable: false, configurable: false, value: GUID },
-            el: {
-                get: function() {
-                    var selector = '';
-                    if (this.selector.indexOf('#') > -1) {
-                        selector = this.selector.slice(1);
-                    }
-                    if (!Instances[selector]) {
-                        Instances[selector] = {};
-                        Instances[selector].el = document.getElementById(selector);
-                    }
-                    return Instances[selector];
-                },
-                set: function(selector) {}
-            }
-        });
-        return obj;
-    };
-}
-
-function Elba(selector, settings) {
+var Elba = (function() {
 
     var _defaults = {
         selector: '.elba',
@@ -378,76 +353,36 @@ function Elba(selector, settings) {
         swipeThreshold: 60,
     };
 
-    //Overwrite the default options
-    this.settings = Utils.extend(_defaults, settings);
-
-    //this.el = el;
-    this.slider = null;
-    this.slides = [];
-    this.count = 0;
-    this.source = 0;
-    this.navigation = {
-        left: null,
-        right: null,
-        dots: null
+    var _createInstance = function(el, GUID, options) {
+        return new Slider(el, GUID, options);
     };
 
-    //Init the pointer to the visible slide
-    this.pointer = 0;
+    return {
+        init: function(selector, options) {
 
-    //Hint for the direction to load
-    this.directionHint = 'right';
-    this.resizeTimeout = null;
-    this.animated = false;
+            // Extend default options
+            var settings = Utils.extend(_defaults, options);
 
+            var publicProxy = Object.create(ElbaProxy, {
+                instances: {
+                    enumerable: true,
+                    configurable: false,
+                    writable: true,
+                    value: []
+                }
+            });
 
-    try {
+            if (selector.indexOf('#') > -1) {
+                var target = selector.slice(1);
+                var GUID = Utils.generateGUID();
+                Instances[GUID] = _createInstance(document.getElementById(target), GUID, settings);
+                publicProxy.instances.push(GUID);
+            }
 
-        if (typeof selector === 'undefined') {
-            throw new Error('The first argument passed to the constructor is undefined');
+            return publicProxy;
         }
-
-        var createComponent = componentFactory(selector, this.settings, ++GUID);
-
-        var _elbaBuilder = createComponent(ElbaBuilder);
-        var _imageHandler = createComponent(ImageHandler);
-        var _eventHandler = createComponent(EventHandler);
-
-        //_elbaBuilder.$(selector).testMethod();
-        _imageHandler.loadImages().logEl();
-
-    } catch (err) {
-        console.error(err.message);
-    }
-}
-
-Elba.next = function(carouselId) {
-    // If an ID is defined we get the single carousel.
-    // Otherwise we animate all the instances
-    var target = this.getInstance(carouselId) || Instances;
-
-    if (target instanceof Carousel) {
-        this.goToNext(target);
-    } else {
-        for (var i in target) {
-            this.goToNext(target[i]);
-        }
-    }
-};
-
-Elba.previous = function(carouselId) {
-    // If an ID is defined we get the single carousel.
-    // Otherwise we animate all the instances
-    var target = this.getInstance(carouselId) || Instances;
-
-    if (target instanceof Carousel) {
-        this.goToPrevious(target);
-    } else {
-        for (var i in target) {
-            this.goToPrevious(target[i]);
-        }
-    }
-};
+    };
+})();
 
 return Elba;
 });
