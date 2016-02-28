@@ -203,6 +203,10 @@ var Utils = {
             return [].indexOf.call(document.querySelectorAll(s), this) !== -1;
         };
         return f.call(el, selector);
+    },
+
+    getNodeElementByIndex: function(elements, index) {
+        return elements[index];
     }
 };
 
@@ -259,23 +263,32 @@ var msEventType = function(type) {
         }
 
         // inline
-        if (elm['on' + eventName]){
+        if (elm['on' + eventName]) {
             elm['on' + eventName](customEvent);
         }
-    },
-    onTouchStart = function(e) {
-    	
+    };
+
+// targetInstance points to the target Slider instance
+var targetInstance = null;
+
+var Tocca = {
+    onTouchStart: function(e) {
+
         var pointer = getPointerEvent(e);
 
-        var targetInstance = null;
         // If we are clicking on the slider's arrow
-        if(Utils.selectorMatches(pointer.target, 'a.elba-arrow')){ 
-        	targetInstance = Instances[pointer.target.getAttribute('data-elba-id')];
-        	if(classie.hasClass(pointer.target,'elba-right-nav')){
-        		targetInstance.goTo('next');
-        	}else{
-        		targetInstance.goTo('previous');
-        	}
+        if (Utils.selectorMatches(pointer.target, 'a.elba-arrow')) {
+            // Get the Slider instance
+            targetInstance = Instances[pointer.target.getAttribute('data-elba-id')];
+            if (classie.hasClass(pointer.target, 'elba-right-nav')) {
+                targetInstance.goTo('next');
+            } else {
+                targetInstance.goTo('previous');
+            }
+        } else if (Utils.selectorMatches(pointer.target, '.elba')) {
+            targetInstance = Instances[pointer.target.getAttribute('data-elba-id')];
+        } else if (Utils.selectorMatches(pointer.target.parentNode, '.elba')) {
+            targetInstance = Instances[pointer.target.parentNode.getAttribute('data-elba-id')];
         }
 
         // caching the current x
@@ -284,52 +297,61 @@ var msEventType = function(type) {
         cachedY = currY = pointer.pageY;
 
         longtapTimer = setTimeout(function() {
-            sendEvent(e.target, 'longtap', e)
-            target = e.target
+            sendEvent(e.target, 'longtap', e);
+            target = e.target;
         }, longtapThreshold);
 
         // we will use these variables on the touchend events
-        timestamp = getTimestamp()
+        timestamp = getTimestamp();
 
-        tapNum++
-
+        tapNum++;
     },
-    onTouchEnd = function(e) {
+    onTouchEnd: function(e) {
 
         var eventsArr = [],
             now = getTimestamp(),
             deltaY = cachedY - currY,
-            deltaX = cachedX - currX
+            deltaX = cachedX - currX;
 
         // clear the previous timer if it was set
-        clearTimeout(dblTapTimer)
-            // kill the long tap timer
-        clearTimeout(longtapTimer)
+        clearTimeout(dblTapTimer);
+        // kill the long tap timer
+        clearTimeout(longtapTimer);
 
-        if (deltaX <= -swipeThreshold)
-            eventsArr.push('swiperight')
+        if (deltaX <= -swipeThreshold){
+        	if(targetInstance) {
+        		targetInstance.goTo('previous');
+        	}
+            eventsArr.push('swiperight');
+        }
 
-        if (deltaX >= swipeThreshold)
-            eventsArr.push('swipeleft')
+        if (deltaX >= swipeThreshold){
+        	if(targetInstance) {
+        		targetInstance.goTo('next');
+        	}
+            eventsArr.push('swipeleft');
+        }
 
-        if (deltaY <= -swipeThreshold)
-            eventsArr.push('swipedown')
+        if (deltaY <= -swipeThreshold){
+            eventsArr.push('swipedown');
+        }
 
-        if (deltaY >= swipeThreshold)
-            eventsArr.push('swipeup')
+        if (deltaY >= swipeThreshold){
+            eventsArr.push('swipeup');
+        }
 
         if (eventsArr.length) {
             for (var i = 0; i < eventsArr.length; i++) {
-                var eventName = eventsArr[i]
+                var eventName = eventsArr[i];
                 sendEvent(e.target, eventName, e, {
                     distance: {
                         x: Math.abs(deltaX),
                         y: Math.abs(deltaY)
                     }
-                })
+                });
             }
             // reset the tap counter
-            tapNum = 0
+            tapNum = 0;
         } else {
 
             if (
@@ -340,20 +362,21 @@ var msEventType = function(type) {
             ) {
                 if (timestamp + tapThreshold - now >= 0) {
                     // Here you get the Tap event
-                    sendEvent(e.target, tapNum >= 2 && target === e.target ? 'dbltap' : 'tap', e)
-                    target = e.target
+                    sendEvent(e.target, tapNum >= 2 && target === e.target ? 'dbltap' : 'tap', e);
+                    target = e.target;
                 }
             }
 
             // reset the tap counter
             dblTapTimer = setTimeout(function() {
-                tapNum = 0
-            }, dbltapThreshold)
+                tapNum = 0;
+            }, dbltapThreshold);
 
         }
 
+        targetInstance = null;
     },
-    onTouchMove = function(e) {
+    onTouchMove: function(e) {
 
         var pointer = getPointerEvent(e);
 
@@ -371,9 +394,9 @@ var msEventType = function(type) {
                 }
             });
         }
-
-    },
-    swipeThreshold = window.SWIPE_THRESHOLD || 100,
+    }
+};
+var swipeThreshold = window.SWIPE_THRESHOLD || 100,
     tapThreshold = window.TAP_THRESHOLD || 150, // range of time where a tap event could be detected
     dbltapThreshold = window.DBL_TAP_THRESHOLD || 200, // delay needed to detect a double tap
     longtapThreshold = window.LONG_TAP_THRESHOLD || 1000, // delay needed to detect a long tap
@@ -384,9 +407,55 @@ var msEventType = function(type) {
 
 //setting the events listeners
 // we need to debounce the callbacks because some devices multiple events are triggered at same time
-setListener(document, touchevents.touchstart + (justTouchEvents ? '' : ' mousedown'), debounce(onTouchStart, 1));
-setListener(document, touchevents.touchend + (justTouchEvents ? '' : ' mouseup'), debounce(onTouchEnd, 1));
-setListener(document, touchevents.touchmove + (justTouchEvents ? '' : ' mousemove'), debounce(onTouchMove, 1));
+setListener(document, touchevents.touchstart + (justTouchEvents ? '' : ' mousedown'), debounce(Tocca.onTouchStart, 1));
+setListener(document, touchevents.touchend + (justTouchEvents ? '' : ' mouseup'), debounce(Tocca.onTouchEnd, 1));
+setListener(document, touchevents.touchmove + (justTouchEvents ? '' : ' mousemove'), debounce(Tocca.onTouchMove, 1));
+
+function Slider(el, GUID, settings) {
+
+    this.el = el;
+    this.settings = settings;
+    this.slider = null;
+    this.slidesLength = null;
+    this.GUID = GUID;
+
+    this.count = 0;
+    this.source = 0;
+
+    //Init the pointer to the visible slide
+    this.pointer = 0;
+
+    //Hint for the direction to load
+    this.directionHint = 'right';
+    this.resizeTimeout = null;
+    this.animated = false;
+
+    try {
+
+        if (typeof el === 'undefined') {
+            throw new Error('The first argument passed to the constructor is undefined');
+        }
+
+        this.build();
+
+    } catch (err) {
+        console.error(err.message);
+    }
+}
+
+Slider.prototype.getSlider = function() {
+    if(this.slider) return this.slider;
+    return this.slider = this.el.querySelector('.elba-slider');
+};
+
+Slider.prototype.getSlides = function() {
+    return this.el.querySelectorAll('.elba');
+};
+
+Slider.prototype.getSlidesLength = function() {
+    if(this.slidesLength) return this.slidesLength;
+    return this.getSlides().length;
+};
 
 var testElement = document.createElement('div');
 //http://stackoverflow.com/questions/7212102/detect-with-javascript-or-jquery-if-css-transform-2d-is-available
@@ -427,77 +496,36 @@ var rAF = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
 
 var cAF = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 
-var Player = {
-    goToNext: function(carousel) {
-        var offset = (-carousel.pointer - 1) * 100;
-        carousel.pointer += 1;
-        this.slide(carousel.slider, offset);
-    },
-    goToPrevious: function(carousel) {
-        var offset = (-(carousel.pointer - 1)) * 100;
-        carousel.pointer -= 1;
-        this.slide(carousel.slider, offset);
-    },
-    slide: function(slider, offset) {
-        //console.log(Utils.intVal(getTransform(slider)));
-        rAF(function() {
-            console.log('animation frame requested');
-            slider.style[vendorTransition] = vendorTransform + ' 0.8s';
-            slider.style[vendorTransform] = 'translate3d(' + offset + '%,0,0)';
-        });
+Slider.prototype.goToNext = function() {
+
+    var offset = (-this.pointer - 1) * 100;
+    this.pointer += 1;
+    console.log(this.pointer % this.getSlidesLength());
+    console.log(this.pointer);
+    if(this.pointer === (this.getSlidesLength() -1 )) {
+        var _firstSlide = Utils.getNodeElementByIndex(this.getSlides(), 0);
+        _firstSlide.style.left = (this.pointer + 1) * 100 + '%';
     }
+
+    this.slide(offset);
 };
 
-function Slider(el, GUID, settings) {
+Slider.prototype.goToPrevious = function() {
 
-    this.el = el;
-    this.settings = settings;
-    this.GUID = GUID;
+    var offset = (-(this.pointer - 1)) * 100;
+    this.pointer -= 1;
+    this.slide(offset);
 
-    this.count = 0;
-    this.source = 0;
-
-    //Init the pointer to the visible slide
-    this.pointer = 0;
-
-    //Hint for the direction to load
-    this.directionHint = 'right';
-    this.resizeTimeout = null;
-    this.animated = false;
-
-    try {
-
-        if (typeof el === 'undefined') {
-            throw new Error('The first argument passed to the constructor is undefined');
-        }
-
-        this.build();
-
-        this.bindEvents();
-
-    } catch (err) {
-        console.error(err.message);
-    }
-}
-
-Slider.prototype.getSlider = function() {
-    return this.el.querySelector('.elba-slider');
 };
 
-Slider.prototype.getSlides = function() {
-    return this.el.querySelectorAll('.elba');
-};
+Slider.prototype.slide = function(offset) {
 
-Slider.prototype.getSlidesLength = function() {
-    return this.getSlides().length;
-};
+    var _slider = this.getSlider();
+    rAF(function() {
+        _slider.style[vendorTransition] = vendorTransform + ' 0.8s';
+        _slider.style[vendorTransform] = 'translate3d(' + offset + '%,0,0)';
+    });
 
-Slider.prototype.next = function() {
-    // TODO
-};
-
-Slider.prototype.previous = function() {
-    // TODO
 };
 
 Slider.prototype.build = function() {
@@ -524,6 +552,7 @@ Slider.prototype.setLayout = function() {
     // Create sliding div
     var slider = document.createElement('div');
     slider.className = 'elba-slider';
+    slider.setAttribute('data-elba-id', this.GUID);
 
     viewport.appendChild(slider);
 
@@ -618,52 +647,14 @@ Slider.prototype.loadImages = function() {
     return this;
 };
 
-var sliderHandler = function(e) {
-    if (e.type === 'swipeleft') {
-        this.goTo('next');
-    } else if(e.type === 'swiperight') {
-        this.goTo('previous');
-    } else {
-        // this.drag(e);
-        console.log('tap');
-    }
-};
-
-var arrowHandler = function(e) {
-    if (e.target) {
-        console.log(e);
-    }
-};
-
-Slider.prototype.bindEvents = function() {
-    this.bindSliderEvents();
-    if(this.settings.navigation) {
-        this.bindArrowsEvents();
-    }
-};
-
-Slider.prototype.bindSliderEvents = function() {
-    var slidingLayer = this.getSlider();
-    // document.addEventListener('tap', sliderHandler.bind(this));
-    // document.addEventListener('swipeleft', sliderHandler.bind(this));
-    // document.addEventListener('swiperight', sliderHandler.bind(this));
-    // document.addEventListener('drag', sliderHandler.bind(this));
-};
-
-Slider.prototype.bindArrowsEvents = function() {
-    var self = this;
-    /*Utils.makeArray(this.el.querySelectorAll('.elba-arrow')).forEach(function(el) {
-        el.addEventListener('tap', arrowHandler.bind(self));
-    });*/
-};
-
 Slider.prototype.goTo = function(direction) {
-    console.log(direction);
+    if (direction === 'next') {
+        this.goToNext();
+    } else if (direction === 'previous') {
+        this.goToPrevious();
+    }
 };
 
-Slider.prototype.drag = function(e) {
-    console.log(e);
-};
 var ElbaProxy = {};
 
 var Elba = (function() {

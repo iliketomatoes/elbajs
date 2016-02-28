@@ -37,23 +37,34 @@ var rAF = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
 
 var cAF = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 
-var Player = {
-    goToNext: function(carousel) {
-        var offset = (-carousel.pointer - 1) * 100;
-        carousel.pointer += 1;
-        this.slide(carousel.slider, offset);
-    },
-    goToPrevious: function(carousel) {
-        var offset = (-(carousel.pointer - 1)) * 100;
-        carousel.pointer -= 1;
-        this.slide(carousel.slider, offset);
-    },
-    slide: function(slider, offset) {
-        //console.log(Utils.intVal(getTransform(slider)));
-        rAF(function() {
-            console.log('animation frame requested');
-            slider.style[vendorTransition] = vendorTransform + ' 0.8s';
-            slider.style[vendorTransform] = 'translate3d(' + offset + '%,0,0)';
-        });
+Slider.prototype.goToNext = function() {
+
+    var offset = (-this.pointer - 1) * 100;
+    this.pointer += 1;
+    console.log(this.pointer % this.getSlidesLength());
+    console.log(this.pointer);
+    if(this.pointer === (this.getSlidesLength() -1 )) {
+        var _firstSlide = Utils.getNodeElementByIndex(this.getSlides(), 0);
+        _firstSlide.style.left = (this.pointer + 1) * 100 + '%';
     }
+
+    this.slide(offset);
+};
+
+Slider.prototype.goToPrevious = function() {
+
+    var offset = (-(this.pointer - 1)) * 100;
+    this.pointer -= 1;
+    this.slide(offset);
+
+};
+
+Slider.prototype.slide = function(offset) {
+
+    var _slider = this.getSlider();
+    rAF(function() {
+        _slider.style[vendorTransition] = vendorTransform + ' 0.8s';
+        _slider.style[vendorTransform] = 'translate3d(' + offset + '%,0,0)';
+    });
+
 };

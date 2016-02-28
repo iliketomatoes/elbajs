@@ -24,11 +24,11 @@ module.exports = function(grunt) {
                     'src/intro.js',
                     'src/utils.js',
                     'src/tocca.js',
-                    'src/player.js',
                     'src/slider.js',
+                    'src/player.js',
                     'src/builder.js',
                     'src/images.js',
-                    'src/events.js',
+                    'src/api.js',
                     'src/proxy.js',
                     'src/elba.js',
                     'src/outro.js'

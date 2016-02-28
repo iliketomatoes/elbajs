@@ -2,6 +2,8 @@ function Slider(el, GUID, settings) {
 
     this.el = el;
     this.settings = settings;
+    this.slider = null;
+    this.slidesLength = null;
     this.GUID = GUID;
 
     this.count = 0;
@@ -23,15 +25,14 @@ function Slider(el, GUID, settings) {
 
         this.build();
 
-        this.bindEvents();
-
     } catch (err) {
         console.error(err.message);
     }
 }
 
 Slider.prototype.getSlider = function() {
-    return this.el.querySelector('.elba-slider');
+    if(this.slider) return this.slider;
+    return this.slider = this.el.querySelector('.elba-slider');
 };
 
 Slider.prototype.getSlides = function() {
@@ -39,13 +40,6 @@ Slider.prototype.getSlides = function() {
 };
 
 Slider.prototype.getSlidesLength = function() {
+    if(this.slidesLength) return this.slidesLength;
     return this.getSlides().length;
-};
-
-Slider.prototype.next = function() {
-    // TODO
-};
-
-Slider.prototype.previous = function() {
-    // TODO
 };

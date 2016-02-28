@@ -95,5 +95,9 @@ var Utils = {
             return [].indexOf.call(document.querySelectorAll(s), this) !== -1;
         };
         return f.call(el, selector);
+    },
+
+    getNodeElementByIndex: function(elements, index) {
+        return elements[index];
     }
 };

@@ -105,6 +105,11 @@
 }
 
 /******** CAROUSEL *********/
+.elba-carousel {
+  overflow: hidden;
+  will-change: auto;
+}
+
 .elba-carousel *, .elba-carousel *:before, .elba-carousel *:after {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
@@ -131,7 +136,6 @@
 }
 
 .elba-viewport {
-  overflow: hidden;
   position: relative;
   height: 100%;
 }

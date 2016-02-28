@@ -22,6 +22,7 @@ Slider.prototype.setLayout = function() {
     // Create sliding div
     var slider = document.createElement('div');
     slider.className = 'elba-slider';
+    slider.setAttribute('data-elba-id', this.GUID);
 
     viewport.appendChild(slider);
 

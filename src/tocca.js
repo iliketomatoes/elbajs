@@ -83,23 +83,32 @@ var msEventType = function(type) {
         }
 
         // inline
-        if (elm['on' + eventName]){
+        if (elm['on' + eventName]) {
             elm['on' + eventName](customEvent);
         }
-    },
-    onTouchStart = function(e) {
-    	
+    };
+
+// targetInstance points to the target Slider instance
+var targetInstance = null;
+
+var Tocca = {
+    onTouchStart: function(e) {
+
         var pointer = getPointerEvent(e);
 
-        var targetInstance = null;
         // If we are clicking on the slider's arrow
-        if(Utils.selectorMatches(pointer.target, 'a.elba-arrow')){ 
-        	targetInstance = Instances[pointer.target.getAttribute('data-elba-id')];
-        	if(classie.hasClass(pointer.target,'elba-right-nav')){
-        		targetInstance.goTo('next');
-        	}else{
-        		targetInstance.goTo('previous');
-        	}
+        if (Utils.selectorMatches(pointer.target, 'a.elba-arrow')) {
+            // Get the Slider instance
+            targetInstance = Instances[pointer.target.getAttribute('data-elba-id')];
+            if (classie.hasClass(pointer.target, 'elba-right-nav')) {
+                targetInstance.goTo('next');
+            } else {
+                targetInstance.goTo('previous');
+            }
+        } else if (Utils.selectorMatches(pointer.target, '.elba')) {
+            targetInstance = Instances[pointer.target.getAttribute('data-elba-id')];
+        } else if (Utils.selectorMatches(pointer.target.parentNode, '.elba')) {
+            targetInstance = Instances[pointer.target.parentNode.getAttribute('data-elba-id')];
         }
 
         // caching the current x
@@ -108,52 +117,61 @@ var msEventType = function(type) {
         cachedY = currY = pointer.pageY;
 
         longtapTimer = setTimeout(function() {
-            sendEvent(e.target, 'longtap', e)
-            target = e.target
+            sendEvent(e.target, 'longtap', e);
+            target = e.target;
         }, longtapThreshold);
 
         // we will use these variables on the touchend events
-        timestamp = getTimestamp()
+        timestamp = getTimestamp();
 
-        tapNum++
-
+        tapNum++;
     },
-    onTouchEnd = function(e) {
+    onTouchEnd: function(e) {
 
         var eventsArr = [],
             now = getTimestamp(),
             deltaY = cachedY - currY,
-            deltaX = cachedX - currX
+            deltaX = cachedX - currX;
 
         // clear the previous timer if it was set
-        clearTimeout(dblTapTimer)
-            // kill the long tap timer
-        clearTimeout(longtapTimer)
+        clearTimeout(dblTapTimer);
+        // kill the long tap timer
+        clearTimeout(longtapTimer);
 
-        if (deltaX <= -swipeThreshold)
-            eventsArr.push('swiperight')
+        if (deltaX <= -swipeThreshold){
+        	if(targetInstance) {
+        		targetInstance.goTo('previous');
+        	}
+            eventsArr.push('swiperight');
+        }
 
-        if (deltaX >= swipeThreshold)
-            eventsArr.push('swipeleft')
+        if (deltaX >= swipeThreshold){
+        	if(targetInstance) {
+        		targetInstance.goTo('next');
+        	}
+            eventsArr.push('swipeleft');
+        }
 
-        if (deltaY <= -swipeThreshold)
-            eventsArr.push('swipedown')
+        if (deltaY <= -swipeThreshold){
+            eventsArr.push('swipedown');
+        }
 
-        if (deltaY >= swipeThreshold)
-            eventsArr.push('swipeup')
+        if (deltaY >= swipeThreshold){
+            eventsArr.push('swipeup');
+        }
 
         if (eventsArr.length) {
             for (var i = 0; i < eventsArr.length; i++) {
-                var eventName = eventsArr[i]
+                var eventName = eventsArr[i];
                 sendEvent(e.target, eventName, e, {
                     distance: {
                         x: Math.abs(deltaX),
                         y: Math.abs(deltaY)
                     }
-                })
+                });
             }
             // reset the tap counter
-            tapNum = 0
+            tapNum = 0;
         } else {
 
             if (
@@ -164,20 +182,21 @@ var msEventType = function(type) {
             ) {
                 if (timestamp + tapThreshold - now >= 0) {
                     // Here you get the Tap event
-                    sendEvent(e.target, tapNum >= 2 && target === e.target ? 'dbltap' : 'tap', e)
-                    target = e.target
+                    sendEvent(e.target, tapNum >= 2 && target === e.target ? 'dbltap' : 'tap', e);
+                    target = e.target;
                 }
             }
 
             // reset the tap counter
             dblTapTimer = setTimeout(function() {
-                tapNum = 0
-            }, dbltapThreshold)
+                tapNum = 0;
+            }, dbltapThreshold);
 
         }
 
+        targetInstance = null;
     },
-    onTouchMove = function(e) {
+    onTouchMove: function(e) {
 
         var pointer = getPointerEvent(e);
 
@@ -195,9 +214,9 @@ var msEventType = function(type) {
                 }
             });
         }
-
-    },
-    swipeThreshold = window.SWIPE_THRESHOLD || 100,
+    }
+};
+var swipeThreshold = window.SWIPE_THRESHOLD || 100,
     tapThreshold = window.TAP_THRESHOLD || 150, // range of time where a tap event could be detected
     dbltapThreshold = window.DBL_TAP_THRESHOLD || 200, // delay needed to detect a double tap
     longtapThreshold = window.LONG_TAP_THRESHOLD || 1000, // delay needed to detect a long tap
@@ -208,6 +227,6 @@ var msEventType = function(type) {
 
 //setting the events listeners
 // we need to debounce the callbacks because some devices multiple events are triggered at same time
-setListener(document, touchevents.touchstart + (justTouchEvents ? '' : ' mousedown'), debounce(onTouchStart, 1));
-setListener(document, touchevents.touchend + (justTouchEvents ? '' : ' mouseup'), debounce(onTouchEnd, 1));
-setListener(document, touchevents.touchmove + (justTouchEvents ? '' : ' mousemove'), debounce(onTouchMove, 1));
+setListener(document, touchevents.touchstart + (justTouchEvents ? '' : ' mousedown'), debounce(Tocca.onTouchStart, 1));
+setListener(document, touchevents.touchend + (justTouchEvents ? '' : ' mouseup'), debounce(Tocca.onTouchEnd, 1));
+setListener(document, touchevents.touchmove + (justTouchEvents ? '' : ' mousemove'), debounce(Tocca.onTouchMove, 1));
