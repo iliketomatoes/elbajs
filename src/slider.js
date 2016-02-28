@@ -23,6 +23,8 @@ function Slider(el, GUID, settings) {
 
         this.build();
 
+        this.bindEvents();
+
     } catch (err) {
         console.error(err.message);
     }

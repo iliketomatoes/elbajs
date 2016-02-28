@@ -13,7 +13,6 @@ var Elba = (function() {
         easing: 'easeInOutSine',
         navigation: true,
         dots: true,
-        dotsContainer: false,
         slideshow: 8000,
         preload: 1,
         swipeThreshold: 60,

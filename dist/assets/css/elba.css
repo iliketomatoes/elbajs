@@ -140,6 +140,8 @@
   position: absolute;
   width: 100%;
   height: 100%;
+  touch-action: pan-x;
+  will-change: transform;
 }
 
 .elba {
@@ -300,6 +302,7 @@
 }
 
 .elba-left-nav svg {
+  pointer-events: none;
   width: 1.7rem;
   height: 1.7rem;
 }
@@ -309,6 +312,7 @@
 }
 
 .elba-right-nav svg {
+  pointer-events: none;
   width: 1.7rem;
   height: 1.7rem;
 }

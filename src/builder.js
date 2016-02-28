@@ -31,6 +31,7 @@ Slider.prototype.setLayout = function() {
     if (cloneNodes) {
 
         for (var i = 0; i < cloneNodes.length; i++) {
+            cloneNodes[i].setAttribute('data-elba-id', this.GUID);
             slider.appendChild(cloneNodes[i]);
         }
     }
@@ -71,7 +72,8 @@ Slider.prototype.setArrow = function(direction) {
     var svgURI = 'http://www.w3.org/2000/svg';
 
     var arrow = document.createElement('a');
-    arrow.className = 'elba-' + direction + '-nav';
+    arrow.className = 'elba-' + direction + '-nav elba-arrow';
+    arrow.setAttribute('data-elba-id', this.GUID);
 
     if (direction === 'left') {
 
