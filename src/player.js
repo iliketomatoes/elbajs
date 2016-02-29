@@ -20,6 +20,8 @@ var vendorTransition = (function() {
     return false;
 })();
 
+testElement = null;
+
 // http://stackoverflow.com/questions/15622466/how-do-i-get-the-absolute-value-of-translate3d
 function getTransform(el) {
     var transform = window.getComputedStyle(el, null).getPropertyValue(vendorTransform);
@@ -37,21 +39,34 @@ var rAF = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
 
 var cAF = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 
-Slider.prototype.goToNext = function() {
+/**
+* Remember: 
+* this.pointer % this.getSlidesLength() is equal to 0 when we are pointing the last slide
+* this.pointer % this.getSlidesLength() is equal to 1 when we are pointing the first slide
+* this.pointer % this.getSlidesLength() is equal to N when we are pointing the Nth slide but not the last
+*
+* Note: we assume that pointer starts from 0.
+*/
+
+var Player = Object.create(Builder);
+
+Player.goToNext = function() {
 
     var offset = (-this.pointer - 1) * 100;
     this.pointer += 1;
-    console.log(this.pointer % this.getSlidesLength());
-    console.log(this.pointer);
-    if(this.pointer === (this.getSlidesLength() -1 )) {
-        var _firstSlide = Utils.getNodeElementByIndex(this.getSlides(), 0);
-        _firstSlide.style.left = (this.pointer + 1) * 100 + '%';
+    // console.log(this.pointer % this.getSlidesLength());
+    // console.log(this.pointer / this.getSlidesLength());
+    if(this.pointer >= (this.count -1 )) {
+        console.log(this.pointer);
+        console.log((this.pointer + 1) % this.getSlidesLength());
+        var _nextSlide = Utils.getNodeElementByIndex(this.getSlides(), (this.pointer + 1) % this.getSlidesLength());
+        _nextSlide.style.left = (this.pointer + 1) * 100 + '%';
     }
 
     this.slide(offset);
 };
 
-Slider.prototype.goToPrevious = function() {
+Player.goToPrevious = function() {
 
     var offset = (-(this.pointer - 1)) * 100;
     this.pointer -= 1;
@@ -59,7 +74,15 @@ Slider.prototype.goToPrevious = function() {
 
 };
 
-Slider.prototype.slide = function(offset) {
+Player.goTo = function(direction) {
+    if (direction === 'next') {
+        this.goToNext();
+    } else if (direction === 'previous') {
+        this.goToPrevious();
+    }
+};
+
+Player.slide = function(offset) {
 
     var _slider = this.getSlider();
     rAF(function() {

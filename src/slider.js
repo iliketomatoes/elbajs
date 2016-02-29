@@ -1,45 +1,37 @@
-function Slider(el, GUID, settings) {
+var Slider = Object.create(Eventie);
 
-    this.el = el;
-    this.settings = settings;
-    this.slider = null;
-    this.slidesLength = null;
-    this.GUID = GUID;
+Slider.slider = null;
+Slider.slidesLength = null;
+Slider.count = 0;
+Slider.source = 0;
 
-    this.count = 0;
-    this.source = 0;
+//Init the pointer to the visible slide
+Slider.pointer = 0;
 
-    //Init the pointer to the visible slide
-    this.pointer = 0;
+//Hint for the direction to load
+Slider.directionHint = 'right';
+Slider.resizeTimeout = null;
+Slider.isSettled = true;
 
-    //Hint for the direction to load
-    this.directionHint = 'right';
-    this.resizeTimeout = null;
-    this.animated = false;
+Slider.init = function() {
+    this.build();
+    this.initEvents();
+};
 
-    try {
-
-        if (typeof el === 'undefined') {
-            throw new Error('The first argument passed to the constructor is undefined');
-        }
-
-        this.build();
-
-    } catch (err) {
-        console.error(err.message);
-    }
-}
-
-Slider.prototype.getSlider = function() {
-    if(this.slider) return this.slider;
+Slider.getSlider = function() {
+    if (this.slider) return this.slider;
     return this.slider = this.el.querySelector('.elba-slider');
 };
 
-Slider.prototype.getSlides = function() {
+Slider.getSlides = function() {
     return this.el.querySelectorAll('.elba');
 };
 
-Slider.prototype.getSlidesLength = function() {
-    if(this.slidesLength) return this.slidesLength;
-    return this.getSlides().length;
+Slider.getArrows = function() {
+    return this.el.querySelectorAll('.elba-arrow');
+};
+
+Slider.getSlidesLength = function() {
+    if (this.slidesLength) return this.slidesLength;
+    return this.slidesLength = this.getSlides().length;
 };

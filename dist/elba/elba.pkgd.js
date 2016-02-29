@@ -1,4 +1,4 @@
-/*! elba - v0.5.0 - 2016-02-28
+/*! elba - v0.5.0 - 2016-02-29
 * https://github.com/iliketomatoes/elbajs
 * Copyright (c) 2016 ; Licensed  */
 /*!
@@ -207,6 +207,15 @@ var Utils = {
 
     getNodeElementByIndex: function(elements, index) {
         return elements[index];
+    },
+
+    setListener: function(elm, events, callback) {
+        var eventsArray = events.split(' '),
+            i = eventsArray.length;
+
+        while (i--) {
+            elm.addEventListener(eventsArray[i], callback, false);
+        }
     }
 };
 
@@ -225,19 +234,6 @@ var msEventType = function(type) {
                 fn.apply(null, args)
             }, delay);
         };
-    },
-    touchevents = {
-        touchstart: msEventType('PointerDown') + ' touchstart',
-        touchend: msEventType('PointerUp') + ' touchend',
-        touchmove: msEventType('PointerMove') + ' touchmove'
-    },
-    setListener = function(elm, events, callback) {
-        var eventsArray = events.split(' '),
-            i = eventsArray.length;
-
-        while (i--) {
-            elm.addEventListener(eventsArray[i], callback, false);
-        }
     },
     getPointerEvent = function(event) {
         return event.targetTouches ? event.targetTouches[0] : event;
@@ -272,24 +268,20 @@ var msEventType = function(type) {
 var targetInstance = null;
 
 var Tocca = {
+    events: {
+        start: msEventType('PointerDown') + ' touchstart mousedown',
+        end: msEventType('PointerUp') + ' touchend mouseup',
+        move: msEventType('PointerMove') + ' touchmove mousemove'
+    },
     onTouchStart: function(e) {
 
         var pointer = getPointerEvent(e);
 
-        // If we are clicking on the slider's arrow
-        if (Utils.selectorMatches(pointer.target, 'a.elba-arrow')) {
-            // Get the Slider instance
-            targetInstance = Instances[pointer.target.getAttribute('data-elba-id')];
-            if (classie.hasClass(pointer.target, 'elba-right-nav')) {
-                targetInstance.goTo('next');
-            } else {
-                targetInstance.goTo('previous');
-            }
-        } else if (Utils.selectorMatches(pointer.target, '.elba')) {
+        /*if (Utils.selectorMatches(pointer.target, '.elba')) {
             targetInstance = Instances[pointer.target.getAttribute('data-elba-id')];
         } else if (Utils.selectorMatches(pointer.target.parentNode, '.elba')) {
             targetInstance = Instances[pointer.target.parentNode.getAttribute('data-elba-id')];
-        }
+        }*/
 
         // caching the current x
         cachedX = currX = pointer.pageX;
@@ -407,139 +399,22 @@ var swipeThreshold = window.SWIPE_THRESHOLD || 100,
 
 //setting the events listeners
 // we need to debounce the callbacks because some devices multiple events are triggered at same time
-setListener(document, touchevents.touchstart + (justTouchEvents ? '' : ' mousedown'), debounce(Tocca.onTouchStart, 1));
-setListener(document, touchevents.touchend + (justTouchEvents ? '' : ' mouseup'), debounce(Tocca.onTouchEnd, 1));
-setListener(document, touchevents.touchmove + (justTouchEvents ? '' : ' mousemove'), debounce(Tocca.onTouchMove, 1));
+Utils.setListener(document, Tocca.events.start, debounce(Tocca.onTouchStart, 1));
+Utils.setListener(document, Tocca.events.end, debounce(Tocca.onTouchEnd, 1));
+Utils.setListener(document, Tocca.events.move, debounce(Tocca.onTouchMove, 1));
 
-function Slider(el, GUID, settings) {
+var Builder = {
+    build: function() {
+        // Set viewport and slider
+        this.setLayout();
 
-    this.el = el;
-    this.settings = settings;
-    this.slider = null;
-    this.slidesLength = null;
-    this.GUID = GUID;
+        this.count = this.getSlidesLength();
 
-    this.count = 0;
-    this.source = 0;
-
-    //Init the pointer to the visible slide
-    this.pointer = 0;
-
-    //Hint for the direction to load
-    this.directionHint = 'right';
-    this.resizeTimeout = null;
-    this.animated = false;
-
-    try {
-
-        if (typeof el === 'undefined') {
-            throw new Error('The first argument passed to the constructor is undefined');
-        }
-
-        this.build();
-
-    } catch (err) {
-        console.error(err.message);
+        this.setNavigation();
     }
-}
-
-Slider.prototype.getSlider = function() {
-    if(this.slider) return this.slider;
-    return this.slider = this.el.querySelector('.elba-slider');
 };
 
-Slider.prototype.getSlides = function() {
-    return this.el.querySelectorAll('.elba');
-};
-
-Slider.prototype.getSlidesLength = function() {
-    if(this.slidesLength) return this.slidesLength;
-    return this.getSlides().length;
-};
-
-var testElement = document.createElement('div');
-//http://stackoverflow.com/questions/7212102/detect-with-javascript-or-jquery-if-css-transform-2d-is-available
-var vendorTransform = (function() {
-    var prefixes = 'transform WebkitTransform webkitTransform MozTransform OTransform msTransform'.split(' ');
-    for (var i = 0; i < prefixes.length; i++) {
-        if (testElement.style[prefixes[i]] !== undefined) {
-            return prefixes[i];
-        }
-    }
-    return false;
-})();
-
-var vendorTransition = (function() {
-    var prefixes = 'transition WebkitTransition webkitTransition MozTransition OTransition'.split(' ');
-    for (var i = 0; i < prefixes.length; i++) {
-        if (testElement.style[prefixes[i]] !== undefined) {
-            return prefixes[i];
-        }
-    }
-    return false;
-})();
-
-// http://stackoverflow.com/questions/15622466/how-do-i-get-the-absolute-value-of-translate3d
-function getTransform(el) {
-    var transform = window.getComputedStyle(el, null).getPropertyValue(vendorTransform);
-    var results = transform.match(/matrix(?:(3d)\(-{0,1}\d+(?:, -{0,1}\d+)*(?:, (-{0,1}\d+))(?:, (-{0,1}\d+))(?:, (-{0,1}\d+)), -{0,1}\d+\)|\(-{0,1}\d+(?:, -{0,1}\d+)*(?:, (-{0,1}.+))(?:, (-{0,1}.+))\))/);
-
-    if (!results) return [0, 0, 0];
-    if (results[1] == '3d') return results.slice(2, 5);
-
-    results.push(0);
-    return results.slice(5, 8); // returns the [X,Y,Z,1] values
-}
-
-var rAF = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
-    window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
-
-var cAF = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
-
-Slider.prototype.goToNext = function() {
-
-    var offset = (-this.pointer - 1) * 100;
-    this.pointer += 1;
-    console.log(this.pointer % this.getSlidesLength());
-    console.log(this.pointer);
-    if(this.pointer === (this.getSlidesLength() -1 )) {
-        var _firstSlide = Utils.getNodeElementByIndex(this.getSlides(), 0);
-        _firstSlide.style.left = (this.pointer + 1) * 100 + '%';
-    }
-
-    this.slide(offset);
-};
-
-Slider.prototype.goToPrevious = function() {
-
-    var offset = (-(this.pointer - 1)) * 100;
-    this.pointer -= 1;
-    this.slide(offset);
-
-};
-
-Slider.prototype.slide = function(offset) {
-
-    var _slider = this.getSlider();
-    rAF(function() {
-        _slider.style[vendorTransition] = vendorTransform + ' 0.8s';
-        _slider.style[vendorTransform] = 'translate3d(' + offset + '%,0,0)';
-    });
-
-};
-
-Slider.prototype.build = function() {
-
-    // Set viewport and slider
-    this.setLayout();
-
-    this.count = this.getSlidesLength();
-
-    this.setNavigation();
-
-};
-
-Slider.prototype.setLayout = function() {
+Builder.setLayout = function() {
 
     var d = document.createDocumentFragment();
 
@@ -576,7 +451,7 @@ Slider.prototype.setLayout = function() {
 
 };
 
-Slider.prototype.setSlidesOffset = function(slides) {
+Builder.setSlidesOffset = function(slides) {
 
     var start = 0;
 
@@ -586,7 +461,7 @@ Slider.prototype.setSlidesOffset = function(slides) {
     }
 };
 
-Slider.prototype.setNavigation = function() {
+Builder.setNavigation = function() {
     if (this.settings.navigation && this.count > 1) {
         this.setArrow('right');
         this.setArrow('left');
@@ -597,14 +472,13 @@ Slider.prototype.setNavigation = function() {
  * Set arrows for the navigation
  * @param {String} direction
  */
-Slider.prototype.setArrow = function(direction) {
+Builder.setArrow = function(direction) {
 
     // create svg
     var svgURI = 'http://www.w3.org/2000/svg';
 
     var arrow = document.createElement('a');
     arrow.className = 'elba-' + direction + '-nav elba-arrow';
-    arrow.setAttribute('data-elba-id', this.GUID);
 
     if (direction === 'left') {
 
@@ -641,13 +515,83 @@ Slider.prototype.setArrow = function(direction) {
     this.el.appendChild(arrow);
 };
 
-Slider.prototype.loadImages = function() {
-	// TODO
-	console.log(this.el);
-    return this;
+var testElement = document.createElement('div');
+//http://stackoverflow.com/questions/7212102/detect-with-javascript-or-jquery-if-css-transform-2d-is-available
+var vendorTransform = (function() {
+    var prefixes = 'transform WebkitTransform webkitTransform MozTransform OTransform msTransform'.split(' ');
+    for (var i = 0; i < prefixes.length; i++) {
+        if (testElement.style[prefixes[i]] !== undefined) {
+            return prefixes[i];
+        }
+    }
+    return false;
+})();
+
+var vendorTransition = (function() {
+    var prefixes = 'transition WebkitTransition webkitTransition MozTransition OTransition'.split(' ');
+    for (var i = 0; i < prefixes.length; i++) {
+        if (testElement.style[prefixes[i]] !== undefined) {
+            return prefixes[i];
+        }
+    }
+    return false;
+})();
+
+testElement = null;
+
+// http://stackoverflow.com/questions/15622466/how-do-i-get-the-absolute-value-of-translate3d
+function getTransform(el) {
+    var transform = window.getComputedStyle(el, null).getPropertyValue(vendorTransform);
+    var results = transform.match(/matrix(?:(3d)\(-{0,1}\d+(?:, -{0,1}\d+)*(?:, (-{0,1}\d+))(?:, (-{0,1}\d+))(?:, (-{0,1}\d+)), -{0,1}\d+\)|\(-{0,1}\d+(?:, -{0,1}\d+)*(?:, (-{0,1}.+))(?:, (-{0,1}.+))\))/);
+
+    if (!results) return [0, 0, 0];
+    if (results[1] == '3d') return results.slice(2, 5);
+
+    results.push(0);
+    return results.slice(5, 8); // returns the [X,Y,Z,1] values
+}
+
+var rAF = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+    window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+
+var cAF = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
+
+/**
+* Remember: 
+* this.pointer % this.getSlidesLength() is equal to 0 when we are pointing the last slide
+* this.pointer % this.getSlidesLength() is equal to 1 when we are pointing the first slide
+* this.pointer % this.getSlidesLength() is equal to N when we are pointing the Nth slide but not the last
+*
+* Note: we assume that pointer starts from 0.
+*/
+
+var Player = Object.create(Builder);
+
+Player.goToNext = function() {
+
+    var offset = (-this.pointer - 1) * 100;
+    this.pointer += 1;
+    // console.log(this.pointer % this.getSlidesLength());
+    // console.log(this.pointer / this.getSlidesLength());
+    if(this.pointer >= (this.count -1 )) {
+        console.log(this.pointer);
+        console.log((this.pointer + 1) % this.getSlidesLength());
+        var _nextSlide = Utils.getNodeElementByIndex(this.getSlides(), (this.pointer + 1) % this.getSlidesLength());
+        _nextSlide.style.left = (this.pointer + 1) * 100 + '%';
+    }
+
+    this.slide(offset);
 };
 
-Slider.prototype.goTo = function(direction) {
+Player.goToPrevious = function() {
+
+    var offset = (-(this.pointer - 1)) * 100;
+    this.pointer -= 1;
+    this.slide(offset);
+
+};
+
+Player.goTo = function(direction) {
     if (direction === 'next') {
         this.goToNext();
     } else if (direction === 'previous') {
@@ -655,9 +599,102 @@ Slider.prototype.goTo = function(direction) {
     }
 };
 
-var ElbaProxy = {};
+Player.slide = function(offset) {
 
-var Elba = (function() {
+    var _slider = this.getSlider();
+    rAF(function() {
+        _slider.style[vendorTransition] = vendorTransform + ' 0.8s';
+        _slider.style[vendorTransform] = 'translate3d(' + offset + '%,0,0)';
+    });
+
+};
+
+var Imagie = Object.create(Player);
+
+Imagie.loadImages = function() {
+	// TODO
+	console.log(this.el);
+    return this;
+};
+
+var arrowClickHandler = function(e) {
+    if (classie.hasClass(e.target, 'elba-right-nav')) {
+        this.goTo('next');
+    } else {
+        this.goTo('previous');
+    }
+};
+
+var sliderDragStartHandler = function(e) {
+	console.log(Instances);
+};
+
+var Eventie = Object.create(Imagie);
+
+Eventie.initEvents = function() {
+    // bind click on arrows
+    if (this.settings.navigation) {
+        this.setArrowsListener();
+    }
+
+    this.setSliderListener();
+};
+
+Eventie.setArrowsListener = function() {
+    var _arrows = Utils.makeArray(this.getArrows());
+    var i = 0;
+    while(_arrows[i]){
+    	_arrows[i].addEventListener('click', arrowClickHandler.bind(this));
+    	i++;
+    }
+};
+
+Eventie.setSliderListener = function() {
+	var _slider = this.getSlider();
+	Utils.setListener(_slider, Tocca.events.start, sliderDragStartHandler.bind(this));
+};
+
+var Slider = Object.create(Eventie);
+
+Slider.slider = null;
+Slider.slidesLength = null;
+Slider.count = 0;
+Slider.source = 0;
+
+//Init the pointer to the visible slide
+Slider.pointer = 0;
+
+//Hint for the direction to load
+Slider.directionHint = 'right';
+Slider.resizeTimeout = null;
+Slider.isSettled = true;
+
+Slider.init = function() {
+    this.build();
+    this.initEvents();
+};
+
+Slider.getSlider = function() {
+    if (this.slider) return this.slider;
+    return this.slider = this.el.querySelector('.elba-slider');
+};
+
+Slider.getSlides = function() {
+    return this.el.querySelectorAll('.elba');
+};
+
+Slider.getArrows = function() {
+    return this.el.querySelectorAll('.elba-arrow');
+};
+
+Slider.getSlidesLength = function() {
+    if (this.slidesLength) return this.slidesLength;
+    return this.slidesLength = this.getSlides().length;
+};
+
+
+
+function Elba(selector, options) {
 
     var _defaults = {
         selector: '.elba',
@@ -678,35 +715,35 @@ var Elba = (function() {
     };
 
     var _createInstance = function(el, GUID, options) {
-        return new Slider(el, GUID, options);
-    };
-
-    return {
-        init: function(selector, options) {
-
-            // Extend default options
-            var settings = Utils.extend(_defaults, options);
-
-            var publicProxy = Object.create(ElbaProxy, {
-                instances: {
-                    enumerable: true,
-                    configurable: false,
-                    writable: true,
-                    value: []
-                }
-            });
-
-            if (selector.indexOf('#') > -1) {
-                var target = selector.slice(1);
-                var GUID = Utils.generateGUID();
-                Instances[GUID] = _createInstance(document.getElementById(target), GUID, settings);
-                publicProxy.instances.push(GUID);
+        return Object.create(Slider, {
+            el: {
+                writable: false,
+                value: el
+            },
+            GUID: {
+                writable: false,
+                value: GUID
+            },
+            settings: {
+                writable: true,
+                value: options
             }
-
-            return publicProxy;
-        }
+        });
     };
-})();
+
+    // Extend default options
+    var settings = Utils.extend(_defaults, options);
+
+    this.instances = [];
+
+    if (selector.indexOf('#') > -1) {
+        var target = selector.slice(1);
+        var GUID = Utils.generateGUID();
+        Instances[GUID] = _createInstance(document.getElementById(target), GUID, settings);
+        Instances[GUID].init();
+        this.instances.push(GUID);
+    }
+}
 
 return Elba;
 });

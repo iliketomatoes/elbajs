@@ -99,5 +99,14 @@ var Utils = {
 
     getNodeElementByIndex: function(elements, index) {
         return elements[index];
+    },
+
+    setListener: function(elm, events, callback) {
+        var eventsArray = events.split(' '),
+            i = eventsArray.length;
+
+        while (i--) {
+            elm.addEventListener(eventsArray[i], callback, false);
+        }
     }
 };

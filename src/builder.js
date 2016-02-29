@@ -1,15 +1,15 @@
-Slider.prototype.build = function() {
+var Builder = {
+    build: function() {
+        // Set viewport and slider
+        this.setLayout();
 
-    // Set viewport and slider
-    this.setLayout();
+        this.count = this.getSlidesLength();
 
-    this.count = this.getSlidesLength();
-
-    this.setNavigation();
-
+        this.setNavigation();
+    }
 };
 
-Slider.prototype.setLayout = function() {
+Builder.setLayout = function() {
 
     var d = document.createDocumentFragment();
 
@@ -46,7 +46,7 @@ Slider.prototype.setLayout = function() {
 
 };
 
-Slider.prototype.setSlidesOffset = function(slides) {
+Builder.setSlidesOffset = function(slides) {
 
     var start = 0;
 
@@ -56,7 +56,7 @@ Slider.prototype.setSlidesOffset = function(slides) {
     }
 };
 
-Slider.prototype.setNavigation = function() {
+Builder.setNavigation = function() {
     if (this.settings.navigation && this.count > 1) {
         this.setArrow('right');
         this.setArrow('left');
@@ -67,14 +67,13 @@ Slider.prototype.setNavigation = function() {
  * Set arrows for the navigation
  * @param {String} direction
  */
-Slider.prototype.setArrow = function(direction) {
+Builder.setArrow = function(direction) {
 
     // create svg
     var svgURI = 'http://www.w3.org/2000/svg';
 
     var arrow = document.createElement('a');
     arrow.className = 'elba-' + direction + '-nav elba-arrow';
-    arrow.setAttribute('data-elba-id', this.GUID);
 
     if (direction === 'left') {
 

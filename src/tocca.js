@@ -46,19 +46,6 @@ var msEventType = function(type) {
             }, delay);
         };
     },
-    touchevents = {
-        touchstart: msEventType('PointerDown') + ' touchstart',
-        touchend: msEventType('PointerUp') + ' touchend',
-        touchmove: msEventType('PointerMove') + ' touchmove'
-    },
-    setListener = function(elm, events, callback) {
-        var eventsArray = events.split(' '),
-            i = eventsArray.length;
-
-        while (i--) {
-            elm.addEventListener(eventsArray[i], callback, false);
-        }
-    },
     getPointerEvent = function(event) {
         return event.targetTouches ? event.targetTouches[0] : event;
     },
@@ -92,24 +79,20 @@ var msEventType = function(type) {
 var targetInstance = null;
 
 var Tocca = {
+    events: {
+        start: msEventType('PointerDown') + ' touchstart mousedown',
+        end: msEventType('PointerUp') + ' touchend mouseup',
+        move: msEventType('PointerMove') + ' touchmove mousemove'
+    },
     onTouchStart: function(e) {
 
         var pointer = getPointerEvent(e);
 
-        // If we are clicking on the slider's arrow
-        if (Utils.selectorMatches(pointer.target, 'a.elba-arrow')) {
-            // Get the Slider instance
-            targetInstance = Instances[pointer.target.getAttribute('data-elba-id')];
-            if (classie.hasClass(pointer.target, 'elba-right-nav')) {
-                targetInstance.goTo('next');
-            } else {
-                targetInstance.goTo('previous');
-            }
-        } else if (Utils.selectorMatches(pointer.target, '.elba')) {
+        /*if (Utils.selectorMatches(pointer.target, '.elba')) {
             targetInstance = Instances[pointer.target.getAttribute('data-elba-id')];
         } else if (Utils.selectorMatches(pointer.target.parentNode, '.elba')) {
             targetInstance = Instances[pointer.target.parentNode.getAttribute('data-elba-id')];
-        }
+        }*/
 
         // caching the current x
         cachedX = currX = pointer.pageX;
@@ -227,6 +210,6 @@ var swipeThreshold = window.SWIPE_THRESHOLD || 100,
 
 //setting the events listeners
 // we need to debounce the callbacks because some devices multiple events are triggered at same time
-setListener(document, touchevents.touchstart + (justTouchEvents ? '' : ' mousedown'), debounce(Tocca.onTouchStart, 1));
-setListener(document, touchevents.touchend + (justTouchEvents ? '' : ' mouseup'), debounce(Tocca.onTouchEnd, 1));
-setListener(document, touchevents.touchmove + (justTouchEvents ? '' : ' mousemove'), debounce(Tocca.onTouchMove, 1));
+Utils.setListener(document, Tocca.events.start, debounce(Tocca.onTouchStart, 1));
+Utils.setListener(document, Tocca.events.end, debounce(Tocca.onTouchEnd, 1));
+Utils.setListener(document, Tocca.events.move, debounce(Tocca.onTouchMove, 1));

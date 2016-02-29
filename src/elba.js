@@ -1,4 +1,4 @@
-var Elba = (function() {
+function Elba(selector, options) {
 
     var _defaults = {
         selector: '.elba',
@@ -19,32 +19,32 @@ var Elba = (function() {
     };
 
     var _createInstance = function(el, GUID, options) {
-        return new Slider(el, GUID, options);
-    };
-
-    return {
-        init: function(selector, options) {
-
-            // Extend default options
-            var settings = Utils.extend(_defaults, options);
-
-            var publicProxy = Object.create(ElbaProxy, {
-                instances: {
-                    enumerable: true,
-                    configurable: false,
-                    writable: true,
-                    value: []
-                }
-            });
-
-            if (selector.indexOf('#') > -1) {
-                var target = selector.slice(1);
-                var GUID = Utils.generateGUID();
-                Instances[GUID] = _createInstance(document.getElementById(target), GUID, settings);
-                publicProxy.instances.push(GUID);
+        return Object.create(Slider, {
+            el: {
+                writable: false,
+                value: el
+            },
+            GUID: {
+                writable: false,
+                value: GUID
+            },
+            settings: {
+                writable: true,
+                value: options
             }
-
-            return publicProxy;
-        }
+        });
     };
-})();
+
+    // Extend default options
+    var settings = Utils.extend(_defaults, options);
+
+    this.instances = [];
+
+    if (selector.indexOf('#') > -1) {
+        var target = selector.slice(1);
+        var GUID = Utils.generateGUID();
+        Instances[GUID] = _createInstance(document.getElementById(target), GUID, settings);
+        Instances[GUID].init();
+        this.instances.push(GUID);
+    }
+}

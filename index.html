@@ -122,7 +122,7 @@
         <script src="dist/elba/elba.pkgd.js"></script>
         <script>
         ;(function(){
-            var gallery = Elba.init('#carousel', {
+            var gallery = new Elba('#carousel', {
                 slideshow: 5000,
                 duration : 800,
                 easing: 'easeInOutCubic',
@@ -139,8 +139,8 @@
 
             console.log(gallery);
 
-            var smallGallery = Elba.init('#small-carousel', {
-                navigation: false,
+            var smallGallery = new Elba('#small-carousel', {
+                navigation: true,
                 breakpoints: [{
                       width: 561 // min-width
                     , src: 'data-src-medium'
