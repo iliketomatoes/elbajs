@@ -151,7 +151,6 @@
 .elba {
   position: absolute;
   height: 100%;
-  width: 100%;
   margin: 0;
   padding: 0;
   border: none;
@@ -167,6 +166,14 @@
 
 .elba *, .elba :before, .elba :after {
   box-sizing: border-box;
+}
+
+.elba--100 {
+  width: 100%;
+}
+
+.elba--50 {
+  width: 50%;
 }
 
 .elba-animatable .elba-loading:before {

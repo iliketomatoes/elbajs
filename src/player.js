@@ -41,9 +41,9 @@ var cAF = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 
 /**
 * Remember: 
-* this.pointer % this.getSlidesLength() is equal to 0 when we are pointing the last slide
-* this.pointer % this.getSlidesLength() is equal to 1 when we are pointing the first slide
-* this.pointer % this.getSlidesLength() is equal to N when we are pointing the Nth slide but not the last
+* this.pointer % this.getSlidesCount() is equal to 0 when we are pointing the last slide
+* this.pointer % this.getSlidesCount() is equal to 1 when we are pointing the first slide
+* this.pointer % this.getSlidesCount() is equal to N when we are pointing the Nth slide but not the last
 *
 * Note: we assume that pointer starts from 0.
 */
@@ -54,12 +54,13 @@ Player.goToNext = function() {
 
     var offset = (-this.pointer - 1) * 100;
     this.pointer += 1;
-    // console.log(this.pointer % this.getSlidesLength());
-    // console.log(this.pointer / this.getSlidesLength());
+    console.log(this.slidesMap[this.pointer].width);
+    // console.log(this.pointer % this.getSlidesCount());
+    // console.log(this.pointer / this.getSlidesCount());
     if(this.pointer >= (this.count -1 )) {
-        console.log(this.pointer);
-        console.log((this.pointer + 1) % this.getSlidesLength());
-        var _nextSlide = Utils.getNodeElementByIndex(this.getSlides(), (this.pointer + 1) % this.getSlidesLength());
+        //console.log(this.pointer);
+        //console.log((this.pointer + 1) % this.getSlidesCount());
+        var _nextSlide = Utils.getNodeElementByIndex(this.getSlides(), (this.pointer + 1) % this.getSlidesCount());
         _nextSlide.style.left = (this.pointer + 1) * 100 + '%';
     }
 

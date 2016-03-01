@@ -7,7 +7,12 @@ var arrowClickHandler = function(e) {
 };
 
 var sliderDragStartHandler = function(e) {
-	console.log(Instances);
+    // Assign a Slider instance to TargetInstance only
+    // if it's not referencing another Slider Instance already.
+    // This means that you can only drag one slider per time. 
+    if(TargetInstance === null){
+	   TargetInstance = Instances[this.GUID];
+    }
 };
 
 var Eventie = Object.create(Imagie);

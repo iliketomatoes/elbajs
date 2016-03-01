@@ -16,6 +16,8 @@ function Elba(selector, options) {
         slideshow: 8000,
         preload: 1,
         swipeThreshold: 60,
+        //Hint for the direction to load
+        directionHint: 'right'
     };
 
     var _createInstance = function(el, GUID, options) {
@@ -31,6 +33,36 @@ function Elba(selector, options) {
             settings: {
                 writable: true,
                 value: options
+            },
+            slider: {
+                writable: true,
+                configurable: true,
+                value: null
+            },
+            slidesMap: {
+                writable: true,
+                enumerable: true,
+                value: {}
+            },
+            count: {
+                writable: true,
+                value: 0
+            },
+            source: {
+                writable: true,
+                value: {}
+            },
+            containerWidth: {
+                writable: true,
+                value: 0
+            },
+            pointer: {
+                writable: true,
+                value: 0
+            },
+            isSettled: {
+                writable: true,
+                value: true
             }
         });
     };

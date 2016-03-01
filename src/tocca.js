@@ -49,9 +49,6 @@ var msEventType = function(type) {
     getPointerEvent = function(event) {
         return event.targetTouches ? event.targetTouches[0] : event;
     },
-    getTimestamp = function() {
-        return new Date().getTime();
-    },
     sendEvent = function(elm, eventName, originalEvent, data) {
         var customEvent = document.createEvent('Event');
         customEvent.originalEvent = originalEvent;
@@ -75,9 +72,6 @@ var msEventType = function(type) {
         }
     };
 
-// targetInstance points to the target Slider instance
-var targetInstance = null;
-
 var Tocca = {
     events: {
         start: msEventType('PointerDown') + ' touchstart mousedown',
@@ -88,58 +82,38 @@ var Tocca = {
 
         var pointer = getPointerEvent(e);
 
-        /*if (Utils.selectorMatches(pointer.target, '.elba')) {
-            targetInstance = Instances[pointer.target.getAttribute('data-elba-id')];
-        } else if (Utils.selectorMatches(pointer.target.parentNode, '.elba')) {
-            targetInstance = Instances[pointer.target.parentNode.getAttribute('data-elba-id')];
-        }*/
-
         // caching the current x
         cachedX = currX = pointer.pageX;
         // caching the current y
         cachedY = currY = pointer.pageY;
-
-        longtapTimer = setTimeout(function() {
-            sendEvent(e.target, 'longtap', e);
-            target = e.target;
-        }, longtapThreshold);
-
-        // we will use these variables on the touchend events
-        timestamp = getTimestamp();
 
         tapNum++;
     },
     onTouchEnd: function(e) {
 
         var eventsArr = [],
-            now = getTimestamp(),
             deltaY = cachedY - currY,
             deltaX = cachedX - currX;
 
-        // clear the previous timer if it was set
-        clearTimeout(dblTapTimer);
-        // kill the long tap timer
-        clearTimeout(longtapTimer);
-
-        if (deltaX <= -swipeThreshold){
-        	if(targetInstance) {
-        		targetInstance.goTo('previous');
-        	}
+        if (deltaX <= -swipeThreshold) {
+            if (TargetInstance) {
+                TargetInstance.goTo('previous');
+            }
             eventsArr.push('swiperight');
         }
 
-        if (deltaX >= swipeThreshold){
-        	if(targetInstance) {
-        		targetInstance.goTo('next');
-        	}
+        if (deltaX >= swipeThreshold) {
+            if (TargetInstance) {
+                TargetInstance.goTo('next');
+            }
             eventsArr.push('swipeleft');
         }
 
-        if (deltaY <= -swipeThreshold){
+        if (deltaY <= -swipeThreshold) {
             eventsArr.push('swipedown');
         }
 
-        if (deltaY >= swipeThreshold){
+        if (deltaY >= swipeThreshold) {
             eventsArr.push('swipeup');
         }
 
@@ -155,31 +129,14 @@ var Tocca = {
             }
             // reset the tap counter
             tapNum = 0;
-        } else {
-
-            if (
-                cachedX >= currX - tapPrecision &&
-                cachedX <= currX + tapPrecision &&
-                cachedY >= currY - tapPrecision &&
-                cachedY <= currY + tapPrecision
-            ) {
-                if (timestamp + tapThreshold - now >= 0) {
-                    // Here you get the Tap event
-                    sendEvent(e.target, tapNum >= 2 && target === e.target ? 'dbltap' : 'tap', e);
-                    target = e.target;
-                }
-            }
-
-            // reset the tap counter
-            dblTapTimer = setTimeout(function() {
-                tapNum = 0;
-            }, dbltapThreshold);
-
         }
 
-        targetInstance = null;
+        TargetInstance = null;
     },
     onTouchMove: function(e) {
+
+        // If no slider had been clicked, we don't procede
+        if (!TargetInstance) return;
 
         var pointer = getPointerEvent(e);
 
@@ -199,14 +156,10 @@ var Tocca = {
         }
     }
 };
+
 var swipeThreshold = window.SWIPE_THRESHOLD || 100,
-    tapThreshold = window.TAP_THRESHOLD || 150, // range of time where a tap event could be detected
-    dbltapThreshold = window.DBL_TAP_THRESHOLD || 200, // delay needed to detect a double tap
-    longtapThreshold = window.LONG_TAP_THRESHOLD || 1000, // delay needed to detect a long tap
-    tapPrecision = window.TAP_PRECISION / 2 || 60 / 2, // touch events boundaries ( 60px by default )
-    justTouchEvents = window.JUST_ON_TOUCH_DEVICES,
     tapNum = 0,
-    currX, currY, cachedX, cachedY, timestamp, target, dblTapTimer, longtapTimer;
+    currX, currY, cachedX, cachedY;
 
 //setting the events listeners
 // we need to debounce the callbacks because some devices multiple events are triggered at same time

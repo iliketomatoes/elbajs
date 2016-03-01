@@ -1,4 +1,4 @@
-/*! elba - v0.5.0 - 2016-02-29
+/*! elba - v0.5.0 - 2016-03-01
 * https://github.com/iliketomatoes/elbajs
 * Copyright (c) 2016 ; Licensed  */
 /*!
@@ -106,6 +106,9 @@ if ( typeof define === 'function' && define.amd ) {
         // Object storing slider instances
         var Instances = {};
 
+        // Helper variable that holds the slider instance that has been clicked
+        // upon, to handle the dragging event.
+        var TargetInstance = null;
 var isRetina = window.devicePixelRatio > 1;
 
 // Set the name of the hidden property and the change event for visibility
@@ -238,9 +241,6 @@ var msEventType = function(type) {
     getPointerEvent = function(event) {
         return event.targetTouches ? event.targetTouches[0] : event;
     },
-    getTimestamp = function() {
-        return new Date().getTime();
-    },
     sendEvent = function(elm, eventName, originalEvent, data) {
         var customEvent = document.createEvent('Event');
         customEvent.originalEvent = originalEvent;
@@ -264,9 +264,6 @@ var msEventType = function(type) {
         }
     };
 
-// targetInstance points to the target Slider instance
-var targetInstance = null;
-
 var Tocca = {
     events: {
         start: msEventType('PointerDown') + ' touchstart mousedown',
@@ -277,58 +274,38 @@ var Tocca = {
 
         var pointer = getPointerEvent(e);
 
-        /*if (Utils.selectorMatches(pointer.target, '.elba')) {
-            targetInstance = Instances[pointer.target.getAttribute('data-elba-id')];
-        } else if (Utils.selectorMatches(pointer.target.parentNode, '.elba')) {
-            targetInstance = Instances[pointer.target.parentNode.getAttribute('data-elba-id')];
-        }*/
-
         // caching the current x
         cachedX = currX = pointer.pageX;
         // caching the current y
         cachedY = currY = pointer.pageY;
-
-        longtapTimer = setTimeout(function() {
-            sendEvent(e.target, 'longtap', e);
-            target = e.target;
-        }, longtapThreshold);
-
-        // we will use these variables on the touchend events
-        timestamp = getTimestamp();
 
         tapNum++;
     },
     onTouchEnd: function(e) {
 
         var eventsArr = [],
-            now = getTimestamp(),
             deltaY = cachedY - currY,
             deltaX = cachedX - currX;
 
-        // clear the previous timer if it was set
-        clearTimeout(dblTapTimer);
-        // kill the long tap timer
-        clearTimeout(longtapTimer);
-
-        if (deltaX <= -swipeThreshold){
-        	if(targetInstance) {
-        		targetInstance.goTo('previous');
-        	}
+        if (deltaX <= -swipeThreshold) {
+            if (TargetInstance) {
+                TargetInstance.goTo('previous');
+            }
             eventsArr.push('swiperight');
         }
 
-        if (deltaX >= swipeThreshold){
-        	if(targetInstance) {
-        		targetInstance.goTo('next');
-        	}
+        if (deltaX >= swipeThreshold) {
+            if (TargetInstance) {
+                TargetInstance.goTo('next');
+            }
             eventsArr.push('swipeleft');
         }
 
-        if (deltaY <= -swipeThreshold){
+        if (deltaY <= -swipeThreshold) {
             eventsArr.push('swipedown');
         }
 
-        if (deltaY >= swipeThreshold){
+        if (deltaY >= swipeThreshold) {
             eventsArr.push('swipeup');
         }
 
@@ -344,31 +321,14 @@ var Tocca = {
             }
             // reset the tap counter
             tapNum = 0;
-        } else {
-
-            if (
-                cachedX >= currX - tapPrecision &&
-                cachedX <= currX + tapPrecision &&
-                cachedY >= currY - tapPrecision &&
-                cachedY <= currY + tapPrecision
-            ) {
-                if (timestamp + tapThreshold - now >= 0) {
-                    // Here you get the Tap event
-                    sendEvent(e.target, tapNum >= 2 && target === e.target ? 'dbltap' : 'tap', e);
-                    target = e.target;
-                }
-            }
-
-            // reset the tap counter
-            dblTapTimer = setTimeout(function() {
-                tapNum = 0;
-            }, dbltapThreshold);
-
         }
 
-        targetInstance = null;
+        TargetInstance = null;
     },
     onTouchMove: function(e) {
+
+        // If no slider had been clicked, we don't procede
+        if (!TargetInstance) return;
 
         var pointer = getPointerEvent(e);
 
@@ -388,14 +348,10 @@ var Tocca = {
         }
     }
 };
+
 var swipeThreshold = window.SWIPE_THRESHOLD || 100,
-    tapThreshold = window.TAP_THRESHOLD || 150, // range of time where a tap event could be detected
-    dbltapThreshold = window.DBL_TAP_THRESHOLD || 200, // delay needed to detect a double tap
-    longtapThreshold = window.LONG_TAP_THRESHOLD || 1000, // delay needed to detect a long tap
-    tapPrecision = window.TAP_PRECISION / 2 || 60 / 2, // touch events boundaries ( 60px by default )
-    justTouchEvents = window.JUST_ON_TOUCH_DEVICES,
     tapNum = 0,
-    currX, currY, cachedX, cachedY, timestamp, target, dblTapTimer, longtapTimer;
+    currX, currY, cachedX, cachedY;
 
 //setting the events listeners
 // we need to debounce the callbacks because some devices multiple events are triggered at same time
@@ -404,13 +360,11 @@ Utils.setListener(document, Tocca.events.end, debounce(Tocca.onTouchEnd, 1));
 Utils.setListener(document, Tocca.events.move, debounce(Tocca.onTouchMove, 1));
 
 var Builder = {
-    build: function() {
-        // Set viewport and slider
+    build: function(){
         this.setLayout();
-
-        this.count = this.getSlidesLength();
-
-        this.setNavigation();
+        var _slides = this.getSlides();
+        this.registerSlidesWidth(_slides);
+        this.setSlidesOffset(_slides);
     }
 };
 
@@ -437,7 +391,6 @@ Builder.setLayout = function() {
     if (cloneNodes) {
 
         for (var i = 0; i < cloneNodes.length; i++) {
-            cloneNodes[i].setAttribute('data-elba-id', this.GUID);
             slider.appendChild(cloneNodes[i]);
         }
     }
@@ -445,27 +398,28 @@ Builder.setLayout = function() {
     // Remove the original, unwrapped, slides
     Utils.removeChildren(this.el);
 
-    this.setSlidesOffset(cloneNodes);
-
     this.el.appendChild(d);
 
 };
 
-Builder.setSlidesOffset = function(slides) {
-
+Builder.setSlidesOffset = function(elements) {
+    var slides = elements || this.getSlides();
+    var containerWidth = this.getContainerWidth();
     var start = 0;
-
-    for (var i = 0; i < slides.length; i++) {
-        slides[i].style.left = start + '%';
-        start += 100;
+    var tmp = 0;
+    var percentageWidth = 0;
+    for (var i = 1; i < slides.length; i++) {
+        tmp = Utils.intVal(this.slidesMap[i - 1].width);
+        tmp = (tmp / containerWidth).toFixed(2);
+        percentageWidth = (tmp * 100);
+        slides[i].style.left = (percentageWidth + start) + '%';
+        start += percentageWidth;
     }
 };
 
 Builder.setNavigation = function() {
-    if (this.settings.navigation && this.count > 1) {
-        this.setArrow('right');
-        this.setArrow('left');
-    }
+    this.setArrow('right');
+    this.setArrow('left');
 };
 
 /**
@@ -515,6 +469,13 @@ Builder.setArrow = function(direction) {
     this.el.appendChild(arrow);
 };
 
+Builder.registerSlidesWidth = function(elements) {
+    var slides = elements || this.getSlides();
+    for (var i = 0; i < slides.length; i++) {
+        if (typeof this.slidesMap[i] === 'undefined') this.slidesMap[i] = {};
+        this.slidesMap[i].width = window.getComputedStyle(slides[i]).getPropertyValue('width');
+    }
+};
 var testElement = document.createElement('div');
 //http://stackoverflow.com/questions/7212102/detect-with-javascript-or-jquery-if-css-transform-2d-is-available
 var vendorTransform = (function() {
@@ -558,9 +519,9 @@ var cAF = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 
 /**
 * Remember: 
-* this.pointer % this.getSlidesLength() is equal to 0 when we are pointing the last slide
-* this.pointer % this.getSlidesLength() is equal to 1 when we are pointing the first slide
-* this.pointer % this.getSlidesLength() is equal to N when we are pointing the Nth slide but not the last
+* this.pointer % this.getSlidesCount() is equal to 0 when we are pointing the last slide
+* this.pointer % this.getSlidesCount() is equal to 1 when we are pointing the first slide
+* this.pointer % this.getSlidesCount() is equal to N when we are pointing the Nth slide but not the last
 *
 * Note: we assume that pointer starts from 0.
 */
@@ -571,12 +532,13 @@ Player.goToNext = function() {
 
     var offset = (-this.pointer - 1) * 100;
     this.pointer += 1;
-    // console.log(this.pointer % this.getSlidesLength());
-    // console.log(this.pointer / this.getSlidesLength());
+    console.log(this.slidesMap[this.pointer].width);
+    // console.log(this.pointer % this.getSlidesCount());
+    // console.log(this.pointer / this.getSlidesCount());
     if(this.pointer >= (this.count -1 )) {
-        console.log(this.pointer);
-        console.log((this.pointer + 1) % this.getSlidesLength());
-        var _nextSlide = Utils.getNodeElementByIndex(this.getSlides(), (this.pointer + 1) % this.getSlidesLength());
+        //console.log(this.pointer);
+        //console.log((this.pointer + 1) % this.getSlidesCount());
+        var _nextSlide = Utils.getNodeElementByIndex(this.getSlides(), (this.pointer + 1) % this.getSlidesCount());
         _nextSlide.style.left = (this.pointer + 1) * 100 + '%';
     }
 
@@ -626,7 +588,12 @@ var arrowClickHandler = function(e) {
 };
 
 var sliderDragStartHandler = function(e) {
-	console.log(Instances);
+    // Assign a Slider instance to TargetInstance only
+    // if it's not referencing another Slider Instance already.
+    // This means that you can only drag one slider per time. 
+    if(TargetInstance === null){
+	   TargetInstance = Instances[this.GUID];
+    }
 };
 
 var Eventie = Object.create(Imagie);
@@ -656,21 +623,17 @@ Eventie.setSliderListener = function() {
 
 var Slider = Object.create(Eventie);
 
-Slider.slider = null;
-Slider.slidesLength = null;
-Slider.count = 0;
-Slider.source = 0;
-
-//Init the pointer to the visible slide
-Slider.pointer = 0;
-
-//Hint for the direction to load
-Slider.directionHint = 'right';
-Slider.resizeTimeout = null;
-Slider.isSettled = true;
-
 Slider.init = function() {
     this.build();
+
+    this.count = this.getSlidesCount();
+    this.containerWidth = this.getContainerWidth();
+
+    if (this.settings.navigation && this.count > 1) {
+        this.setNavigation();
+    }
+    console.log(this.slidesMap);
+    
     this.initEvents();
 };
 
@@ -687,9 +650,18 @@ Slider.getArrows = function() {
     return this.el.querySelectorAll('.elba-arrow');
 };
 
-Slider.getSlidesLength = function() {
-    if (this.slidesLength) return this.slidesLength;
-    return this.slidesLength = this.getSlides().length;
+Slider.getSlidesCount = function() {
+    if (this.count) return this.count;
+    return this.count = this.getSlides().length;
+};
+
+/**
+ * Get the container width, that is this.el's width
+ * @return {Number}
+ */
+Slider.getContainerWidth = function() {
+    if (this.containerWidth) return this.containerWidth;
+    return this.containerWidth = this.el.clientWidth;
 };
 
 
@@ -712,6 +684,8 @@ function Elba(selector, options) {
         slideshow: 8000,
         preload: 1,
         swipeThreshold: 60,
+        //Hint for the direction to load
+        directionHint: 'right'
     };
 
     var _createInstance = function(el, GUID, options) {
@@ -727,6 +701,36 @@ function Elba(selector, options) {
             settings: {
                 writable: true,
                 value: options
+            },
+            slider: {
+                writable: true,
+                configurable: true,
+                value: null
+            },
+            slidesMap: {
+                writable: true,
+                enumerable: true,
+                value: {}
+            },
+            count: {
+                writable: true,
+                value: 0
+            },
+            source: {
+                writable: true,
+                value: {}
+            },
+            containerWidth: {
+                writable: true,
+                value: 0
+            },
+            pointer: {
+                writable: true,
+                value: 0
+            },
+            isSettled: {
+                writable: true,
+                value: true
             }
         });
     };

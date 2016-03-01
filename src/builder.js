@@ -1,11 +1,9 @@
 var Builder = {
-    build: function() {
-        // Set viewport and slider
+    build: function(){
         this.setLayout();
-
-        this.count = this.getSlidesLength();
-
-        this.setNavigation();
+        var _slides = this.getSlides();
+        this.registerSlidesWidth(_slides);
+        this.setSlidesOffset(_slides);
     }
 };
 
@@ -32,7 +30,6 @@ Builder.setLayout = function() {
     if (cloneNodes) {
 
         for (var i = 0; i < cloneNodes.length; i++) {
-            cloneNodes[i].setAttribute('data-elba-id', this.GUID);
             slider.appendChild(cloneNodes[i]);
         }
     }
@@ -40,27 +37,28 @@ Builder.setLayout = function() {
     // Remove the original, unwrapped, slides
     Utils.removeChildren(this.el);
 
-    this.setSlidesOffset(cloneNodes);
-
     this.el.appendChild(d);
 
 };
 
-Builder.setSlidesOffset = function(slides) {
-
+Builder.setSlidesOffset = function(elements) {
+    var slides = elements || this.getSlides();
+    var containerWidth = this.getContainerWidth();
     var start = 0;
-
-    for (var i = 0; i < slides.length; i++) {
-        slides[i].style.left = start + '%';
-        start += 100;
+    var tmp = 0;
+    var percentageWidth = 0;
+    for (var i = 1; i < slides.length; i++) {
+        tmp = Utils.intVal(this.slidesMap[i - 1].width);
+        tmp = (tmp / containerWidth).toFixed(2);
+        percentageWidth = (tmp * 100);
+        slides[i].style.left = (percentageWidth + start) + '%';
+        start += percentageWidth;
     }
 };
 
 Builder.setNavigation = function() {
-    if (this.settings.navigation && this.count > 1) {
-        this.setArrow('right');
-        this.setArrow('left');
-    }
+    this.setArrow('right');
+    this.setArrow('left');
 };
 
 /**
@@ -108,4 +106,12 @@ Builder.setArrow = function(direction) {
     }
 
     this.el.appendChild(arrow);
+};
+
+Builder.registerSlidesWidth = function(elements) {
+    var slides = elements || this.getSlides();
+    for (var i = 0; i < slides.length; i++) {
+        if (typeof this.slidesMap[i] === 'undefined') this.slidesMap[i] = {};
+        this.slidesMap[i].width = window.getComputedStyle(slides[i]).getPropertyValue('width');
+    }
 };
