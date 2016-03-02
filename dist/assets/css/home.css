@@ -13,7 +13,7 @@
   perspective: 1000;
 }
 
-@-webkit-keyframes $animation-name {
+@-webkit-keyframes load-animation {
   0% {
     -moz-transform: translate(-2.5rem, -0.4rem);
     -o-transform: translate(-2.5rem, -0.4rem);
@@ -30,7 +30,7 @@
   }
 }
 
-@-moz-keyframes $animation-name {
+@-moz-keyframes load-animation {
   0% {
     -moz-transform: translate(-2.5rem, -0.4rem);
     -o-transform: translate(-2.5rem, -0.4rem);
@@ -47,7 +47,7 @@
   }
 }
 
-@-ms-keyframes $animation-name {
+@-ms-keyframes load-animation {
   0% {
     -moz-transform: translate(-2.5rem, -0.4rem);
     -o-transform: translate(-2.5rem, -0.4rem);
@@ -64,7 +64,7 @@
   }
 }
 
-@-o-keyframes $animation-name {
+@-o-keyframes load-animation {
   0% {
     -moz-transform: translate(-2.5rem, -0.4rem);
     -o-transform: translate(-2.5rem, -0.4rem);
@@ -81,7 +81,7 @@
   }
 }
 
-@keyframes $animation-name {
+@keyframes load-animation {
   0% {
     -moz-transform: translate(-2.5rem, -0.4rem);
     -o-transform: translate(-2.5rem, -0.4rem);

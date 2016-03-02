@@ -107,20 +107,20 @@
 
 
 
-@mixin keyframes($animation-name) {
-  @-webkit-keyframes $animation-name {
+@mixin keyframesGenerator($animation-name) {
+  @-webkit-keyframes #{$animation-name} {
     @content;
   }
-  @-moz-keyframes $animation-name {
+  @-moz-keyframes #{$animation-name} {
     @content;
   }  
-  @-ms-keyframes $animation-name {
+  @-ms-keyframes #{$animation-name} {
     @content;
   }
-  @-o-keyframes $animation-name {
+  @-o-keyframes #{$animation-name} {
     @content;
   }  
-  @keyframes $animation-name {
+  @keyframes #{$animation-name} {
     @content;
   }
 }
@@ -134,9 +134,7 @@
 }
 
  
-@include keyframes(load-animation) {
-  //0% { transform: translate(-2.5rem, -0.4rem); }
-  //100% { transform: translate(1.7rem, -0.4rem); }
+@include keyframesGenerator('load-animation') {
   0% {  @include transform(translate(-2.5rem, -0.4rem)); }
   100% {  @include transform(translate(1.7rem, -0.4rem));}
 }
