@@ -21,6 +21,7 @@ module.exports = function(grunt) {
             dist: {
                 src: [
                     'bower_components/classie/classie.js',
+                    'src/transport.js',
                     'src/intro.js',
                     'src/utils.js',
                     'src/tocca.js',

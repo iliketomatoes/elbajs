@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Elba js tests</title>
+  <link rel="stylesheet" media="all" href="../bower_components/qunit/qunit/qunit.css">
+  <link rel="stylesheet" href="../dist/assets/css/normalize.min.css">
+  <link rel="stylesheet" href="../dist/assets/css/elba.css">
+
+  <script src="../bower_components/qunit/qunit/qunit.js"></script>
+  <!-- Dependencies -->
+  <script src="../bower_components/classie/classie.js"></script>
+  <!-- Elba -->
+  <script src="../src/intro.js"></script>
+  <script src="../src/utils.js"></script>
+  <script src="../src/tocca.js"></script>
+  <script src="../src/builder.js"></script>
+  <script src="../src/player.js"></script>
+  <script src="../src/imagie.js"></script>
+  <script src="../src/eventie.js"></script>
+  <script src="../src/slider.js"></script>
+  <script src="../src/api.js"></script>
+  <script src="../src/elba.js"></script>
+</head>
+<body>
+  <div id="qunit"></div>
+
+
+<!-- Real Gallery -->
+<figure id="gallery" class="elba-carousel">
+	<figure class="elba elba--100" data-src="http://www.placebear.com/768/400" data-src-medium="http://www.placebear.com/1080/650" data-src-large="http://www.placebear.com/1400/800">
+		<figcaption class="elba-content">
+  			<div class="elba-banner">
+      			<h1>elba js 1</h1>
+  			</div>    
+		</figcaption>    
+	</figure>
+  <figure class="elba elba--100" data-src="http://www.placebear.com/768/400" data-src-medium="http://www.placebear.com/1080/650" data-src-large="http://www.placebear.com/1400/800">
+    <figcaption class="elba-content">
+        <div class="elba-banner">
+            <h1>elba js 2</h1>
+        </div>    
+    </figcaption>    
+  </figure>
+</figure>
+
+<!-- Empty Gallery -->	
+<figure id="empty-gallery" class="elba-carousel">	
+</figure>
+<script>
+  var gallery = new Elba("#gallery");
+</script>
+<script src="unit/inheritance.js"></script>
+
+</body>
+</html>

@@ -1,4 +1,4 @@
-/*! elba - v0.5.0 - 2016-03-01
+/*! elba - v0.5.0 - 2016-03-02
 * https://github.com/iliketomatoes/elbajs
 * Copyright (c) 2016 ; Licensed  */
 /*!
@@ -87,28 +87,30 @@ if ( typeof define === 'function' && define.amd ) {
 
 })( window );
 
-(function(window, elba) {
+(function(window, Elba) {
 
     'use strict';
 
     if (typeof define === 'function' && define.amd) {
         // Register Elba as an AMD module
-        define(elba());
+        define(Elba());
+
     } else {
         // Register Elba on window
-        window.Elba = elba();
+        window.Elba = Elba();
     }
 
 })(window, function() {
 
-        'use strict';
+'use strict';
 
-        // Object storing slider instances
-        var Instances = {};
+// Object storing slider instances
+var Instances = {};
 
-        // Helper variable that holds the slider instance that has been clicked
-        // upon, to handle the dragging event.
-        var TargetInstance = null;
+// Helper variable that holds the slider instance that has been clicked
+// upon, to handle the dragging event.
+var TargetInstance = null;
+
 var isRetina = window.devicePixelRatio > 1;
 
 // Set the name of the hidden property and the change event for visibility

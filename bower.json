@@ -16,5 +16,8 @@
   ],
   "dependencies": {
     "classie": "~1.0.1"
+  },
+  "devDependencies": {
+    "qunit": "^1.22.0"
   }
 }
