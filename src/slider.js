@@ -34,7 +34,7 @@ Slider.getSlidesCount = function() {
 
 /**
  * Get the container width, that is this.el's width
- * @return {Number}
+ * @return {Number} expressed in px
  */
 Slider.getContainerWidth = function() {
     if (this.containerWidth) return this.containerWidth;

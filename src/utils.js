@@ -108,5 +108,14 @@ var Utils = {
         while (i--) {
             elm.addEventListener(eventsArray[i], callback, false);
         }
+    },
+    /**
+     * @param {Number} smallN
+     * @param {Number} bigN
+     * @return {Number}
+     */
+    getPercentageRatio: function(smallN, bigN) {
+        var percentage = ((smallN / bigN)).toFixed(2);
+        return percentage * 100;
     }
 };

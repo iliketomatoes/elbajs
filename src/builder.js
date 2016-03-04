@@ -45,14 +45,10 @@ Builder.setSlidesOffset = function(elements) {
     var slides = elements || this.getSlides();
     var containerWidth = this.getContainerWidth();
     var start = 0;
-    var tmp = 0;
-    var percentageWidth = 0;
     for (var i = 1; i < slides.length; i++) {
-        tmp = Utils.intVal(this.slidesMap[i - 1].width);
-        tmp = (tmp / containerWidth).toFixed(2);
-        percentageWidth = (tmp * 100);
-        slides[i].style.left = (percentageWidth + start) + '%';
-        start += percentageWidth;
+        var tmp = Utils.getPercentageRatio(Utils.intVal(this.slidesMap[i - 1].width), containerWidth);
+        slides[i].style.left = (tmp + start) + '%';
+        start += tmp;
     }
 };
 

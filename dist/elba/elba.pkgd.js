@@ -1,4 +1,4 @@
-/*! elba - v0.5.0 - 2016-03-02
+/*! elba - v0.5.0 - 2016-03-04
 * https://github.com/iliketomatoes/elbajs
 * Copyright (c) 2016 ; Licensed  */
 /*!
@@ -221,6 +221,15 @@ var Utils = {
         while (i--) {
             elm.addEventListener(eventsArray[i], callback, false);
         }
+    },
+    /**
+     * @param {Number} smallN
+     * @param {Number} bigN
+     * @return {Number}
+     */
+    getPercentageRatio: function(smallN, bigN) {
+        var percentage = ((smallN / bigN)).toFixed(2);
+        return percentage * 100;
     }
 };
 
@@ -408,14 +417,10 @@ Builder.setSlidesOffset = function(elements) {
     var slides = elements || this.getSlides();
     var containerWidth = this.getContainerWidth();
     var start = 0;
-    var tmp = 0;
-    var percentageWidth = 0;
     for (var i = 1; i < slides.length; i++) {
-        tmp = Utils.intVal(this.slidesMap[i - 1].width);
-        tmp = (tmp / containerWidth).toFixed(2);
-        percentageWidth = (tmp * 100);
-        slides[i].style.left = (percentageWidth + start) + '%';
-        start += percentageWidth;
+        var tmp = Utils.getPercentageRatio(Utils.intVal(this.slidesMap[i - 1].width), containerWidth);
+        slides[i].style.left = (tmp + start) + '%';
+        start += tmp;
     }
 };
 
@@ -502,9 +507,16 @@ var vendorTransition = (function() {
 
 testElement = null;
 
-// http://stackoverflow.com/questions/15622466/how-do-i-get-the-absolute-value-of-translate3d
+// http://stackoverflow.com/a/28567829
+// Updated by Giancarlo Soverini on 2016-3-4
 function getTransform(el) {
-    var transform = window.getComputedStyle(el, null).getPropertyValue(vendorTransform);
+    var st = window.getComputedStyle(el, null);
+    var transform = st.getPropertyValue("transform") ||
+        st.getPropertyValue("-webkit-transform") ||
+        st.getPropertyValue("-moz-transform") ||
+        st.getPropertyValue("-ms-transform") ||
+        st.getPropertyValue("-o-transform");
+
     var results = transform.match(/matrix(?:(3d)\(-{0,1}\d+(?:, -{0,1}\d+)*(?:, (-{0,1}\d+))(?:, (-{0,1}\d+))(?:, (-{0,1}\d+)), -{0,1}\d+\)|\(-{0,1}\d+(?:, -{0,1}\d+)*(?:, (-{0,1}.+))(?:, (-{0,1}.+))\))/);
 
     if (!results) return [0, 0, 0];
@@ -520,38 +532,42 @@ var rAF = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
 var cAF = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 
 /**
-* Remember: 
-* this.pointer % this.getSlidesCount() is equal to 0 when we are pointing the last slide
-* this.pointer % this.getSlidesCount() is equal to 1 when we are pointing the first slide
-* this.pointer % this.getSlidesCount() is equal to N when we are pointing the Nth slide but not the last
-*
-* Note: we assume that pointer starts from 0.
-*/
+ * Remember: 
+ * this.pointer % this.getSlidesCount() is equal to 0 when we are pointing the last slide
+ * this.pointer % this.getSlidesCount() is equal to 1 when we are pointing the first slide
+ * this.pointer % this.getSlidesCount() is equal to N when we are pointing the Nth slide but not the last
+ *
+ * Note: we assume that pointer starts from 0.
+ */
 
 var Player = Object.create(Builder);
 
 Player.goToNext = function() {
 
-    var offset = (-this.pointer - 1) * 100;
     this.pointer += 1;
-    console.log(this.slidesMap[this.pointer].width);
+    /*var offset = (-this.pointer - 1) * 100;
+    
+    console.log(this.slidesMap[this.pointer].width);*/
     // console.log(this.pointer % this.getSlidesCount());
     // console.log(this.pointer / this.getSlidesCount());
-    if(this.pointer >= (this.count -1 )) {
+    /*if (this.pointer >= (this.count - 1)) {
         //console.log(this.pointer);
         //console.log((this.pointer + 1) % this.getSlidesCount());
         var _nextSlide = Utils.getNodeElementByIndex(this.getSlides(), (this.pointer + 1) % this.getSlidesCount());
         _nextSlide.style.left = (this.pointer + 1) * 100 + '%';
-    }
+    }*/
+
+    var offset = -Utils.intVal(this.slidesMap[this.pointer].width);
 
     this.slide(offset);
+
 };
 
 Player.goToPrevious = function() {
 
-    var offset = (-(this.pointer - 1)) * 100;
-    this.pointer -= 1;
-    this.slide(offset);
+    /*var offset = (-(this.pointer - 1)) * 100;
+    this.pointer -= 1;*/
+    this.slide(this.slidesMap[this.pointer].width);
 
 };
 
@@ -563,14 +579,23 @@ Player.goTo = function(direction) {
     }
 };
 
+/**
+ * @param {Number} width expressed in px
+ */
 Player.slide = function(offset) {
-
     var _slider = this.getSlider();
+    var startingOffset = Utils.intVal(getTransform(_slider)[0]);
+
+    /*var finalOffset = startingOffset + offset;
+    console.log(finalOffset);*/
+
+    var percentageOffset = Utils.getPercentageRatio(offset + startingOffset, this.getContainerWidth());
+    console.log(percentageOffset);
+
     rAF(function() {
         _slider.style[vendorTransition] = vendorTransform + ' 0.8s';
-        _slider.style[vendorTransform] = 'translate3d(' + offset + '%,0,0)';
+        _slider.style[vendorTransform] = 'translate3d(' + percentageOffset + '%,0,0)';
     });
-
 };
 
 var Imagie = Object.create(Player);
@@ -659,7 +684,7 @@ Slider.getSlidesCount = function() {
 
 /**
  * Get the container width, that is this.el's width
- * @return {Number}
+ * @return {Number} expressed in px
  */
 Slider.getContainerWidth = function() {
     if (this.containerWidth) return this.containerWidth;
