@@ -47,14 +47,6 @@ var Utils = {
         }
     },
 
-    intVal: function(x) {
-        if (x) {
-            return parseInt(x, 10);
-        } else {
-            return 0;
-        }
-    },
-
     /**
      * http://stackoverflow.com/a/2117523
      *

@@ -9,7 +9,7 @@ Slider.init = function() {
     if (this.settings.navigation && this.count > 1) {
         this.setNavigation();
     }
-    // console.log(this.slidesMap);
+    console.log(this.slidesMap);
     
     this.initEvents();
 };

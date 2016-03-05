@@ -232,14 +232,6 @@ var Utils = {
         }
     },
 
-    intVal: function(x) {
-        if (x) {
-            return parseInt(x, 10);
-        } else {
-            return 0;
-        }
-    },
-
     /**
      * http://stackoverflow.com/a/2117523
      *
@@ -473,8 +465,8 @@ Builder.setSlidesOffset = function(elements) {
     var containerWidth = this.getContainerWidth();
     var start = 0;
     for (var i = 1; i < slides.length; i++) {
-        var tmp = Utils.getPercentageRatio(Utils.intVal(this.slidesMap[i - 1].width), containerWidth);
-        slides[i].style.left = (tmp + start) + '%';
+        var tmp = this.slidesMap[i - 1].width;
+        slides[i].style.left = (tmp + start) + 'px';
         start += tmp;
     }
 };
@@ -535,7 +527,7 @@ Builder.registerSlidesWidth = function(elements) {
     var slides = elements || this.getSlides();
     for (var i = 0; i < slides.length; i++) {
         if (typeof this.slidesMap[i] === 'undefined') this.slidesMap[i] = {};
-        this.slidesMap[i].width = Utils.intVal(window.getComputedStyle(slides[i]).getPropertyValue('width'));
+        this.slidesMap[i].width = parseFloat(window.getComputedStyle(slides[i]).getPropertyValue('width'));
     }
 };
 
@@ -544,10 +536,8 @@ var Player = Object.create(Builder);
 Player.goTo = function(direction) {
 
     var offset,
-        percentageOffset,
         targetSlideWidth;
-    var startingOffset = Utils.intVal(getTransform(this.getSlider())[0]);
-    var elbaViewportWidth = this.getContainerWidth();
+    var startingOffset = parseFloat(getTransform(this.getSlider())[0]);
 
     if (direction === 'next') {
 
@@ -569,7 +559,7 @@ Player.goTo = function(direction) {
                 break;
         }
 
-        percentageOffset = '-' + Utils.getPercentageRatio(offset, elbaViewportWidth) + '%';
+        this.slide(-offset);
 
     } else if (direction === 'previous') {
 
@@ -591,37 +581,23 @@ Player.goTo = function(direction) {
                 break;
         }
 
-        percentageOffset = Utils.getPercentageRatio(offset, elbaViewportWidth) + '%';
-
+        this.slide(offset);
     }
 
-    this.slide(percentageOffset);
+    
 };
 
 /**
- * @param {Number} offset can either be expressed in px or %. 
+ * @param {Number} offset can either be expressed in px. 
  *      If expressed in px it will get casted to %.
- * @param {Number} the second argument is optional.
- *      It is the viewport width expressed in px. 
  */
-Player.slide = function(offset, elbaViewportWidth) {
-
-    var containerWidth,
-        percentageOffset;
+Player.slide = function(offset) {
 
     var _slider = this.getSlider();
 
-    // We want the offset to be expressed in %
-    if (typeof offset === 'number') {
-        containerWidth = elbaViewportWidth || this.getContainerWidth();
-        percentageOffset = Utils.getPercentageRatio(offset, containerWidth) + '%';
-    } else {
-        percentageOffset = offset;
-    }
-
     rAF(function() {
         _slider.style[vendorTransition] = vendorTransform + ' 0.8s';
-        _slider.style[vendorTransform] = 'translate3d(' + percentageOffset + ',0,0)';
+        _slider.style[vendorTransform] = 'translate3d(' + offset + 'px,0,0)';
     });
 };
 
@@ -686,7 +662,7 @@ Slider.init = function() {
     if (this.settings.navigation && this.count > 1) {
         this.setNavigation();
     }
-    // console.log(this.slidesMap);
+    console.log(this.slidesMap);
     
     this.initEvents();
 };

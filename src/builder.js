@@ -46,8 +46,8 @@ Builder.setSlidesOffset = function(elements) {
     var containerWidth = this.getContainerWidth();
     var start = 0;
     for (var i = 1; i < slides.length; i++) {
-        var tmp = Utils.getPercentageRatio(Utils.intVal(this.slidesMap[i - 1].width), containerWidth);
-        slides[i].style.left = (tmp + start) + '%';
+        var tmp = this.slidesMap[i - 1].width;
+        slides[i].style.left = (tmp + start) + 'px';
         start += tmp;
     }
 };
@@ -108,6 +108,6 @@ Builder.registerSlidesWidth = function(elements) {
     var slides = elements || this.getSlides();
     for (var i = 0; i < slides.length; i++) {
         if (typeof this.slidesMap[i] === 'undefined') this.slidesMap[i] = {};
-        this.slidesMap[i].width = Utils.intVal(window.getComputedStyle(slides[i]).getPropertyValue('width'));
+        this.slidesMap[i].width = parseFloat(window.getComputedStyle(slides[i]).getPropertyValue('width'));
     }
 };

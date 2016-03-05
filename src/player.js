@@ -12,10 +12,8 @@ var Player = Object.create(Builder);
 Player.goTo = function(direction) {
 
     var offset,
-        percentageOffset,
         targetSlideWidth;
-    var startingOffset = Utils.intVal(getTransform(this.getSlider())[0]);
-    var elbaViewportWidth = this.getContainerWidth();
+    var startingOffset = parseFloat(getTransform(this.getSlider())[0]);
 
     if (direction === 'next') {
 
@@ -37,7 +35,7 @@ Player.goTo = function(direction) {
                 break;
         }
 
-        percentageOffset = '-' + Utils.getPercentageRatio(offset, elbaViewportWidth) + '%';
+        this.slide(-offset);
 
     } else if (direction === 'previous') {
 
@@ -59,36 +57,22 @@ Player.goTo = function(direction) {
                 break;
         }
 
-        percentageOffset = Utils.getPercentageRatio(offset, elbaViewportWidth) + '%';
-
+        this.slide(offset);
     }
 
-    this.slide(percentageOffset);
+    
 };
 
 /**
- * @param {Number} offset can either be expressed in px or %. 
+ * @param {Number} offset can either be expressed in px. 
  *      If expressed in px it will get casted to %.
- * @param {Number} the second argument is optional.
- *      It is the viewport width expressed in px. 
  */
-Player.slide = function(offset, elbaViewportWidth) {
-
-    var containerWidth,
-        percentageOffset;
+Player.slide = function(offset) {
 
     var _slider = this.getSlider();
 
-    // We want the offset to be expressed in %
-    if (typeof offset === 'number') {
-        containerWidth = elbaViewportWidth || this.getContainerWidth();
-        percentageOffset = Utils.getPercentageRatio(offset, containerWidth) + '%';
-    } else {
-        percentageOffset = offset;
-    }
-
     rAF(function() {
         _slider.style[vendorTransition] = vendorTransform + ' 0.8s';
-        _slider.style[vendorTransform] = 'translate3d(' + percentageOffset + ',0,0)';
+        _slider.style[vendorTransform] = 'translate3d(' + offset + 'px,0,0)';
     });
 };
