@@ -17,7 +17,8 @@ function Elba(selector, options) {
         preload: 1,
         swipeThreshold: 60,
         //Hint for the direction to load
-        directionHint: 'right'
+        directionHint: 'right',
+        align: 'center'
     };
 
     var _createInstance = function(el, GUID, options) {

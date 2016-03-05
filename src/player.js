@@ -1,51 +1,3 @@
-var testElement = document.createElement('div');
-//http://stackoverflow.com/questions/7212102/detect-with-javascript-or-jquery-if-css-transform-2d-is-available
-var vendorTransform = (function() {
-    var prefixes = 'transform WebkitTransform webkitTransform MozTransform OTransform msTransform'.split(' ');
-    for (var i = 0; i < prefixes.length; i++) {
-        if (testElement.style[prefixes[i]] !== undefined) {
-            return prefixes[i];
-        }
-    }
-    return false;
-})();
-
-var vendorTransition = (function() {
-    var prefixes = 'transition WebkitTransition webkitTransition MozTransition OTransition'.split(' ');
-    for (var i = 0; i < prefixes.length; i++) {
-        if (testElement.style[prefixes[i]] !== undefined) {
-            return prefixes[i];
-        }
-    }
-    return false;
-})();
-
-testElement = null;
-
-// http://stackoverflow.com/a/28567829
-// Updated by Giancarlo Soverini on 2016-3-4
-function getTransform(el) {
-    var st = window.getComputedStyle(el, null);
-    var transform = st.getPropertyValue("transform") ||
-        st.getPropertyValue("-webkit-transform") ||
-        st.getPropertyValue("-moz-transform") ||
-        st.getPropertyValue("-ms-transform") ||
-        st.getPropertyValue("-o-transform");
-
-    var results = transform.match(/matrix(?:(3d)\(-{0,1}\d+(?:, -{0,1}\d+)*(?:, (-{0,1}\d+))(?:, (-{0,1}\d+))(?:, (-{0,1}\d+)), -{0,1}\d+\)|\(-{0,1}\d+(?:, -{0,1}\d+)*(?:, (-{0,1}.+))(?:, (-{0,1}.+))\))/);
-
-    if (!results) return [0, 0, 0];
-    if (results[1] == '3d') return results.slice(2, 5);
-
-    results.push(0);
-    return results.slice(5, 8); // returns the [X,Y,Z,1] values
-}
-
-var rAF = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
-    window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
-
-var cAF = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
-
 /**
  * Remember: 
  * this.pointer % this.getSlidesCount() is equal to 0 when we are pointing the last slide
@@ -57,9 +9,16 @@ var cAF = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 
 var Player = Object.create(Builder);
 
+Player.goTo = function(direction) {
+    if (direction === 'next') {
+        this.goToNext();
+    } else if (direction === 'previous') {
+        this.goToPrevious();
+    }
+};
+
 Player.goToNext = function() {
 
-    this.pointer += 1;
     /*var offset = (-this.pointer - 1) * 100;
     
     console.log(this.slidesMap[this.pointer].width);*/
@@ -71,44 +30,92 @@ Player.goToNext = function() {
         var _nextSlide = Utils.getNodeElementByIndex(this.getSlides(), (this.pointer + 1) % this.getSlidesCount());
         _nextSlide.style.left = (this.pointer + 1) * 100 + '%';
     }*/
+    this.pointer += 1;
 
-    var offset = -Utils.intVal(this.slidesMap[this.pointer].width);
+    var offset,
+        percentageOffset;
+    var startingOffset = Utils.intVal(getTransform(this.getSlider())[0]);
+    var targetSlideWidth = this.slidesMap[this.pointer].width;
+    var elbaViewportWidth = this.getContainerWidth();
 
-    this.slide(offset);
-
+    switch(this.settings.align) {
+        case 'center':
+            // TODO
+            offset = -startingOffset + (this.slidesMap[this.pointer - 1].width / 2) + ( targetSlideWidth / 2);
+            break;
+        case 'left':
+            // TODO
+            offset = ((elbaViewportWidth + targetSlideWidth) / 2) - startingOffset;
+            break;
+        case 'right':
+            // TODO
+            offset = ((elbaViewportWidth + targetSlideWidth) / 2) - startingOffset;
+            break;
+        default:
+            offset = ((elbaViewportWidth + targetSlideWidth) / 2) - startingOffset;
+            // TODO
+            break;
+    }
+    percentageOffset = Utils.getPercentageRatio(offset, elbaViewportWidth ) + '%';
+    this.slide('-' + percentageOffset);
 };
 
 Player.goToPrevious = function() {
+    this.pointer -= 1;
 
-    /*var offset = (-(this.pointer - 1)) * 100;
-    this.pointer -= 1;*/
-    this.slide(this.slidesMap[this.pointer].width);
+    var offset,
+        percentageOffset;
+    var startingOffset = Utils.intVal(getTransform(this.getSlider())[0]);
+    var targetSlideWidth = this.slidesMap[this.pointer].width;
+    var elbaViewportWidth = this.getContainerWidth();
 
-};
-
-Player.goTo = function(direction) {
-    if (direction === 'next') {
-        this.goToNext();
-    } else if (direction === 'previous') {
-        this.goToPrevious();
+    switch(this.settings.align) {
+        case 'center':
+            // TODO
+            offset = startingOffset + (this.slidesMap[this.pointer + 1].width / 2) + ( targetSlideWidth / 2);
+            break;
+        case 'left':
+            // TODO
+            offset = ((elbaViewportWidth + targetSlideWidth) / 2) - startingOffset;
+            break;
+        case 'right':
+            // TODO
+            offset = ((elbaViewportWidth + targetSlideWidth) / 2) - startingOffset;
+            break;
+        default:
+            offset = ((elbaViewportWidth + targetSlideWidth) / 2) - startingOffset;
+            // TODO
+            break;
     }
+    
+    percentageOffset = Utils.getPercentageRatio(offset, elbaViewportWidth ) + '%';
+    this.slide(percentageOffset);
+
 };
 
 /**
- * @param {Number} width expressed in px
+ * @param {Number} offset can either be expressed in px or %. 
+ *      If expressed in px it will get casted to %.
+ * @param {Number} the second argument is optional.
+ *      It is the viewport width expressed in px. 
  */
-Player.slide = function(offset) {
+Player.slide = function(offset, elbaViewportWidth) {
+    
+    var containerWidth,
+        percentageOffset;
+
     var _slider = this.getSlider();
-    var startingOffset = Utils.intVal(getTransform(_slider)[0]);
 
-    /*var finalOffset = startingOffset + offset;
-    console.log(finalOffset);*/
-
-    var percentageOffset = Utils.getPercentageRatio(offset + startingOffset, this.getContainerWidth());
-    console.log(percentageOffset);
+    // We want the offset to be expressed in %
+    if(typeof offset === 'number') {
+        containerWidth = elbaViewportWidth || this.getContainerWidth();
+        percentageOffset = Utils.getPercentageRatio(offset, containerWidth) + '%';
+    }else {
+        percentageOffset = offset;
+    }
 
     rAF(function() {
         _slider.style[vendorTransition] = vendorTransform + ' 0.8s';
-        _slider.style[vendorTransform] = 'translate3d(' + percentageOffset + '%,0,0)';
+        _slider.style[vendorTransform] = 'translate3d(' + percentageOffset + ',0,0)';
     });
 };

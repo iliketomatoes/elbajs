@@ -1,4 +1,4 @@
-/*! elba - v0.5.0 - 2016-03-04
+/*! elba - v0.5.0 - 2016-03-05
 * https://github.com/iliketomatoes/elbajs
 * Copyright (c) 2016 ; Licensed  */
 /*!
@@ -111,6 +111,60 @@ var Instances = {};
 // upon, to handle the dragging event.
 var TargetInstance = null;
 
+var testElement = document.createElement('div');
+//http://stackoverflow.com/questions/7212102/detect-with-javascript-or-jquery-if-css-transform-2d-is-available
+var vendorTransform = (function() {
+    var prefixes = 'transform WebkitTransform webkitTransform MozTransform OTransform msTransform'.split(' ');
+    for (var i = 0; i < prefixes.length; i++) {
+        if (testElement.style[prefixes[i]] !== undefined) {
+            return prefixes[i];
+        }
+    }
+    return false;
+})();
+
+var vendorComputedTransform = (function() {
+    var st = window.getComputedStyle(testElement, null);
+    var prefixes = 'transform -webkit-transform -moz-transform -ms-transform -o-transform'.split(' ');
+    for (var i = 0; i < prefixes.length; i++) {
+        if (st.getPropertyValue(prefixes[i]) !== undefined) {
+            return prefixes[i];
+        }
+    }
+    return false;
+})();
+
+var vendorTransition = (function() {
+    var prefixes = 'transition WebkitTransition webkitTransition MozTransition OTransition'.split(' ');
+    for (var i = 0; i < prefixes.length; i++) {
+        if (testElement.style[prefixes[i]] !== undefined) {
+            return prefixes[i];
+        }
+    }
+    return false;
+})();
+
+testElement = null;
+
+// http://stackoverflow.com/a/28567829
+// Updated by Giancarlo Soverini on 2016-3-4
+function getTransform(el) {
+    var transform = window.getComputedStyle(el, null).getPropertyValue(vendorComputedTransform);
+
+    var results = transform.match(/matrix(?:(3d)\(-{0,1}\d+(?:, -{0,1}\d+)*(?:, (-{0,1}\d+))(?:, (-{0,1}\d+))(?:, (-{0,1}\d+)), -{0,1}\d+\)|\(-{0,1}\d+(?:, -{0,1}\d+)*(?:, (-{0,1}.+))(?:, (-{0,1}.+))\))/);
+
+    if (!results) return [0, 0, 0];
+    if (results[1] == '3d') return results.slice(2, 5);
+
+    results.push(0);
+    return results.slice(5, 8); // returns the [X,Y,Z,1] values
+}
+
+var rAF = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+    window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+
+var cAF = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
+
 var isRetina = window.devicePixelRatio > 1;
 
 // Set the name of the hidden property and the change event for visibility
@@ -222,6 +276,7 @@ var Utils = {
             elm.addEventListener(eventsArray[i], callback, false);
         }
     },
+
     /**
      * @param {Number} smallN
      * @param {Number} bigN
@@ -371,7 +426,7 @@ Utils.setListener(document, Tocca.events.end, debounce(Tocca.onTouchEnd, 1));
 Utils.setListener(document, Tocca.events.move, debounce(Tocca.onTouchMove, 1));
 
 var Builder = {
-    build: function(){
+    build: function() {
         this.setLayout();
         var _slides = this.getSlides();
         this.registerSlidesWidth(_slides);
@@ -480,71 +535,22 @@ Builder.registerSlidesWidth = function(elements) {
     var slides = elements || this.getSlides();
     for (var i = 0; i < slides.length; i++) {
         if (typeof this.slidesMap[i] === 'undefined') this.slidesMap[i] = {};
-        this.slidesMap[i].width = window.getComputedStyle(slides[i]).getPropertyValue('width');
+        this.slidesMap[i].width = Utils.intVal(window.getComputedStyle(slides[i]).getPropertyValue('width'));
     }
 };
-var testElement = document.createElement('div');
-//http://stackoverflow.com/questions/7212102/detect-with-javascript-or-jquery-if-css-transform-2d-is-available
-var vendorTransform = (function() {
-    var prefixes = 'transform WebkitTransform webkitTransform MozTransform OTransform msTransform'.split(' ');
-    for (var i = 0; i < prefixes.length; i++) {
-        if (testElement.style[prefixes[i]] !== undefined) {
-            return prefixes[i];
-        }
-    }
-    return false;
-})();
-
-var vendorTransition = (function() {
-    var prefixes = 'transition WebkitTransition webkitTransition MozTransition OTransition'.split(' ');
-    for (var i = 0; i < prefixes.length; i++) {
-        if (testElement.style[prefixes[i]] !== undefined) {
-            return prefixes[i];
-        }
-    }
-    return false;
-})();
-
-testElement = null;
-
-// http://stackoverflow.com/a/28567829
-// Updated by Giancarlo Soverini on 2016-3-4
-function getTransform(el) {
-    var st = window.getComputedStyle(el, null);
-    var transform = st.getPropertyValue("transform") ||
-        st.getPropertyValue("-webkit-transform") ||
-        st.getPropertyValue("-moz-transform") ||
-        st.getPropertyValue("-ms-transform") ||
-        st.getPropertyValue("-o-transform");
-
-    var results = transform.match(/matrix(?:(3d)\(-{0,1}\d+(?:, -{0,1}\d+)*(?:, (-{0,1}\d+))(?:, (-{0,1}\d+))(?:, (-{0,1}\d+)), -{0,1}\d+\)|\(-{0,1}\d+(?:, -{0,1}\d+)*(?:, (-{0,1}.+))(?:, (-{0,1}.+))\))/);
-
-    if (!results) return [0, 0, 0];
-    if (results[1] == '3d') return results.slice(2, 5);
-
-    results.push(0);
-    return results.slice(5, 8); // returns the [X,Y,Z,1] values
-}
-
-var rAF = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
-    window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
-
-var cAF = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
-
-/**
- * Remember: 
- * this.pointer % this.getSlidesCount() is equal to 0 when we are pointing the last slide
- * this.pointer % this.getSlidesCount() is equal to 1 when we are pointing the first slide
- * this.pointer % this.getSlidesCount() is equal to N when we are pointing the Nth slide but not the last
- *
- * Note: we assume that pointer starts from 0.
- */
 
 var Player = Object.create(Builder);
 
+Player.goTo = function(direction) {
+    if (direction === 'next') {
+        this.goToNext();
+    } else if (direction === 'previous') {
+        this.goToPrevious();
+    }
+};
+
 Player.goToNext = function() {
 
-    this.pointer += 1;
     /*var offset = (-this.pointer - 1) * 100;
     
     console.log(this.slidesMap[this.pointer].width);*/
@@ -556,45 +562,93 @@ Player.goToNext = function() {
         var _nextSlide = Utils.getNodeElementByIndex(this.getSlides(), (this.pointer + 1) % this.getSlidesCount());
         _nextSlide.style.left = (this.pointer + 1) * 100 + '%';
     }*/
+    this.pointer += 1;
 
-    var offset = -Utils.intVal(this.slidesMap[this.pointer].width);
+    var offset,
+        percentageOffset;
+    var startingOffset = Utils.intVal(getTransform(this.getSlider())[0]);
+    var targetSlideWidth = this.slidesMap[this.pointer].width;
+    var elbaViewportWidth = this.getContainerWidth();
 
-    this.slide(offset);
-
+    switch(this.settings.align) {
+        case 'center':
+            // TODO
+            offset = -startingOffset + (this.slidesMap[this.pointer - 1].width / 2) + ( targetSlideWidth / 2);
+            break;
+        case 'left':
+            // TODO
+            offset = ((elbaViewportWidth + targetSlideWidth) / 2) - startingOffset;
+            break;
+        case 'right':
+            // TODO
+            offset = ((elbaViewportWidth + targetSlideWidth) / 2) - startingOffset;
+            break;
+        default:
+            offset = ((elbaViewportWidth + targetSlideWidth) / 2) - startingOffset;
+            // TODO
+            break;
+    }
+    percentageOffset = Utils.getPercentageRatio(offset, elbaViewportWidth ) + '%';
+    this.slide('-' + percentageOffset);
 };
 
 Player.goToPrevious = function() {
+    this.pointer -= 1;
 
-    /*var offset = (-(this.pointer - 1)) * 100;
-    this.pointer -= 1;*/
-    this.slide(this.slidesMap[this.pointer].width);
+    var offset,
+        percentageOffset;
+    var startingOffset = Utils.intVal(getTransform(this.getSlider())[0]);
+    var targetSlideWidth = this.slidesMap[this.pointer].width;
+    var elbaViewportWidth = this.getContainerWidth();
 
-};
-
-Player.goTo = function(direction) {
-    if (direction === 'next') {
-        this.goToNext();
-    } else if (direction === 'previous') {
-        this.goToPrevious();
+    switch(this.settings.align) {
+        case 'center':
+            // TODO
+            offset = startingOffset + (this.slidesMap[this.pointer + 1].width / 2) + ( targetSlideWidth / 2);
+            break;
+        case 'left':
+            // TODO
+            offset = ((elbaViewportWidth + targetSlideWidth) / 2) - startingOffset;
+            break;
+        case 'right':
+            // TODO
+            offset = ((elbaViewportWidth + targetSlideWidth) / 2) - startingOffset;
+            break;
+        default:
+            offset = ((elbaViewportWidth + targetSlideWidth) / 2) - startingOffset;
+            // TODO
+            break;
     }
+    
+    percentageOffset = Utils.getPercentageRatio(offset, elbaViewportWidth ) + '%';
+    this.slide(percentageOffset);
+
 };
 
 /**
- * @param {Number} width expressed in px
+ * @param {Number} offset can either be expressed in px or %. 
+ *      If expressed in px it will get casted to %.
+ * @param {Number} the second argument is optional.
+ *      It is the viewport width expressed in px. 
  */
-Player.slide = function(offset) {
+Player.slide = function(offset, elbaViewportWidth) {
+    
+    var containerWidth,
+        percentageOffset;
+
     var _slider = this.getSlider();
-    var startingOffset = Utils.intVal(getTransform(_slider)[0]);
 
-    /*var finalOffset = startingOffset + offset;
-    console.log(finalOffset);*/
-
-    var percentageOffset = Utils.getPercentageRatio(offset + startingOffset, this.getContainerWidth());
-    console.log(percentageOffset);
+    // We want the offset to be expressed in %
+    if(typeof offset === 'number') {
+        containerWidth = elbaViewportWidth || this.getContainerWidth();
+        percentageOffset = Utils.getPercentageRatio(offset, containerWidth) + '%';
+    }else {
+        percentageOffset = offset;
+    }
 
     rAF(function() {
         _slider.style[vendorTransition] = vendorTransform + ' 0.8s';
-        _slider.style[vendorTransform] = 'translate3d(' + percentageOffset + '%,0,0)';
+        _slider.style[vendorTransform] = 'translate3d(' + percentageOffset + ',0,0)';
     });
 };
 
@@ -659,7 +713,7 @@ Slider.init = function() {
     if (this.settings.navigation && this.count > 1) {
         this.setNavigation();
     }
-    console.log(this.slidesMap);
+    // console.log(this.slidesMap);
     
     this.initEvents();
 };
@@ -683,12 +737,12 @@ Slider.getSlidesCount = function() {
 };
 
 /**
- * Get the container width, that is this.el's width
+ * Get the container width, that is elba-viewport's width
  * @return {Number} expressed in px
  */
 Slider.getContainerWidth = function() {
     if (this.containerWidth) return this.containerWidth;
-    return this.containerWidth = this.el.clientWidth;
+    return this.containerWidth = this.el.querySelector('.elba-viewport').clientWidth;
 };
 
 
@@ -712,7 +766,8 @@ function Elba(selector, options) {
         preload: 1,
         swipeThreshold: 60,
         //Hint for the direction to load
-        directionHint: 'right'
+        directionHint: 'right',
+        align: 'center'
     };
 
     var _createInstance = function(el, GUID, options) {

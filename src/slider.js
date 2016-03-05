@@ -9,7 +9,7 @@ Slider.init = function() {
     if (this.settings.navigation && this.count > 1) {
         this.setNavigation();
     }
-    console.log(this.slidesMap);
+    // console.log(this.slidesMap);
     
     this.initEvents();
 };
@@ -33,10 +33,10 @@ Slider.getSlidesCount = function() {
 };
 
 /**
- * Get the container width, that is this.el's width
+ * Get the container width, that is elba-viewport's width
  * @return {Number} expressed in px
  */
 Slider.getContainerWidth = function() {
     if (this.containerWidth) return this.containerWidth;
-    return this.containerWidth = this.el.clientWidth;
+    return this.containerWidth = this.el.querySelector('.elba-viewport').clientWidth;
 };

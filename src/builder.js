@@ -1,5 +1,5 @@
 var Builder = {
-    build: function(){
+    build: function() {
         this.setLayout();
         var _slides = this.getSlides();
         this.registerSlidesWidth(_slides);
@@ -108,6 +108,6 @@ Builder.registerSlidesWidth = function(elements) {
     var slides = elements || this.getSlides();
     for (var i = 0; i < slides.length; i++) {
         if (typeof this.slidesMap[i] === 'undefined') this.slidesMap[i] = {};
-        this.slidesMap[i].width = window.getComputedStyle(slides[i]).getPropertyValue('width');
+        this.slidesMap[i].width = Utils.intVal(window.getComputedStyle(slides[i]).getPropertyValue('width'));
     }
 };
