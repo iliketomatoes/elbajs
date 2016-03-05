@@ -22,20 +22,20 @@ Player.goTo = function(direction) {
 
         switch (this.settings.align) {
             case 'center':
-                offset = -startingOffset + (this.slidesMap[this.pointer - 1].width / 2) + (targetSlideWidth / 2);
+                offset = (this.slidesMap[this.pointer - 1].width / 2) + (targetSlideWidth / 2);
                 break;
             case 'left':
-                offset = -startingOffset + (this.slidesMap[this.pointer - 1].width);
+                offset = (this.slidesMap[this.pointer - 1].width);
                 break;
             case 'right':
-                offset = -startingOffset + targetSlideWidth;
+                offset = targetSlideWidth;
                 break;
             default:
-                offset = -startingOffset + (this.slidesMap[this.pointer - 1].width / 2) + (targetSlideWidth / 2)
+                offset = (this.slidesMap[this.pointer - 1].width / 2) + (targetSlideWidth / 2)
                 break;
         }
 
-        this.slide(-offset);
+        this.slide(-offset, startingOffset);
 
     } else if (direction === 'previous') {
 
@@ -44,35 +44,66 @@ Player.goTo = function(direction) {
 
         switch (this.settings.align) {
             case 'center':
-                offset = startingOffset + (this.slidesMap[this.pointer + 1].width / 2) + (targetSlideWidth / 2);
+                offset = (this.slidesMap[this.pointer + 1].width / 2) + (targetSlideWidth / 2);
                 break;
             case 'left':
-                offset = startingOffset + (this.slidesMap[this.pointer].width);
+                offset = (this.slidesMap[this.pointer].width);
                 break;
             case 'right':
-                offset = startingOffset + (this.slidesMap[this.pointer + 1].width);
+                offset = (this.slidesMap[this.pointer + 1].width);
                 break;
             default:
-                offset = startingOffset + (this.slidesMap[this.pointer + 1].width / 2) + (targetSlideWidth / 2);
+                offset = (this.slidesMap[this.pointer + 1].width / 2) + (targetSlideWidth / 2);
                 break;
         }
 
-        this.slide(offset);
+        this.slide(offset, startingOffset);
     }
 
-    
+
 };
 
 /**
- * @param {Number} offset can either be expressed in px. 
- *      If expressed in px it will get casted to %.
+ * @param {Number} offset to final destination expressed in px. 
+ * @param {Number} starting slider's offset expressed in px. 
  */
-Player.slide = function(offset) {
-
+Player.slide = function(offset, startingOffset) {
+    var timePassed;
+    var start = null;
+    var _settled = false;
+    var duration = this.settings.duration;
     var _slider = this.getSlider();
+    var easing = BezierEasing.css['ease-in-out'];
 
-    rAF(function() {
-        _slider.style[vendorTransition] = vendorTransform + ' 0.8s';
-        _slider.style[vendorTransform] = 'translate3d(' + offset + 'px,0,0)';
-    });
+    this.isSettled = _settled;
+
+    function step(timestamp) {
+        if (start === null) start = timestamp;
+
+        var timePassed = (timestamp - start);
+        var progress = timePassed / duration;
+        console.log(timePassed);
+
+        var adjustedOffset = Number(Math.round(offset * easing.get(progress) + 'e2') + 'e-2');
+
+        if (progress >= 1) {
+            adjustedOffset = offset;
+            progress = 1;
+        }
+
+        _slider.style[vendorTransform] = 'translate3d(' + (adjustedOffset + startingOffset) + 'px,0,0)';
+
+        if (progress === 1) {
+
+            cAF(step);
+            start = null;
+            _settled = true;
+
+        } else {
+
+            rAF(step);
+        }
+    }
+
+    rAF(step);
 };

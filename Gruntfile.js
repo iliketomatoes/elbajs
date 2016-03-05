@@ -20,6 +20,7 @@ module.exports = function(grunt) {
             },
             dist: {
                 src: [
+                    'node_modules/bezier-easing/build.js',
                     'bower_components/classie/classie.js',
                     'src/transport.js',
                     'src/intro.js',
