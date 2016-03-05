@@ -542,87 +542,60 @@ Builder.registerSlidesWidth = function(elements) {
 var Player = Object.create(Builder);
 
 Player.goTo = function(direction) {
+
+    var offset,
+        percentageOffset,
+        targetSlideWidth;
+    var startingOffset = Utils.intVal(getTransform(this.getSlider())[0]);
+    var elbaViewportWidth = this.getContainerWidth();
+
     if (direction === 'next') {
-        this.goToNext();
+
+        this.pointer += 1;
+        targetSlideWidth = this.slidesMap[this.pointer].width;
+
+        switch (this.settings.align) {
+            case 'center':
+                offset = -startingOffset + (this.slidesMap[this.pointer - 1].width / 2) + (targetSlideWidth / 2);
+                break;
+            case 'left':
+                offset = -startingOffset + (this.slidesMap[this.pointer - 1].width);
+                break;
+            case 'right':
+                offset = -startingOffset + targetSlideWidth;
+                break;
+            default:
+                offset = -startingOffset + (this.slidesMap[this.pointer - 1].width / 2) + (targetSlideWidth / 2)
+                break;
+        }
+
+        percentageOffset = '-' + Utils.getPercentageRatio(offset, elbaViewportWidth) + '%';
+
     } else if (direction === 'previous') {
-        this.goToPrevious();
+
+        this.pointer -= 1;
+        targetSlideWidth = this.slidesMap[this.pointer].width;
+
+        switch (this.settings.align) {
+            case 'center':
+                offset = startingOffset + (this.slidesMap[this.pointer + 1].width / 2) + (targetSlideWidth / 2);
+                break;
+            case 'left':
+                offset = startingOffset + (this.slidesMap[this.pointer].width);
+                break;
+            case 'right':
+                offset = startingOffset + (this.slidesMap[this.pointer + 1].width);
+                break;
+            default:
+                offset = startingOffset + (this.slidesMap[this.pointer + 1].width / 2) + (targetSlideWidth / 2);
+                break;
+        }
+
+        percentageOffset = Utils.getPercentageRatio(offset, elbaViewportWidth) + '%';
+
     }
-};
 
-Player.goToNext = function() {
-
-    /*var offset = (-this.pointer - 1) * 100;
-    
-    console.log(this.slidesMap[this.pointer].width);*/
-    // console.log(this.pointer % this.getSlidesCount());
-    // console.log(this.pointer / this.getSlidesCount());
-    /*if (this.pointer >= (this.count - 1)) {
-        //console.log(this.pointer);
-        //console.log((this.pointer + 1) % this.getSlidesCount());
-        var _nextSlide = Utils.getNodeElementByIndex(this.getSlides(), (this.pointer + 1) % this.getSlidesCount());
-        _nextSlide.style.left = (this.pointer + 1) * 100 + '%';
-    }*/
-    this.pointer += 1;
-
-    var offset,
-        percentageOffset;
-    var startingOffset = Utils.intVal(getTransform(this.getSlider())[0]);
-    var targetSlideWidth = this.slidesMap[this.pointer].width;
-    var elbaViewportWidth = this.getContainerWidth();
-
-    switch(this.settings.align) {
-        case 'center':
-            // TODO
-            offset = -startingOffset + (this.slidesMap[this.pointer - 1].width / 2) + ( targetSlideWidth / 2);
-            break;
-        case 'left':
-            // TODO
-            offset = ((elbaViewportWidth + targetSlideWidth) / 2) - startingOffset;
-            break;
-        case 'right':
-            // TODO
-            offset = ((elbaViewportWidth + targetSlideWidth) / 2) - startingOffset;
-            break;
-        default:
-            offset = ((elbaViewportWidth + targetSlideWidth) / 2) - startingOffset;
-            // TODO
-            break;
-    }
-    percentageOffset = Utils.getPercentageRatio(offset, elbaViewportWidth ) + '%';
-    this.slide('-' + percentageOffset);
-};
-
-Player.goToPrevious = function() {
-    this.pointer -= 1;
-
-    var offset,
-        percentageOffset;
-    var startingOffset = Utils.intVal(getTransform(this.getSlider())[0]);
-    var targetSlideWidth = this.slidesMap[this.pointer].width;
-    var elbaViewportWidth = this.getContainerWidth();
-
-    switch(this.settings.align) {
-        case 'center':
-            // TODO
-            offset = startingOffset + (this.slidesMap[this.pointer + 1].width / 2) + ( targetSlideWidth / 2);
-            break;
-        case 'left':
-            // TODO
-            offset = ((elbaViewportWidth + targetSlideWidth) / 2) - startingOffset;
-            break;
-        case 'right':
-            // TODO
-            offset = ((elbaViewportWidth + targetSlideWidth) / 2) - startingOffset;
-            break;
-        default:
-            offset = ((elbaViewportWidth + targetSlideWidth) / 2) - startingOffset;
-            // TODO
-            break;
-    }
-    
-    percentageOffset = Utils.getPercentageRatio(offset, elbaViewportWidth ) + '%';
     this.slide(percentageOffset);
-
 };
 
 /**
@@ -632,17 +605,17 @@ Player.goToPrevious = function() {
  *      It is the viewport width expressed in px. 
  */
 Player.slide = function(offset, elbaViewportWidth) {
-    
+
     var containerWidth,
         percentageOffset;
 
     var _slider = this.getSlider();
 
     // We want the offset to be expressed in %
-    if(typeof offset === 'number') {
+    if (typeof offset === 'number') {
         containerWidth = elbaViewportWidth || this.getContainerWidth();
         percentageOffset = Utils.getPercentageRatio(offset, containerWidth) + '%';
-    }else {
+    } else {
         percentageOffset = offset;
     }
 
