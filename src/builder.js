@@ -43,7 +43,6 @@ Builder.setLayout = function() {
 
 Builder.setSlidesOffset = function(elements) {
     var slides = elements || this.getSlides();
-    var containerWidth = this.getContainerWidth();
     var start = 0;
     for (var i = 1; i < slides.length; i++) {
         var tmp = this.slidesMap[i - 1].width;
@@ -106,8 +105,10 @@ Builder.setArrow = function(direction) {
 
 Builder.registerSlidesWidth = function(elements) {
     var slides = elements || this.getSlides();
+    var containerWidth = this.getContainerWidth();
     for (var i = 0; i < slides.length; i++) {
         if (typeof this.slidesMap[i] === 'undefined') this.slidesMap[i] = {};
         this.slidesMap[i].width = parseFloat(window.getComputedStyle(slides[i]).getPropertyValue('width'));
+        this.slidesMap[i].normalizedWidth = this.slidesMap[i].width / containerWidth;
     }
 };

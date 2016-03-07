@@ -13,7 +13,7 @@ Player.goTo = function(direction) {
 
     var offset,
         targetSlideWidth;
-    var startingOffset = parseFloat(getTransform(this.getSlider())[0]);
+    var _slider = this.getSlider();
 
     if (direction === 'next') {
 
@@ -22,20 +22,18 @@ Player.goTo = function(direction) {
 
         switch (this.settings.align) {
             case 'center':
-                offset = (this.slidesMap[this.pointer - 1].width / 2) + (targetSlideWidth / 2);
+                offset = -(this.slidesMap[this.pointer - 1].width / 2) - (targetSlideWidth / 2);
                 break;
             case 'left':
-                offset = (this.slidesMap[this.pointer - 1].width);
+                offset = -(this.slidesMap[this.pointer - 1].width);
                 break;
             case 'right':
-                offset = targetSlideWidth;
+                offset = -targetSlideWidth;
                 break;
             default:
-                offset = (this.slidesMap[this.pointer - 1].width / 2) + (targetSlideWidth / 2)
+                offset = -(this.slidesMap[this.pointer - 1].width / 2) - (targetSlideWidth / 2)
                 break;
         }
-
-        this.slide(-offset, startingOffset);
 
     } else if (direction === 'previous') {
 
@@ -57,19 +55,19 @@ Player.goTo = function(direction) {
                 break;
         }
 
-        this.slide(offset, startingOffset);
     }
 
-
+    this.slide(offset);
 };
 
 /**
- * @param {Number} offset to final destination expressed in px. 
- * @param {Number} starting slider's offset expressed in px. 
+ * @param {Number} offset to final destination expressed in px.  
  */
-Player.slide = function(offset, startingOffset) {
+Player.slide = function(offset) {
     var timePassed;
     var start = null;
+    var startingOffset = null;
+
     var _settled = false;
     var duration = this.settings.duration;
     var _slider = this.getSlider();
@@ -78,11 +76,13 @@ Player.slide = function(offset, startingOffset) {
     this.isSettled = _settled;
 
     function step(timestamp) {
+
+        if (startingOffset === null) startingOffset = getXCssTranslatedPosition(_slider);
+
         if (start === null) start = timestamp;
 
         var timePassed = (timestamp - start);
         var progress = timePassed / duration;
-        console.log(timePassed);
 
         var adjustedOffset = Number(Math.round(offset * easing.get(progress) + 'e2') + 'e-2');
 
@@ -94,6 +94,8 @@ Player.slide = function(offset, startingOffset) {
         _slider.style[vendorTransform] = 'translate3d(' + (adjustedOffset + startingOffset) + 'px,0,0)';
 
         if (progress === 1) {
+
+            _slider.style[vendorTransform] = 'translate(' + (offset + startingOffset) + 'px,0)';
 
             cAF(step);
             start = null;

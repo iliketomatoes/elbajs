@@ -8,6 +8,7 @@ var Instances = {};
 var TargetInstance = null;
 
 var testElement = document.createElement('div');
+
 //http://stackoverflow.com/questions/7212102/detect-with-javascript-or-jquery-if-css-transform-2d-is-available
 var vendorTransform = (function() {
     var prefixes = 'transform WebkitTransform webkitTransform MozTransform OTransform msTransform'.split(' ');
@@ -42,18 +43,23 @@ var vendorTransition = (function() {
 
 testElement = null;
 
-// http://stackoverflow.com/a/28567829
+// https://github.com/HenrikJoreteg/get-css-translated-position/blob/master/index.js
 // Updated by Giancarlo Soverini on 2016-3-4
-function getTransform(el) {
-    var transform = window.getComputedStyle(el, null).getPropertyValue(vendorComputedTransform);
+function getXCssTranslatedPosition(el) {
 
-    var results = transform.match(/matrix(?:(3d)\(-{0,1}\d+(?:, -{0,1}\d+)*(?:, (-{0,1}\d+))(?:, (-{0,1}\d+))(?:, (-{0,1}\d+)), -{0,1}\d+\)|\(-{0,1}\d+(?:, -{0,1}\d+)*(?:, (-{0,1}.+))(?:, (-{0,1}.+))\))/);
+    var re = /matrix\((.*)\)/;
+    var pos;
 
-    if (!results) return [0, 0, 0];
-    if (results[1] == '3d') return results.slice(2, 5);
+    var cS = window.getComputedStyle(el)[vendorComputedTransform];
 
-    results.push(0);
-    return results.slice(5, 8); // returns the [X,Y,Z,1] values
+    if (cS.indexOf('matrix') > -1) {
+        pos = re.exec(cS)[1].split(',').map(function(item) {
+            return parseFloat(item, 10);
+        });
+        return pos[4];
+    } else {
+        return 0;
+    }
 }
 
 var rAF = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
