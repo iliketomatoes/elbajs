@@ -40,30 +40,31 @@ function Elba(selector, options) {
                 configurable: true,
                 value: null
             },
+            proxy: {
+                writable: true,
+                value: true,
+                value: {
+                    isSettled: true,
+                    isWrappable: false,
+                    isFirstElTranslated: false,
+                    isLastElTranslated: false,
+                    viewportWidth: 0,
+                    xCssTranslation: 0,
+                    totalSlidesWidth: 0
+                }
+            },
             slidesMap: {
                 writable: true,
                 enumerable: true,
-                value: {}
-            },
-            count: {
-                writable: true,
-                value: 0
+                value: []
             },
             source: {
                 writable: true,
                 value: {}
             },
-            containerWidth: {
-                writable: true,
-                value: 0
-            },
             pointer: {
                 writable: true,
                 value: 0
-            },
-            isSettled: {
-                writable: true,
-                value: true
             }
         });
     };

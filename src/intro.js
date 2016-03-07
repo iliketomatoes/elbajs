@@ -54,7 +54,7 @@ function getXCssTranslatedPosition(el) {
 
     if (cS.indexOf('matrix') > -1) {
         pos = re.exec(cS)[1].split(',').map(function(item) {
-            return parseFloat(item, 10);
+            return parseFloat(item);
         });
         return pos[4];
     } else {

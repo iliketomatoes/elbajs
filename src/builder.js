@@ -3,7 +3,13 @@ var Builder = {
         this.setLayout();
         var _slides = this.getSlides();
         this.registerSlidesWidth(_slides);
+
+        // Arbitrary setup
+        this.proxy.isWrappable = true;
         this.setSlidesOffset(_slides);
+
+        // Update object that holds the index of the last slide
+        this.proxy.lastEl = _slides.length - 1;
     }
 };
 
@@ -46,8 +52,13 @@ Builder.setSlidesOffset = function(elements) {
     var start = 0;
     for (var i = 1; i < slides.length; i++) {
         var tmp = this.slidesMap[i - 1].width;
-        slides[i].style.left = (tmp + start) + 'px';
-        start += tmp;
+        if(this.proxy.isWrappable && i === (slides.length - 1)) {
+            slides[i].style.left = -tmp + 'px';
+            this.proxy.isLastElTranslated = true;
+        }else{
+            slides[i].style.left = (tmp + start) + 'px';
+            start += tmp;
+        }
     }
 };
 
@@ -105,10 +116,11 @@ Builder.setArrow = function(direction) {
 
 Builder.registerSlidesWidth = function(elements) {
     var slides = elements || this.getSlides();
-    var containerWidth = this.getContainerWidth();
+    var viewportWidth = this.getViewportWidth();
     for (var i = 0; i < slides.length; i++) {
         if (typeof this.slidesMap[i] === 'undefined') this.slidesMap[i] = {};
         this.slidesMap[i].width = parseFloat(window.getComputedStyle(slides[i]).getPropertyValue('width'));
-        this.slidesMap[i].normalizedWidth = this.slidesMap[i].width / containerWidth;
+        this.slidesMap[i].normalizedWidth = this.slidesMap[i].width / viewportWidth;
+        this.proxy.totalSlidesWidth += this.slidesMap[i].width;
     }
 };
