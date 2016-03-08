@@ -44,13 +44,21 @@ function Elba(selector, options) {
                 writable: true,
                 value: true,
                 value: {
+                    pointer: 0,
+                    oldPointer: 0,
                     isSettled: true,
                     isWrappable: false,
                     isFirstElTranslated: false,
                     isLastElTranslated: false,
                     viewportWidth: 0,
                     xCssTranslation: 0,
-                    totalSlidesWidth: 0
+                    xNormalizedTranslation: 0,
+                    totalSlidesWidth: 0,
+                    targetOffset: 0,
+                    updateTranslation: function(offset){
+                        this.xCssTranslation = offset;
+                        this.xNormalizedTranslation = offset / this.viewportWidth;
+                    }
                 }
             },
             slidesMap: {
@@ -61,10 +69,6 @@ function Elba(selector, options) {
             source: {
                 writable: true,
                 value: {}
-            },
-            pointer: {
-                writable: true,
-                value: 0
             }
         });
     };

@@ -8,7 +8,7 @@ Slider.init = function() {
     }
 
     this.updateProxy();
-    console.log(this.slidesMap);
+ 
     this.initEvents();
 };
 

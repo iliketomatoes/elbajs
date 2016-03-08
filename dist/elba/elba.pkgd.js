@@ -1,4 +1,4 @@
-/*! elba - v0.5.0 - 2016-03-07
+/*! elba - v0.5.0 - 2016-03-08
 * https://github.com/iliketomatoes/elbajs
 * Copyright (c) 2016 ; Licensed  */
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var t;t="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:this,t.BezierEasing=e()}}(function(){return function e(t,n,r){function i(s,u){if(!n[s]){if(!t[s]){var a="function"==typeof require&&require;if(!u&&a)return a(s,!0);if(o)return o(s,!0);var f=new Error("Cannot find module '"+s+"'");throw f.code="MODULE_NOT_FOUND",f}var p=n[s]={exports:{}};t[s][0].call(p.exports,function(e){var n=t[s][1][e];return i(n?n:e)},p,p.exports,e,t,n,r)}return n[s].exports}for(var o="function"==typeof require&&require,s=0;s<r.length;s++)i(r[s]);return i}({1:[function(e,t){function n(e,t){return 1-3*t+3*e}function r(e,t){return 3*t-6*e}function i(e){return 3*e}function o(e,t,o){return((n(t,o)*e+r(t,o))*e+i(t))*e}function s(e,t,o){return 3*n(t,o)*e*e+2*r(t,o)*e+i(t)}function u(e,t,n,r,i){var s,u,a=0;do u=t+(n-t)/2,s=o(u,r,i)-e,s>0?n=u:t=u;while(Math.abs(s)>h&&++a<l);return u}function a(e,t,n,r){for(var i=0;p>i;++i){var u=s(t,n,r);if(0===u)return t;var a=o(t,n,r)-e;t-=a/u}return t}function f(e,t,n,r){if(4===arguments.length)return new f([e,t,n,r]);if(!(this instanceof f))return new f(e);if(!e||4!==e.length)throw new Error("BezierEasing: points must contains 4 values");for(var i=0;4>i;++i)if("number"!=typeof e[i]||isNaN(e[i])||!isFinite(e[i]))throw new Error("BezierEasing: points should be integers.");if(e[0]<0||e[0]>1||e[2]<0||e[2]>1)throw new Error("BezierEasing x values must be in [0, 1] range.");this._str="BezierEasing("+e+")",this._css="cubic-bezier("+e+")",this._p=e,this._mSampleValues=m?new Float32Array(_):new Array(_),this._precomputed=!1,this.get=this.get.bind(this)}var p=4,c=.001,h=1e-7,l=10,_=11,d=1/(_-1),m="function"==typeof Float32Array;f.prototype={get:function(e){var t=this._p[0],n=this._p[1],r=this._p[2],i=this._p[3];return this._precomputed||this._precompute(),t===n&&r===i?e:0===e?0:1===e?1:o(this._getTForX(e),n,i)},getPoints:function(){return this._p},toString:function(){return this._str},toCSS:function(){return this._css},_precompute:function(){var e=this._p[0],t=this._p[1],n=this._p[2],r=this._p[3];this._precomputed=!0,(e!==t||n!==r)&&this._calcSampleValues()},_calcSampleValues:function(){for(var e=this._p[0],t=this._p[2],n=0;_>n;++n)this._mSampleValues[n]=o(n*d,e,t)},_getTForX:function(e){for(var t=this._p[0],n=this._p[2],r=this._mSampleValues,i=0,o=1,f=_-1;o!==f&&r[o]<=e;++o)i+=d;--o;var p=(e-r[o])/(r[o+1]-r[o]),h=i+p*d,l=s(h,t,n);return l>=c?a(e,h,t,n):0===l?h:u(e,i,i+d,t,n)}},f.css={ease:f.ease=f(.25,.1,.25,1),linear:f.linear=f(0,0,1,1),"ease-in":f.easeIn=f(.42,0,1,1),"ease-out":f.easeOut=f(0,0,.58,1),"ease-in-out":f.easeInOut=f(.42,0,.58,1)},t.exports=f},{}]},{},[1])(1)});
@@ -558,15 +558,15 @@ Player.goTo = function(direction) {
     var offset,
         alignOffsetAdjustment,
         denormalizedOffset;
-    
+
     var startingXCssTranlation = this.proxy.xCssTranslation;
     var _slider = this.getSlider();
 
     if (direction === 'next') {
 
-        this.pointer += 1;
-        alignOffsetAdjustment = this.getCellAlignOffsetAdjustment(this.pointer);
-        denormalizedOffset = this.getCellDenormalizedOffset(this.pointer);
+        this.proxy.pointer += 1;
+        alignOffsetAdjustment = this.getCellAlignOffsetAdjustment(this.proxy.pointer);
+        denormalizedOffset = this.getCellDenormalizedOffset(this.proxy.pointer);
 
         switch (this.settings.align) {
             case 'center':
@@ -585,20 +585,26 @@ Player.goTo = function(direction) {
 
     } else if (direction === 'previous') {
 
-        this.pointer -= 1;
-        if (this.pointer < 0) {
-            this.pointer += this.slidesMap.length;
+        this.proxy.pointer -= 1;
+        if (this.proxy.pointer < 0) {
+
+            var tmpPointer = this.slidesMap.length - 1;
+            denormalizedOffset = -this.slidesMap[tmpPointer].width;
+            alignOffsetAdjustment = this.getCellAlignOffsetAdjustment(tmpPointer);
+
+        } else {
+
+            denormalizedOffset = this.getCellDenormalizedOffset(this.proxy.pointer);
+            alignOffsetAdjustment = this.getCellAlignOffsetAdjustment(this.proxy.pointer);
         }
-        alignOffsetAdjustment = this.getCellAlignOffsetAdjustment(this.pointer);
-        denormalizedOffset = this.getCellDenormalizedOffset(this.pointer);
-        
+
         switch (this.settings.align) {
             case 'center':
                 offset = -startingXCssTranlation - denormalizedOffset + alignOffsetAdjustment;
                 console.log(offset);
                 break;
             case 'left':
-                offset = (this.slidesMap[this.pointer].width);
+                offset = (this.slidesMap[this.proxy.pointer].width);
                 break;
             case 'right':
                 offset = (this.slidesMap[oldPointer].width);
@@ -611,7 +617,7 @@ Player.goTo = function(direction) {
     }
 
     //console.log(startingXCssTranlation);
-   
+
     this.slide(offset, startingXCssTranlation);
 };
 
@@ -628,22 +634,27 @@ Player.slide = function(offset, startingXCssTranlation) {
     var easing = BezierEasing.css['ease-in-out'];
 
     var _slider = this.getSlider();
-    var _pointer = this.pointer;
     var _slides = this.getSlides();
     var _slidesMap = this.slidesMap;
     var _proxy = this.proxy;
+    _proxy.targetOffset = offset;
 
     var slidesCount = _slidesMap.length;
+    var lastCellIndex = slidesCount - 1;
     var startingOffset = startingXCssTranlation || _proxy.xCssTranslation;
 
     start = null;
 
-    if(!_proxy.isSettled) {
+    if (!_proxy.isSettled) {
         cAF(animation);
         _proxy.isSettled = true;
+    } else {
+        _proxy.oldPointer = _proxy.pointer;
     }
 
     function step(timestamp) {
+
+        console.log(_proxy.xNormalizedTranslation);
 
         if (start === null) start = timestamp;
         _proxy.isSettled = false;
@@ -651,66 +662,127 @@ Player.slide = function(offset, startingXCssTranlation) {
         var timePassed = (timestamp - start);
         var progress = timePassed / duration;
 
-        var adjustedOffset = Number(Math.round(offset * easing.get(progress) + 'e2') + 'e-2');
+        var progressOffset = Number(Math.round(_proxy.targetOffset * easing.get(progress) + 'e2') + 'e-2');
 
         if (progress >= 1) {
-            adjustedOffset = offset;
+            progressOffset = _proxy.targetOffset;
             progress = 1;
         }
 
         // If we are swiping left
-        if (offset > 0) {
+        if (_proxy.targetOffset > 0) {
 
-            if (_pointer === (slidesCount - 1)) {
-                console.log('si va verso la cuccagna');
-            }
+            if (_proxy.pointer === -1 && !_proxy.isFirstElTranslated && Math.abs(progressOffset) >= (_slidesMap[lastCellIndex].width / 2)) {
 
-            // Put the first cell on the head
-            if (_pointer === 1 && _proxy.isFirstElTranslated) {
-                if (Math.abs(adjustedOffset) >= (_slidesMap[_pointer].width / 2)) {
-                    console.log('si torna indietro');
-                    _slides[0].style.left = 0 + 'px';
-                    _proxy.isFirstElTranslated = false;
+                
+                    console.log('translate the whole thing');
+
+                    console.log('progressOffset: ');
+                    console.log(progressOffset);
+
+                    console.log('old targetOffset: ');
+                    console.log(_proxy.targetOffset);
+
+                    // Put the last cell on the tail
+                    var denormalizedOffset = _proxy.totalSlidesWidth - _slidesMap[lastCellIndex].width;
+                    _slides[lastCellIndex].style.left = denormalizedOffset + 'px';
+                    _proxy.isLastElTranslated = false;
+
+                    // Put the first cell on the tail
+                    _slides[0].style.left = _proxy.totalSlidesWidth + 'px';
+                    _proxy.isFirstElTranslated = true;
+
+                    var targetPoint = denormalizedOffset - (_slidesMap[lastCellIndex].width / 2);
+
+                    var newStartingPoint = -(targetPoint + _proxy.targetOffset - progressOffset);
+
+                    _proxy.updateTranslation(newStartingPoint);
+
+                    _proxy.targetOffset = - newStartingPoint -targetPoint;
+
+                    console.log('new targetOffset: ');
+                    console.log(_proxy.targetOffset);
+
+                    console.log('new translate X starting offset: ');
+                    console.log(_proxy.xCssTranslation);
+
+                    _slider.style[vendorTransform] = 'translate3d(' + newStartingPoint + 'px,0,0)';
+
+                    startingOffset = _proxy.xCssTranslation;
+                    //animation = rAF(step);
+                    //cAF(animation);
+                    //return false;
+
+            } else {
+
+                /*console.log('Normale swipe left');
+                console.log('targetOffset: ');
+                console.log(_proxy.targetOffset);*/
+
+                // Put the last cell on the head
+                if (_proxy.pointer === 0 && !_proxy.isLastElTranslated) {
+                    if (Math.abs(progressOffset) >= (_slidesMap[_proxy.pointer].width / 2)) {
+                        console.log('last cell go first');
+                        _slides[lastCellIndex].style.left = (-_slidesMap[lastCellIndex].width) + 'px';
+                        _proxy.isLastElTranslated = true;
+                    }
                 }
+
+                // Put the first cell on the head
+                if (_proxy.pointer === 1 && _proxy.isFirstElTranslated) {
+                    if (Math.abs(progressOffset) >= (_slidesMap[_proxy.pointer].width / 2)) {
+                        console.log('first cell go first');
+                        _slides[0].style.left = 0 + 'px';
+                        _proxy.isFirstElTranslated = false;
+                    }
+                }
+
+                _slider.style[vendorTransform] = 'translate3d(' + (progressOffset + startingOffset) + 'px,0,0)';
+
+                _proxy.updateTranslation(progressOffset + startingOffset);
             }
 
-            _slider.style[vendorTransform] = 'translate3d(' + (adjustedOffset + startingOffset) + 'px,0,0)';
 
-        // If we are swiping right
+            // If we are swiping right
         } else {
 
-            if (_pointer === (slidesCount - 2) && _proxy.isLastElTranslated) {
+            /*console.log('Normale swipe right');
+            console.log('targetOffset: ');
+            console.log(_proxy.targetOffset);*/
+
+            if (_proxy.pointer === (slidesCount - 2) && _proxy.isLastElTranslated) {
                 // Put the last cell on the tail
-                if (Math.abs(adjustedOffset) >= (_slidesMap[_pointer].width / 2)) {
-                    _slides[_pointer + 1].style.left = (_proxy.totalSlidesWidth - _slidesMap[_pointer + 1].width) + 'px';
+                if (Math.abs(progressOffset) >= (_slidesMap[_proxy.pointer].width / 2)) {
+                    _slides[lastCellIndex].style.left = (_proxy.totalSlidesWidth - _slidesMap[lastCellIndex].width) + 'px';
                     _proxy.isLastElTranslated = false;
                 }
             }
 
-            
-            if (_pointer === (slidesCount - 1) && !_proxy.isFirstElTranslated) {
+            if (_proxy.pointer === (lastCellIndex) && !_proxy.isFirstElTranslated) {
                 // Put the first cell on the tail
-                if (Math.abs(adjustedOffset) >= (_slidesMap[_pointer - 1].width / 2)) {
+                if (Math.abs(progressOffset) >= (_slidesMap[_proxy.pointer - 1].width / 2)) {
                     _slides[0].style.left = _proxy.totalSlidesWidth + 'px';
                     _proxy.isFirstElTranslated = true;
                 }
 
-            }  
+            }
 
-            _slider.style[vendorTransform] = 'translate3d(' + (adjustedOffset + startingOffset) + 'px,0,0)';
+            _slider.style[vendorTransform] = 'translate3d(' + (progressOffset + startingOffset) + 'px,0,0)';
+
+            _proxy.updateTranslation(progressOffset + startingOffset);
         }
 
-        _proxy.xCssTranslation = adjustedOffset + startingOffset;
-
         if (progress === 1) {
-            _slider.style[vendorTransform] = 'translate(' + (offset + startingOffset) + 'px,0)';
+            _slider.style[vendorTransform] = 'translate(' + (_proxy.targetOffset + startingOffset) + 'px,0)';
             cAF(animation);
 
             // Update proxy
-            _proxy.xCssTranslation = offset + startingOffset;
+            _proxy.updateTranslation(progressOffset + startingOffset);
             _proxy.isSettled = true;
 
             start = null;
+
+            console.log(timePassed);
 
         } else {
 
@@ -724,7 +796,7 @@ Player.slide = function(offset, startingXCssTranlation) {
 
 Player.getCellDenormalizedOffset = function(index) {
     var normalizedSummation = 0;
-    for(var i = 0; i < index; i++) {
+    for (var i = 0; i < index; i++) {
         normalizedSummation += this.slidesMap[i].normalizedWidth;
     }
     return (normalizedSummation * this.proxy.viewportWidth);
@@ -794,7 +866,7 @@ Slider.init = function() {
     }
 
     this.updateProxy();
-    console.log(this.slidesMap);
+ 
     this.initEvents();
 };
 
@@ -873,13 +945,21 @@ function Elba(selector, options) {
                 writable: true,
                 value: true,
                 value: {
+                    pointer: 0,
+                    oldPointer: 0,
                     isSettled: true,
                     isWrappable: false,
                     isFirstElTranslated: false,
                     isLastElTranslated: false,
                     viewportWidth: 0,
                     xCssTranslation: 0,
-                    totalSlidesWidth: 0
+                    xNormalizedTranslation: 0,
+                    totalSlidesWidth: 0,
+                    targetOffset: 0,
+                    updateTranslation: function(offset){
+                        this.xCssTranslation = offset;
+                        this.xNormalizedTranslation = offset / this.viewportWidth;
+                    }
                 }
             },
             slidesMap: {
@@ -890,10 +970,6 @@ function Elba(selector, options) {
             source: {
                 writable: true,
                 value: {}
-            },
-            pointer: {
-                writable: true,
-                value: 0
             }
         });
     };
