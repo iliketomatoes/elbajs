@@ -176,6 +176,18 @@
   width: 50%;
 }
 
+.elba--blue {
+  background: #6BB9F0;
+}
+
+.elba--green {
+  background: green;
+}
+
+.elba--pink {
+  background: pink;
+}
+
 .elba-animatable .elba-loading:before {
   content: '';
   position: absolute;

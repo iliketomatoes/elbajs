@@ -128,10 +128,8 @@ $number-width: 3.375rem;
 }
 
 .elba-banner{
-    position: absolute;
-    top: 2.5rem;
-    left: 2.5rem + $number-width;
-    height: $number-width;
+    position: relative;
+    display: block;
     font-family: $header-font-family;
     padding: 1rem;
     background-color: $half-transparent;

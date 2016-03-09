@@ -68,6 +68,18 @@
 	width: 50%;
 }
 
+.elba--blue{
+	background: $elba;
+}
+
+.elba--green{
+	background: green;
+}
+
+.elba--pink{
+	background: pink;
+}
+
 .elba-animatable .elba-loading{
 	@include loading('elba-spinner');
 }

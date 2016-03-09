@@ -214,10 +214,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .elba-banner {
-  position: absolute;
-  top: 2.5rem;
-  left: 5.875rem;
-  height: 3.375rem;
+  position: relative;
+  display: block;
   font-family: "Rufina", serif;
   padding: 1rem;
   background-color: rgba(255, 255, 255, 0.9);

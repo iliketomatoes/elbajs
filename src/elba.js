@@ -50,6 +50,7 @@ function Elba(selector, options) {
                     isWrappable: false,
                     isFirstElTranslated: false,
                     isLastElTranslated: false,
+                    isWrapProcessOngoing: false,
                     viewportWidth: 0,
                     xCssTranslation: 0,
                     xNormalizedTranslation: 0,
