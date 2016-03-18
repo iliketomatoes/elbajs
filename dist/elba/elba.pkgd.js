@@ -718,30 +718,29 @@ Player.slide = function(offset, startingXCssTranlation) {
                 //console.log('targetOffset: ');
                 //console.log(_proxy.targetOffset);
 
-                // Put the last cell on the head
+                
                 if (_proxy.pointer === 0 && !_proxy.isLastElTranslated) {
+                    // Put the last cell on the head
                     if (Math.abs(progressDelta) >= (_slidesMap[_proxy.pointer].width / 2)) {
                         console.log('last cell go first');
                         _slides[lastCellIndex].style.left = (-_slidesMap[lastCellIndex].width) + 'px';
                         _proxy.isLastElTranslated = true;
                     }
-                }
-
-                // Put the first cell on the head
-                if (_proxy.pointer === 1 && _proxy.isFirstElTranslated) {
+                } else if (_proxy.pointer === 1 && _proxy.isFirstElTranslated) {
+                    // Put the first cell on the head
                     if (Math.abs(progressDelta) >= (_slidesMap[_proxy.pointer].width / 2)) {
                         console.log('first cell go first');
                         _slides[0].style.left = 0 + 'px';
                         _proxy.isFirstElTranslated = false;
                     }
-                }
-
+                } 
+                
                 _slider.style[vendorTransform] = 'translate3d(' + (progressDelta + startingOffset) + 'px,0,0)';
 
                 _proxy.updateTranslation(progressDelta + startingOffset);
 
-                console.log('absolute delta: ');
-                console.log((progressDelta + startingOffset));
+                //console.log('absolute delta: ');
+                //console.log((progressDelta + startingOffset));
 
                 //if(_proxy.isWrapProcessOngoing) return false;
             }
@@ -760,9 +759,7 @@ Player.slide = function(offset, startingXCssTranlation) {
                     _slides[lastCellIndex].style.left = (_proxy.totalSlidesWidth - _slidesMap[lastCellIndex].width) + 'px';
                     _proxy.isLastElTranslated = false;
                 }
-            }
-
-            if (_proxy.pointer === (lastCellIndex) && !_proxy.isFirstElTranslated) {
+            } else if (_proxy.pointer === (lastCellIndex) && !_proxy.isFirstElTranslated) {
                 // Put the first cell on the tail
                 if (Math.abs(progressDelta) >= (_slidesMap[_proxy.pointer - 1].width / 2)) {
                     _slides[0].style.left = _proxy.totalSlidesWidth + 'px';
@@ -788,7 +785,7 @@ Player.slide = function(offset, startingXCssTranlation) {
 
         } else {
 
-            animation = rAF(step);
+            rAF(step);
         }
     }
 
