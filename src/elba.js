@@ -77,13 +77,17 @@ function Elba(selector, options) {
     // Extend default options
     var settings = Utils.extend(_defaults, options);
 
+    var targetElements = document.querySelectorAll(selector);
+
     this.instances = [];
 
-    if (selector.indexOf('#') > -1) {
-        var target = selector.slice(1);
+    var i = 0;
+
+    while (targetElements[i]) {
         var GUID = Utils.generateGUID();
-        Instances[GUID] = _createInstance(document.getElementById(target), GUID, settings);
+        Instances[GUID] = _createInstance(targetElements[i], GUID, settings);
         Instances[GUID].init();
         this.instances.push(GUID);
+        i++;
     }
 }
