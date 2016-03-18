@@ -43,25 +43,6 @@ var vendorTransition = (function() {
 
 testElement = null;
 
-// https://github.com/HenrikJoreteg/get-css-translated-position/blob/master/index.js
-// Updated by Giancarlo Soverini on 2016-3-4
-function getXCssTranslatedPosition(el) {
-
-    var re = /matrix\((.*)\)/;
-    var pos;
-
-    var cS = window.getComputedStyle(el)[vendorComputedTransform];
-
-    if (cS.indexOf('matrix') > -1) {
-        pos = re.exec(cS)[1].split(',').map(function(item) {
-            return parseFloat(item);
-        });
-        return pos[4];
-    } else {
-        return 0;
-    }
-}
-
 var rAF = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
     window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
@@ -83,4 +64,23 @@ if (typeof document.hidden !== 'undefined') { // Opera 12.10 and Firefox 18 and 
 } else if (typeof document.webkitHidden !== 'undefined') {
     hidden = 'webkitHidden';
     visibilityChange = 'webkitvisibilitychange';
+}
+
+// https://github.com/HenrikJoreteg/get-css-translated-position/blob/master/index.js
+// Updated by Giancarlo Soverini on 2016-3-4
+function getXCssTranslatedPosition(el) {
+
+    var re = /matrix\((.*)\)/;
+    var pos;
+
+    var cS = window.getComputedStyle(el)[vendorComputedTransform];
+
+    if (cS.indexOf('matrix') > -1) {
+        pos = re.exec(cS)[1].split(',').map(function(item) {
+            return parseFloat(item);
+        });
+        return pos[4];
+    } else {
+        return 0;
+    }
 }

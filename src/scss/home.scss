@@ -108,24 +108,6 @@ h1,h2,h3,h4,h5,h6{
 
 $number-width: 3.375rem;
 
-.elba-number{
-    position: relative;
-    display: inline-block;
-    width: $number-width;
-    height: $number-width;
-    text-align: center;
-    padding-top: 1rem;
-    color: #FFF;
-    background-color: $half-transparent;
-    
-    font-weight: bold;
-    line-height: 1.4rem;
-    font-size: 1.4rem;
-
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-}
 
 .elba-banner{
     position: relative;

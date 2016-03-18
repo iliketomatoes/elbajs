@@ -36,6 +36,6 @@ Eventie.setArrowsListener = function() {
 };
 
 Eventie.setSliderListener = function() {
-	var _slider = this.getSlider();
-	Utils.setListener(_slider, Tocca.events.start, sliderDragStartHandler.bind(this));
+	var viewport = this.el.querySelector('.elba-viewport');
+	Utils.setListener(viewport, Tocca.events.start, sliderDragStartHandler.bind(this));
 };

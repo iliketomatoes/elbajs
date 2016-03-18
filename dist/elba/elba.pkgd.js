@@ -1,4 +1,4 @@
-/*! elba - v0.5.0 - 2016-03-09
+/*! elba - v0.5.0 - 2016-03-18
 * https://github.com/iliketomatoes/elbajs
 * Copyright (c) 2016 ; Licensed  */
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var t;t="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:this,t.BezierEasing=e()}}(function(){return function e(t,n,r){function i(s,u){if(!n[s]){if(!t[s]){var a="function"==typeof require&&require;if(!u&&a)return a(s,!0);if(o)return o(s,!0);var f=new Error("Cannot find module '"+s+"'");throw f.code="MODULE_NOT_FOUND",f}var p=n[s]={exports:{}};t[s][0].call(p.exports,function(e){var n=t[s][1][e];return i(n?n:e)},p,p.exports,e,t,n,r)}return n[s].exports}for(var o="function"==typeof require&&require,s=0;s<r.length;s++)i(r[s]);return i}({1:[function(e,t){function n(e,t){return 1-3*t+3*e}function r(e,t){return 3*t-6*e}function i(e){return 3*e}function o(e,t,o){return((n(t,o)*e+r(t,o))*e+i(t))*e}function s(e,t,o){return 3*n(t,o)*e*e+2*r(t,o)*e+i(t)}function u(e,t,n,r,i){var s,u,a=0;do u=t+(n-t)/2,s=o(u,r,i)-e,s>0?n=u:t=u;while(Math.abs(s)>h&&++a<l);return u}function a(e,t,n,r){for(var i=0;p>i;++i){var u=s(t,n,r);if(0===u)return t;var a=o(t,n,r)-e;t-=a/u}return t}function f(e,t,n,r){if(4===arguments.length)return new f([e,t,n,r]);if(!(this instanceof f))return new f(e);if(!e||4!==e.length)throw new Error("BezierEasing: points must contains 4 values");for(var i=0;4>i;++i)if("number"!=typeof e[i]||isNaN(e[i])||!isFinite(e[i]))throw new Error("BezierEasing: points should be integers.");if(e[0]<0||e[0]>1||e[2]<0||e[2]>1)throw new Error("BezierEasing x values must be in [0, 1] range.");this._str="BezierEasing("+e+")",this._css="cubic-bezier("+e+")",this._p=e,this._mSampleValues=m?new Float32Array(_):new Array(_),this._precomputed=!1,this.get=this.get.bind(this)}var p=4,c=.001,h=1e-7,l=10,_=11,d=1/(_-1),m="function"==typeof Float32Array;f.prototype={get:function(e){var t=this._p[0],n=this._p[1],r=this._p[2],i=this._p[3];return this._precomputed||this._precompute(),t===n&&r===i?e:0===e?0:1===e?1:o(this._getTForX(e),n,i)},getPoints:function(){return this._p},toString:function(){return this._str},toCSS:function(){return this._css},_precompute:function(){var e=this._p[0],t=this._p[1],n=this._p[2],r=this._p[3];this._precomputed=!0,(e!==t||n!==r)&&this._calcSampleValues()},_calcSampleValues:function(){for(var e=this._p[0],t=this._p[2],n=0;_>n;++n)this._mSampleValues[n]=o(n*d,e,t)},_getTForX:function(e){for(var t=this._p[0],n=this._p[2],r=this._mSampleValues,i=0,o=1,f=_-1;o!==f&&r[o]<=e;++o)i+=d;--o;var p=(e-r[o])/(r[o+1]-r[o]),h=i+p*d,l=s(h,t,n);return l>=c?a(e,h,t,n):0===l?h:u(e,i,i+d,t,n)}},f.css={ease:f.ease=f(.25,.1,.25,1),linear:f.linear=f(0,0,1,1),"ease-in":f.easeIn=f(.42,0,1,1),"ease-out":f.easeOut=f(0,0,.58,1),"ease-in-out":f.easeInOut=f(.42,0,.58,1)},t.exports=f},{}]},{},[1])(1)});
@@ -94,7 +94,11 @@ if ( typeof define === 'function' && define.amd ) {
 
     if (typeof define === 'function' && define.amd) {
         // Register Elba as an AMD module
-        define(Elba());
+        define(Elba);
+
+    } else if (typeof module == 'object' && module.exports) {
+        // Register Elba for CommonJS
+        module.exports = factory;
 
     } else {
         // Register Elba on window
@@ -148,25 +152,6 @@ var vendorTransition = (function() {
 
 testElement = null;
 
-// https://github.com/HenrikJoreteg/get-css-translated-position/blob/master/index.js
-// Updated by Giancarlo Soverini on 2016-3-4
-function getXCssTranslatedPosition(el) {
-
-    var re = /matrix\((.*)\)/;
-    var pos;
-
-    var cS = window.getComputedStyle(el)[vendorComputedTransform];
-
-    if (cS.indexOf('matrix') > -1) {
-        pos = re.exec(cS)[1].split(',').map(function(item) {
-            return parseFloat(item);
-        });
-        return pos[4];
-    } else {
-        return 0;
-    }
-}
-
 var rAF = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
     window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
@@ -190,6 +175,24 @@ if (typeof document.hidden !== 'undefined') { // Opera 12.10 and Firefox 18 and 
     visibilityChange = 'webkitvisibilitychange';
 }
 
+// https://github.com/HenrikJoreteg/get-css-translated-position/blob/master/index.js
+// Updated by Giancarlo Soverini on 2016-3-4
+function getXCssTranslatedPosition(el) {
+
+    var re = /matrix\((.*)\)/;
+    var pos;
+
+    var cS = window.getComputedStyle(el)[vendorComputedTransform];
+
+    if (cS.indexOf('matrix') > -1) {
+        pos = re.exec(cS)[1].split(',').map(function(item) {
+            return parseFloat(item);
+        });
+        return pos[4];
+    } else {
+        return 0;
+    }
+}
 var Utils = {
 
     extend: function(a, b) {
@@ -637,12 +640,12 @@ Player.slide = function(offset, startingXCssTranlation) {
     var _slides = this.getSlides();
     var _slidesMap = this.slidesMap;
     var _proxy = this.proxy;
-    _proxy.targetOffset = offset;
 
     var slidesCount = _slidesMap.length;
     var lastCellIndex = slidesCount - 1;
     var startingOffset = startingXCssTranlation || _proxy.xCssTranslation;
 
+    _proxy.targetOffset = offset;
     start = null;
 
     if (!_proxy.isSettled) {
@@ -677,6 +680,8 @@ Player.slide = function(offset, startingXCssTranlation) {
 
                     console.log('translate the whole thing');
 
+                    // Update the pointer to the last cell
+                    _proxy.pointer = lastCellIndex;
                     //console.log('old targetOffset: ');
                     //console.log(_proxy.targetOffset);
 
@@ -849,8 +854,8 @@ Eventie.setArrowsListener = function() {
 };
 
 Eventie.setSliderListener = function() {
-	var _slider = this.getSlider();
-	Utils.setListener(_slider, Tocca.events.start, sliderDragStartHandler.bind(this));
+	var viewport = this.el.querySelector('.elba-viewport');
+	Utils.setListener(viewport, Tocca.events.start, sliderDragStartHandler.bind(this));
 };
 
 var Slider = Object.create(Eventie);
@@ -975,14 +980,18 @@ function Elba(selector, options) {
     // Extend default options
     var settings = Utils.extend(_defaults, options);
 
+    var targetElements = document.querySelectorAll(selector);
+
     this.instances = [];
 
-    if (selector.indexOf('#') > -1) {
-        var target = selector.slice(1);
+    var i = 0;
+
+    while (targetElements[i]) {
         var GUID = Utils.generateGUID();
-        Instances[GUID] = _createInstance(document.getElementById(target), GUID, settings);
+        Instances[GUID] = _createInstance(targetElements[i], GUID, settings);
         Instances[GUID].init();
         this.instances.push(GUID);
+        i++;
     }
 }
 

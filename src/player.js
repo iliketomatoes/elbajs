@@ -93,12 +93,12 @@ Player.slide = function(offset, startingXCssTranlation) {
     var _slides = this.getSlides();
     var _slidesMap = this.slidesMap;
     var _proxy = this.proxy;
-    _proxy.targetOffset = offset;
 
     var slidesCount = _slidesMap.length;
     var lastCellIndex = slidesCount - 1;
     var startingOffset = startingXCssTranlation || _proxy.xCssTranslation;
 
+    _proxy.targetOffset = offset;
     start = null;
 
     if (!_proxy.isSettled) {
@@ -133,6 +133,8 @@ Player.slide = function(offset, startingXCssTranlation) {
 
                     console.log('translate the whole thing');
 
+                    // Update the pointer to the last cell
+                    _proxy.pointer = lastCellIndex;
                     //console.log('old targetOffset: ');
                     //console.log(_proxy.targetOffset);
 
