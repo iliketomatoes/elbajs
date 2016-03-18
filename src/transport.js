@@ -4,7 +4,11 @@
 
     if (typeof define === 'function' && define.amd) {
         // Register Elba as an AMD module
-        define(Elba());
+        define(Elba);
+
+    } else if (typeof module == 'object' && module.exports) {
+        // Register Elba for CommonJS
+        module.exports = factory;
 
     } else {
         // Register Elba on window
