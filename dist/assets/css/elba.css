@@ -1,4 +1,4 @@
-.standard-backface, .elba-carousel, .elba, .elba-island, .elba-content, .elba-animatable .elba-loading:before, .elba-animatable .elba-loading:after {
+.standard-backface, .elba, .elba-animatable .elba-loading:before, .elba-animatable .elba-loading:after {
   -webkit-backface-visibility: hidden;
   -moz-backface-visibility: hidden;
   -ms-backface-visibility: hidden;
@@ -107,7 +107,6 @@
 /******** CAROUSEL *********/
 .elba-carousel {
   overflow: hidden;
-  will-change: auto;
 }
 
 .elba-carousel *, .elba-carousel *:before, .elba-carousel *:after {
@@ -116,16 +115,11 @@
   box-sizing: border-box;
 }
 
-.elba-carousel, .elba, .elba-island, .elba-content {
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
+/*.elba, .elba-island{
+	//@include transform(translate3d(0, 0, 0));
+	@extend .standard-backface;
+	@include no-select;
+}*/
 .elba-carousel {
   position: relative;
   width: 100%;
@@ -138,6 +132,7 @@
 .elba-viewport {
   position: relative;
   height: 100%;
+  overflow: hidden;
 }
 
 .elba-slider {
@@ -145,7 +140,6 @@
   width: 100%;
   height: 100%;
   touch-action: pan-x;
-  will-change: transform;
 }
 
 .elba {
@@ -156,13 +150,11 @@
   padding: 0;
   border: none;
   background: #6BB9F0;
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+  -moz-transform: translate3d(0, 0, 0);
+  -o-transform: translate3d(0, 0, 0);
+  -ms-transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
 }
 
 .elba *, .elba :before, .elba :after {
@@ -255,6 +247,7 @@
   overflow: auto;
   z-index: 5;
   text-indent: 0;
+  opacity: 1;
   color: #000;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
