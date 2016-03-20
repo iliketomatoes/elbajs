@@ -47,7 +47,7 @@ function Elba(selector, options) {
                     pointer: 0,
                     oldPointer: 0,
                     isSettled: true,
-                    isWrappable: false,
+                    isWrappable: true,
                     isFirstElTranslated: false,
                     isLastElTranslated: false,
                     isWrapProcessOngoing: false,
@@ -55,6 +55,7 @@ function Elba(selector, options) {
                     xCssTranslation: 0,
                     xNormalizedTranslation: 0,
                     totalSlidesWidth: 0,
+                    totalNormalizedSlidesWidth: 0,
                     targetOffset: 0,
                     updateTranslation: function(offset){
                         this.xCssTranslation = offset;

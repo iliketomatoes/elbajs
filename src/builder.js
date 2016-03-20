@@ -123,4 +123,5 @@ Builder.registerSlidesWidth = function(elements) {
         this.slidesMap[i].normalizedWidth = this.slidesMap[i].width / viewportWidth;
         this.proxy.totalSlidesWidth += this.slidesMap[i].width;
     }
+    this.proxy.totalNormalizedSlidesWidth = this.proxy.totalSlidesWidth / viewportWidth;
 };
