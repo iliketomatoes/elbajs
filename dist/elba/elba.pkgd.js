@@ -566,6 +566,8 @@ Player.goTo = function(direction) {
     var startingXCssTranlation = this.proxy.xCssTranslation;
     var _slider = this.getSlider();
 
+    this.proxy.oldPointer = this.proxy.pointer;
+
     if (direction === 'next') {
 
         this.proxy.pointer += 1;
@@ -712,15 +714,19 @@ Player.slide = function(offset, startingXCssTranlation) {
 
             } else {
 
-                if ((Math.abs(_proxy.xNormalizedTranslation) + _slidesMap[lastCellIndex].normalizedWidth) <= 1 && !_proxy.isLastElTranslated) {
-                    // Put the last cell on the head
-                    _slides[lastCellIndex].style.left = (-_slidesMap[lastCellIndex].width) + 'px';
-                    _proxy.isLastElTranslated = true;
-
-                } else if (Math.abs(_proxy.xNormalizedTranslation) <= _slidesMap[0].normalizedWidth && _proxy.isFirstElTranslated) {
+                if (Math.abs(_proxy.xNormalizedTranslation) <= (_slidesMap[0].normalizedWidth - 0.016) && _proxy.isFirstElTranslated) {
+                    console.log('Put the first cell on the head');
+                    console.log(Math.abs(_proxy.xNormalizedTranslation));
                     // Put the first cell on the head
                     _slides[0].style.left = 0 + 'px';
                     _proxy.isFirstElTranslated = false;
+
+                } else if ((Math.abs(_proxy.xNormalizedTranslation) + _slidesMap[lastCellIndex].normalizedWidth - 0.016) <= 1 && !_proxy.isLastElTranslated) {
+                    console.log('Put the last cell on the head');
+                    console.log(Math.abs(_proxy.xNormalizedTranslation));
+                    // Put the last cell on the head
+                    _slides[lastCellIndex].style.left = (-_slidesMap[lastCellIndex].width) + 'px';
+                    _proxy.isLastElTranslated = true;
                 }
 
                 translate3d(progressDelta + startingOffset);
@@ -752,15 +758,20 @@ Player.slide = function(offset, startingXCssTranlation) {
 
             } else {
 
-                if (Math.abs(_proxy.xNormalizedTranslation) > _slidesMap[lastCellIndex].normalizedWidth && _proxy.isLastElTranslated) {
+                if (Math.abs(_proxy.xNormalizedTranslation) >= (_slidesMap[0].normalizedWidth + 0.016) && !_proxy.isFirstElTranslated) {
+                    console.log('Put first cell in the tail');
+                    console.log(Math.abs(_proxy.xNormalizedTranslation));
+                    // Put the first cell in the tail
+                    _slides[0].style.left = _proxy.totalSlidesWidth + 'px';
+                    _proxy.isFirstElTranslated = true;
+
+                } else if (Math.abs(_proxy.xNormalizedTranslation) >= (_slidesMap[lastCellIndex].normalizedWidth + 0.016) && _proxy.isLastElTranslated) {
+                    console.log('Put the last cell in the tail');
+                    console.log(Math.abs(_proxy.xNormalizedTranslation));
                     // Put the last cell in the tail
                     _slides[lastCellIndex].style.left = (_proxy.totalSlidesWidth - _slidesMap[lastCellIndex].width) + 'px';
                     _proxy.isLastElTranslated = false;
 
-                } else if (Math.abs(_proxy.xNormalizedTranslation) > _slidesMap[0].normalizedWidth && !_proxy.isFirstElTranslated) {
-                    // Put the first cell in the tail
-                    _slides[0].style.left = _proxy.totalSlidesWidth + 'px';
-                    _proxy.isFirstElTranslated = true;
                 }
 
                 translate3d(progressDelta + startingOffset);
