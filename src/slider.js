@@ -7,14 +7,11 @@ Slider.init = function() {
         this.setNavigation();
     }
 
+    this.slider = this.el.querySelector('.elba-slider');
+
     this.updateProxy();
  
     this.initEvents();
-};
-
-Slider.getSlider = function() {
-    if (this.slider) return this.slider;
-    return this.slider = this.el.querySelector('.elba-slider');
 };
 
 Slider.getSlides = function() {
@@ -36,5 +33,5 @@ Slider.getViewportWidth = function() {
 
 Slider.updateProxy = function() {
     this.proxy.viewportWidth = this.getViewportWidth();
-    this.proxy.xCssTranslation = getXCssTranslatedPosition(this.getSlider());
+    this.proxy.xCssTranslation = getXCssTranslatedPosition(this.slider);
 };

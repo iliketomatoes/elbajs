@@ -1,15 +1,11 @@
 var Builder = {
     build: function() {
         this.setLayout();
+
+        // Set slides' layout
         var _slides = this.getSlides();
         this.registerSlidesWidth(_slides);
-
-        // Arbitrary setup
-        this.proxy.isWrappable = true;
         this.setSlidesOffset(_slides);
-
-        // Update object that holds the index of the last slide
-        this.proxy.lastEl = _slides.length - 1;
     }
 };
 
