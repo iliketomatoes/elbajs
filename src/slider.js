@@ -10,7 +10,7 @@ Slider.init = function() {
     this.slider = this.el.querySelector('.elba-slider');
 
     this.updateProxy();
- 
+
     this.initEvents();
 };
 
@@ -22,16 +22,15 @@ Slider.getArrows = function() {
     return this.el.querySelectorAll('.elba-arrow');
 };
 
-/**
- * Get the container width, that is elba-viewport's width
- * @return {Number} expressed in px
- */
-Slider.getViewportWidth = function() {
-    if (this.proxy.viewportWidth) return this.proxy.viewportWidth;
-    return this.proxy.viewportWidth = this.el.querySelector('.elba-viewport').clientWidth;
-};
-
 Slider.updateProxy = function() {
     this.proxy.viewportWidth = this.getViewportWidth();
-    this.proxy.xCssTranslation = getXCssTranslatedPosition(this.slider);
+    this.proxy.xCssTranslation = getCssTranslationX(this.slider);
+};
+
+Slider.getCellDenormalizedOffset = function(index) {
+    var normalizedSummation = 0;
+    for (var i = 0; i < index; i++) {
+        if (this.slidesMap[i]) normalizedSummation += this.slidesMap[i].normalizedWidth;
+    }
+    return (normalizedSummation * this.proxy.viewportWidth);
 };

@@ -48,10 +48,10 @@ Builder.setSlidesOffset = function(elements) {
     var start = 0;
     for (var i = 1; i < slides.length; i++) {
         var tmp = this.slidesMap[i - 1].width;
-        if(this.proxy.isWrappable && i === (slides.length - 1)) {
+        if (this.proxy.isWrappable && i === (slides.length - 1)) {
             slides[i].style.left = -tmp + 'px';
             this.proxy.isLastElTranslated = true;
-        }else{
+        } else {
             slides[i].style.left = (tmp + start) + 'px';
             start += tmp;
         }
@@ -120,4 +120,13 @@ Builder.registerSlidesWidth = function(elements) {
         this.proxy.totalSlidesWidth += this.slidesMap[i].width;
     }
     this.proxy.totalNormalizedSlidesWidth = this.proxy.totalSlidesWidth / viewportWidth;
+};
+
+/**
+ * Get the container width, that is elba-viewport's width
+ * @return {Number} expressed in px
+ */
+Builder.getViewportWidth = function() {
+    if (this.proxy.viewportWidth) return this.proxy.viewportWidth;
+    return this.proxy.viewportWidth = this.el.querySelector('.elba-viewport').clientWidth;
 };

@@ -68,7 +68,7 @@ if (typeof document.hidden !== 'undefined') { // Opera 12.10 and Firefox 18 and 
 
 // https://github.com/HenrikJoreteg/get-css-translated-position/blob/master/index.js
 // Updated by Giancarlo Soverini on 2016-3-4
-function getXCssTranslatedPosition(el) {
+function getCssTranslationX(el) {
 
     var re = /matrix\((.*)\)/;
     var pos;

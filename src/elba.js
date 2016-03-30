@@ -57,6 +57,7 @@ function Elba(selector, options) {
                     totalSlidesWidth: 0,
                     totalNormalizedSlidesWidth: 0,
                     targetOffset: 0,
+                    animation: null,
                     updateTranslation: function(offset){
                         this.xCssTranslation = offset;
                         this.xNormalizedTranslation = offset / this.viewportWidth;
