@@ -16,10 +16,6 @@ Player.goTo = function(direction) {
 
     this.proxy.oldPointer = this.proxy.pointer;
 
-    if (this.proxy.isSettled) {
-        this.proxy.pointer = this.proxy.pointer % this.slidesMap.length;
-    }
-
     if (direction === 'next') {
 
         this.proxy.pointer += 1;
@@ -106,19 +102,18 @@ Player.slide = function(offset) {
 
     var normalizedPointer = self.proxy.pointer % self.slidesMap.length;
 
+    if (this.proxy.animation > 0) {
+        cAF(this.proxy.animation);
+        this.proxy.animation = null;
+    }
+
     if (this.proxy.isWrapProcessOngoing) {
         offset -= this.proxy.totalSlidesWidth;
     }
 
     this.proxy.targetOffset = offset - startingOffset;
-    
-    start = null;
 
-    if (this.proxy.animation > 0) {
-        console.log('distrutta animazione');
-        cAF(this.proxy.animation);
-        this.proxy.animation = null;
-    }
+    start = null;
 
     this.proxy.isSettled = false;
 
@@ -142,46 +137,43 @@ Player.slide = function(offset) {
         }
 
         // If we are pointing the last cell but then we swipe right
-        if (self.proxy.isWrapProcessOngoing && self.proxy.isFirstElTranslated) {
+        if (self.proxy.isWrapProcessOngoing && self.proxy.isFirstElTranslated && Math.abs(progressDelta) >= (self.slidesMap[0].width / 2)) {
 
-            if (Math.abs(progressDelta) >= (self.slidesMap[0].width / 2)) {
-                console.log('Wrap process realized');
-                console.log(self.proxy.targetOffset);
+            //console.log(self.proxy.targetOffset);
 
-                // Put the last cell on the head
-                _slides[lastCellIndex].style.left = -self.slidesMap[lastCellIndex].width + 'px';
-                self.proxy.isLastElTranslated = true;
+            // Put the last cell on the head
+            _slides[lastCellIndex].style.left = -self.slidesMap[lastCellIndex].width + 'px';
+            self.proxy.isLastElTranslated = true;
 
-                // Put the first cell on its own place
-                _slides[0].style.left = '0px';
-                self.proxy.isFirstElTranslated = false;
+            // Put the first cell at its own place
+            _slides[0].style.left = '0px';
+            self.proxy.isFirstElTranslated = false;
 
-                var newStartingPoint = -self.proxy.targetOffset + progressDelta;
+            var newStartingPoint = -self.proxy.targetOffset + progressDelta;
 
-                if (self.proxy.pointer > self.slidesMap.length) {
-                    newStartingPoint -= self.getCellDenormalizedOffset(normalizedPointer) - self.getCellAlignOffsetAdjustment(normalizedPointer);
-                }
-
-                startingOffset = newStartingPoint - progressDelta;
-                self.proxy.isWrapProcessOngoing = false;
-
-                translate3d(newStartingPoint);
-
-            } else {
-                translate3d(progressDelta + startingOffset);
+            if (self.proxy.pointer > self.slidesMap.length) {
+                newStartingPoint -= self.getCellDenormalizedOffset(normalizedPointer) - self.getCellAlignOffsetAdjustment(normalizedPointer);
             }
+
+            startingOffset = newStartingPoint - progressDelta;
+            
+            self.proxy.pointer = self.proxy.pointer % self.slidesMap.length;
+            self.proxy.isWrapProcessOngoing = false;
+            console.log('Wrap process realized');
+
+            translate3d(newStartingPoint);
 
         } else {
 
             if (Math.abs(self.proxy.xNormalizedTranslation) >= (self.slidesMap[0].normalizedWidth + 0.016) && !self.proxy.isFirstElTranslated) {
                 console.log('Put first cell on the tail');
-                // Put the first cell in the tail
+                // Put the first cell on the tail
                 _slides[0].style.left = self.proxy.totalSlidesWidth + 'px';
                 self.proxy.isFirstElTranslated = true;
 
             } else if (Math.abs(self.proxy.xNormalizedTranslation) >= (self.slidesMap[lastCellIndex].normalizedWidth + 0.016) && self.proxy.isLastElTranslated) {
                 console.log('Put the last cell on the tail');
-                // Put the last cell in the tail
+                // Put the last cell on the tail
                 _slides[lastCellIndex].style.left = (self.proxy.totalSlidesWidth - self.slidesMap[lastCellIndex].width) + 'px';
                 self.proxy.isLastElTranslated = false;
 
@@ -191,8 +183,8 @@ Player.slide = function(offset) {
         }
 
         if (progress === 1) {
-            console.log('animazione finita');
-            console.log(normalizedPointer);
+            //console.log('animazione finita');
+            //console.log(normalizedPointer);
             self.slider.style[vendorTransform] = 'translate(' + (self.proxy.targetOffset + startingOffset) + 'px,0)';
             cAF(self.proxy.animation);
 
