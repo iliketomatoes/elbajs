@@ -48,36 +48,39 @@ Player.goTo = function(direction) {
 
         this.proxy.pointer -= 1;
 
-        if (this.proxy.pointer < 0) {
+        normalizedPointer = this.proxy.pointer % this.slidesMap.length;
 
+        if (this.proxy.pointer < 0 && !this.proxy.isWrapProcessOngoing) {
+
+            normalizedPointer = this.slidesMap.length + normalizedPointer;
             this.proxy.isWrapProcessOngoing = true;
-            var tmpPointer = this.slidesMap.length - 1;
-            denormalizedOffset = -this.slidesMap[tmpPointer].width;
-            alignOffsetAdjustment = this.getCellAlignOffsetAdjustment(tmpPointer);
-            this.proxy.pointer = this.slidesMap.length;
 
-        } else {
-
-            denormalizedOffset = this.getCellDenormalizedOffset(this.proxy.pointer);
-            alignOffsetAdjustment = this.getCellAlignOffsetAdjustment(this.proxy.pointer);
         }
+
+        denormalizedOffset = this.getCellDenormalizedOffset(normalizedPointer);
+        alignOffsetAdjustment = this.getCellAlignOffsetAdjustment(normalizedPointer);
 
         switch (this.settings.align) {
             case 'center':
-                offset = denormalizedOffset + alignOffsetAdjustment;
+                offset = -(denormalizedOffset - alignOffsetAdjustment);
                 break;
             case 'left':
                 offset = (this.slidesMap[this.proxy.pointer].width);
                 break;
             case 'right':
-                offset = (this.slidesMap[oldPointer].width);
+                offset = (this.slidesMap[this.proxy.oldPointer].width);
                 break;
             default:
-                offset = (this.slidesMap[oldPointer].width / 2) + (targetSlideWidth / 2);
+                offset = (this.slidesMap[this.proxy.oldPointer].width / 2) + (targetSlideWidth / 2);
                 break;
         }
 
     }
+
+    /*console.log(denormalizedOffset);
+    console.log(alignOffsetAdjustment);
+    console.log(offset);*/
+    //console.log(this.proxy.pointer);
 
     this.slide(offset);
 };
@@ -102,16 +105,24 @@ Player.slide = function(offset) {
 
     var normalizedPointer = self.proxy.pointer % self.slidesMap.length;
 
+    if(normalizedPointer < 0) normalizedPointer = self.slidesMap.length + normalizedPointer;
+
     if (this.proxy.animation > 0) {
         cAF(this.proxy.animation);
         this.proxy.animation = null;
     }
 
     if (this.proxy.isWrapProcessOngoing) {
-        offset -= this.proxy.totalSlidesWidth;
+        if (this.proxy.pointer >= 0) {
+            offset -= this.proxy.totalSlidesWidth;
+        } else {
+            offset += this.proxy.totalSlidesWidth;
+        }
     }
 
     this.proxy.targetOffset = offset - startingOffset;
+    console.log(offset);
+    console.log(startingOffset);
 
     start = null;
 
@@ -136,55 +147,110 @@ Player.slide = function(offset) {
             progress = 1;
         }
 
-        // If we are pointing the last cell but then we swipe right
-        if (self.proxy.isWrapProcessOngoing && self.proxy.isFirstElTranslated && Math.abs(progressDelta) >= (self.slidesMap[0].width / 2)) {
+        if (self.proxy.targetOffset < 0) {
+            // IF WE ARE SWIPING RIGHT
 
-            //console.log(self.proxy.targetOffset);
+            // If we are pointing the last cell but then we swipe right
+            if (self.proxy.isWrapProcessOngoing && !self.isSecondToLastCellVisibile()) {
 
-            // Put the last cell on the head
-            _slides[lastCellIndex].style.left = -self.slidesMap[lastCellIndex].width + 'px';
-            self.proxy.isLastElTranslated = true;
+                //console.log(self.proxy.targetOffset);
 
-            // Put the first cell at its own place
-            _slides[0].style.left = '0px';
-            self.proxy.isFirstElTranslated = false;
+                // Put the last cell on the head
+                _slides[lastCellIndex].style.left = -self.slidesMap[lastCellIndex].width + 'px';
+                self.proxy.isLastElTranslated = true;
 
-            var newStartingPoint = -self.proxy.targetOffset + progressDelta;
+                // Put the first cell at its own place
+                _slides[0].style.left = '0px';
+                self.proxy.isFirstElTranslated = false;
 
-            if (self.proxy.pointer > self.slidesMap.length) {
-                newStartingPoint -= self.getCellDenormalizedOffset(normalizedPointer) - self.getCellAlignOffsetAdjustment(normalizedPointer);
+                var newStartingPoint = -self.proxy.targetOffset + progressDelta;
+
+                if (self.proxy.pointer > self.slidesMap.length) {
+                    newStartingPoint -= self.getCellDenormalizedOffset(normalizedPointer) - self.getCellAlignOffsetAdjustment(normalizedPointer);
+                }
+
+                startingOffset = newStartingPoint - progressDelta;
+
+                self.proxy.pointer = normalizedPointer;
+                self.proxy.isWrapProcessOngoing = false;
+                console.log('Wrap process to right realized');
+
+                translate3d(newStartingPoint);
+
+            } else {
+
+                if (!self.isFirstCellVisible() && !self.proxy.isFirstElTranslated) {
+                    //console.log('Put first cell on the tail');
+                    //console.log(self.proxy.xNormalizedTranslation);
+                    // Put the first cell on the tail
+                    _slides[0].style.left = self.proxy.totalSlidesWidth + 'px';
+                    self.proxy.isFirstElTranslated = true;
+
+                }
+
+                if (!self.isLastCellVisible() && self.proxy.isLastElTranslated) {
+                    //console.log('Put the last cell on the tail');
+                    // Put the last cell on the tail
+                    _slides[lastCellIndex].style.left = (self.proxy.totalSlidesWidth - self.slidesMap[lastCellIndex].width) + 'px';
+                    self.proxy.isLastElTranslated = false;
+
+                }
+
+                translate3d(progressDelta + startingOffset);
             }
 
-            startingOffset = newStartingPoint - progressDelta;
-            
-            self.proxy.pointer = self.proxy.pointer % self.slidesMap.length;
-            self.proxy.isWrapProcessOngoing = false;
-            console.log('Wrap process realized');
-
-            translate3d(newStartingPoint);
-
         } else {
+            // IF WE ARE SWIPING LEFT
 
-            if (Math.abs(self.proxy.xNormalizedTranslation) >= (self.slidesMap[0].normalizedWidth + 0.016) && !self.proxy.isFirstElTranslated) {
-                console.log('Put first cell on the tail');
+            if (self.proxy.isWrapProcessOngoing && !self.isSecondCellVisible()) {
+
+                // Put the last cell on the its own place
+                _slides[lastCellIndex].style.left = (self.proxy.totalSlidesWidth - self.slidesMap[lastCellIndex].width) + 'px';
+                self.proxy.isLastElTranslated = false;
+
                 // Put the first cell on the tail
                 _slides[0].style.left = self.proxy.totalSlidesWidth + 'px';
                 self.proxy.isFirstElTranslated = true;
 
-            } else if (Math.abs(self.proxy.xNormalizedTranslation) >= (self.slidesMap[lastCellIndex].normalizedWidth + 0.016) && self.proxy.isLastElTranslated) {
-                console.log('Put the last cell on the tail');
-                // Put the last cell on the tail
-                _slides[lastCellIndex].style.left = (self.proxy.totalSlidesWidth - self.slidesMap[lastCellIndex].width) + 'px';
-                self.proxy.isLastElTranslated = false;
+                startingOffset -= (self.proxy.totalSlidesWidth); 
+
+                self.proxy.pointer = normalizedPointer;
+                self.proxy.isWrapProcessOngoing = false;
+
+                console.log('wrap process to left preso');
+
+                translate3d(-progressDelta + startingOffset);
+
+                //return false;
+
+            } else {
+
+                if (!self.isFirstCellVisible() && self.proxy.isFirstElTranslated) {
+                    //console.log('Put first cell on the head');
+                    //console.log(self.proxy.xNormalizedTranslation);
+                    // Put the first cell on the tail
+                    _slides[0].style.left = 0 + 'px';
+                    self.proxy.isFirstElTranslated = false;
+
+                }
+
+                if (!self.isLastCellVisible() && !self.proxy.isLastElTranslated) {
+                    //console.log('Put the last cell on the head');
+                    // Put the last cell on the tail
+                    _slides[lastCellIndex].style.left = -self.slidesMap[lastCellIndex].width + 'px';
+                    self.proxy.isLastElTranslated = true;
+
+                }
+
+                translate3d(progressDelta + startingOffset);
 
             }
 
-            translate3d(progressDelta + startingOffset);
         }
 
         if (progress === 1) {
-            //console.log('animazione finita');
-            //console.log(normalizedPointer);
+            // COMPLETED SWIPING
+
             self.slider.style[vendorTransform] = 'translate(' + (self.proxy.targetOffset + startingOffset) + 'px,0)';
             cAF(self.proxy.animation);
 
@@ -205,4 +271,84 @@ Player.slide = function(offset) {
 
 Player.getCellAlignOffsetAdjustment = function(index) {
     return (this.proxy.viewportWidth - this.slidesMap[index].width) / 2;
+};
+
+Player.isFirstCellVisible = function() {
+
+    if (this.proxy.targetOffset < 0) {
+        // If we are swiping right
+        if (-this.proxy.xNormalizedTranslation > this.slidesMap[0].normalizedWidth) {
+            return false;
+        } else {
+            return true;
+        }
+
+    } else {
+        // If we are swiping left
+        if (-this.proxy.xNormalizedTranslation < this.slidesMap[0].normalizedWidth) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+};
+
+Player.isSecondCellVisible = function() {
+
+    if (this.proxy.targetOffset < 0) {
+        // If we are swiping right
+        if (-this.proxy.xNormalizedTranslation > this.slidesMap[1].normalizedWidth) {
+            return false;
+        } else {
+            return true;
+        }
+
+    } else {
+        // If we are swiping left
+        if (-this.proxy.xNormalizedTranslation < this.slidesMap[1].normalizedWidth) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+};
+
+Player.isSecondToLastCellVisibile = function() {
+    var totalNormalizedSlidesWidth = this.proxy.totalNormalizedSlidesWidth;
+    var lastNormalizedSlideWidth = this.slidesMap[this.slidesMap.length - 1].normalizedWidth;
+
+    if (this.proxy.targetOffset < 0) {
+        // If we are swiping right
+        if (-this.proxy.xNormalizedTranslation > (totalNormalizedSlidesWidth - lastNormalizedSlideWidth)) {
+            return false;
+        } else {
+            return true;
+        }
+    } else {
+        // If we are swiping left
+        return true;
+    }
+};
+
+Player.isLastCellVisible = function() {
+    var lastCellIndex = this.slidesMap.length - 1;
+
+    if (this.proxy.xNormalizedTranslation <= 0) {
+        // If we are swiping right
+        if (-this.proxy.xNormalizedTranslation > this.slidesMap[lastCellIndex].normalizedWidth) {
+            return true;
+        } else {
+            return false;
+        }
+
+    } else {
+        // If we are swiping left
+        if (this.proxy.xNormalizedTranslation < this.slidesMap[lastCellIndex].normalizedWidth) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 };
