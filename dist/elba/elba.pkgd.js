@@ -636,6 +636,7 @@ Player.goTo = function(direction) {
     console.log(alignOffsetAdjustment);
     console.log(offset);*/
     //console.log(this.proxy.pointer);
+    console.log('normalizedPointer:' + normalizedPointer);
 
     this.slide(offset);
 };
@@ -676,8 +677,6 @@ Player.slide = function(offset) {
     }
 
     this.proxy.targetOffset = offset - startingOffset;
-    console.log(offset);
-    console.log(startingOffset);
 
     start = null;
 
@@ -720,7 +719,12 @@ Player.slide = function(offset) {
 
                 var newStartingPoint = -self.proxy.targetOffset + progressDelta;
 
+                console.log('Target offset is:');
+                console.log(self.proxy.targetOffset);
+
                 if (self.proxy.pointer > self.slidesMap.length) {
+                    console.log('Weird adjustment:');
+                    console.log(self.getCellDenormalizedOffset(normalizedPointer) - self.getCellAlignOffsetAdjustment(normalizedPointer));
                     newStartingPoint -= self.getCellDenormalizedOffset(normalizedPointer) - self.getCellAlignOffsetAdjustment(normalizedPointer);
                 }
 
